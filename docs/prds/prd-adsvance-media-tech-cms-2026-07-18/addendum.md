@@ -13,13 +13,13 @@
 ├────────────────────────────────────────────────────────────┤
 │                                                            │
 │  apps/                                                     │
-│  ├── backend/              Laravel 11 + Filament 3         │
+│  ├── backend/              Laravel 12 + Filament 5         │
 │  │   ├── app/Domains/      DDD domain boundaries           │
 │  │   ├── app/Http/API     REST JSON API controllers        │
 │  │   ├── app/Filament/    Admin panel resources            │
 │  │   └── routes/api.php   Public API routes                │
 │  │                                                            │
-│  └── frontend/            Next.js 14 App Router (SSG)      │
+│  └── frontend/            Next.js 16 App Router (SSG)      │
 │      ├── app/             Page routes (SSG export)         │
 │      ├── components/      Reusable UI components           │
 │      └── lib/             API client, theme context        │
@@ -249,15 +249,15 @@ module.exports = {
 
 ### Day 1: Scaffold + Schema
 - Initialize monorepo (package.json with npm workspaces)
-- `laravel new apps/backend` — Laravel 11
+- `laravel new apps/backend` — Laravel 12 (current LTS)
 - Configure `.env` for local XAMPP MySQL (MariaDB 10.4)
 - Create all migration files (10 tables)
-- `npx create-next-app@latest apps/frontend` — Next.js 14 App Router
+- `npx create-next-app@latest apps/frontend` — Next.js 16 App Router
 - Configure `output: 'export'` in `next.config.js`
 - Create `packages/shared` with initial Zod schemas
 
 ### Day 2: Admin Panel + Models
-- Install and configure Filament PHP 3
+- Install and configure Filament PHP 5 (`composer require filament/filament:"^5.0" -W`)
 - Create all Eloquent models with relationships
 - Create Filament Resources for: Services, PricingPlans, PlanFeatures, TeamMembers, BlogPosts, Pages
 - Create ThemeSetting Filament page (custom form, not just CRUD)
@@ -368,19 +368,25 @@ GitHub Actions workflow: on push to `main`, build both apps and deploy via FTP. 
 
 ## 7. Package Choices
 
+> **Version note (Jul 2026):** The versions below have been verified against current package registries and supersede any earlier version references in the PRD or this document. See `docs/architecture/architecture-AMT_V2-2026-07-18/ARCHITECTURE-SPINE.md` (Stack section) for the full rationale on each bump.
+
 | Package | Version | Purpose | License |
 |---------|---------|---------|---------|
-| Laravel | 11.x | Backend framework | MIT |
-| Filament | 3.x | Admin panel | MIT |
+| Laravel | 12.x | Backend framework — current LTS (security until Feb 2027) | MIT |
+| Filament | 5.7.x | Admin panel — current stable (replaces v3) | MIT |
+| Livewire | 4.x | Reactive UI (Filament dependency, required by Filament 5) | MIT |
 | Spatie Media Library | 11.x | File/media management | MIT |
-| Spatie Laravel Permission | 6.x | Role-based access (optional v1.1) | MIT |
+| Spatie Laravel Permission | 6.x | Role-based access (v1.1 deferred) | MIT |
 | Laravel Debugbar | 3.x | Local dev debugging | MIT |
-| Next.js | 14.x | Frontend framework | MIT |
-| Tailwind CSS | 3.x | Utility CSS | MIT |
+| Next.js | 16.2.10 | Frontend framework — current LTS (replaces v14) | MIT |
+| Tailwind CSS | 4.x | Utility CSS — v4 required by Filament 5 (replaces v3) | MIT |
+| React | 19.x | UI library (bundled with Next.js 16) | MIT |
+| TypeScript | 5.x | Type safety for frontend | Apache 2.0 |
 | Quill.js | 2.x | Rich text editor | BSD-3-Clause |
-| Font Awesome | 6.x | Icons (Free tier) | CC BY 4.0 + MIT |
+| Font Awesome Free | 6.x | Icons (public site) | CC BY 4.0 + MIT |
+| Blade Heroicons | Latest | Icons (admin panel, Filament default) | MIT |
 | Zod | 3.x | Schema validation (shared) | MIT |
-| HTMLPurifier | (Laravel package) | Rich text sanitization | LGPL |
+| HTMLPurifier | 4.x | Rich text sanitization | LGPL |
 
 All packages are free, open-source, and require no paid licenses.
 

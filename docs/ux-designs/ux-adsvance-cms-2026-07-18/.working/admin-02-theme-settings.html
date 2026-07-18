@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototype · Theme Settings — Adsvance Media Tech CMS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-primary: #ff0000;
+    --sidebar-bg: #1e1b2e;
+    --sidebar-text: #a5a3b5;
+    --sidebar-active: #fff;
+    --bg: #f5f5f9;
+    --card-bg: #fff;
+    --border: #e8e7ef;
+    --radius: 10px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.06);
+    --transition: .2s ease;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg); color: #222;
+    display: flex; min-height: 100vh;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 260px; background: var(--sidebar-bg);
+    display: flex; flex-direction: column; flex-shrink: 0;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  .sidebar-brand {
+    padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,.06);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sidebar-brand img { height: 32px; width: auto; }
+  .sidebar-brand span { font-weight: 700; font-size: 15px; color: #fff; }
+
+  .sidebar-nav { padding: 16px 12px; flex: 1; }
+  .sidebar-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1.2px; color: rgba(255,255,255,.3);
+    padding: 16px 12px 8px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 8px;
+    color: var(--sidebar-text); font-size: 14px; font-weight: 500;
+    transition: var(--transition); cursor: pointer; text-decoration: none;
+  }
+  .sidebar-item i { width: 20px; text-align: center; font-size: 16px; }
+  .sidebar-item:hover { background: rgba(255,255,255,.06); color: var(--sidebar-active); }
+  .sidebar-item.active { background: rgba(255,255,255,.1); color: var(--sidebar-active); }
+
+  .sidebar-footer {
+    padding: 16px 12px; border-top: 1px solid rgba(255,255,255,.06);
+  }
+  .sidebar-user {
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+    border-radius: 8px; cursor: pointer;
+  }
+  .sidebar-user .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--color-primary); display: flex;
+    align-items: center; justify-content: center; color: #fff;
+    font-size: 13px; font-weight: 600;
+  }
+  .sidebar-user .name { font-size: 13px; color: #fff; font-weight: 500; }
+  .sidebar-user .role { font-size: 11px; color: var(--sidebar-text); }
+
+  /* ===== MAIN ===== */
+  .main { flex: 1; min-width: 0; }
+  .topbar {
+    background: var(--card-bg); border-bottom: 1px solid var(--border);
+    padding: 0 32px; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .topbar-left h2 { font-size: 18px; font-weight: 600; }
+  .topbar-left .breadcrumb { font-size: 13px; color: #888; }
+  .topbar-left .breadcrumb span { color: #222; font-weight: 500; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .topbar-btn {
+    width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--card-bg); display: flex; align-items: center;
+    justify-content: center; cursor: pointer; color: #555;
+    transition: var(--transition); font-size: 16px;
+  }
+  .topbar-btn:hover { background: var(--bg); }
+
+  .content { padding: 32px; }
+
+  /* ===== PAGE HEADER ===== */
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .page-header h1 { font-size: 24px; font-weight: 700; }
+  .page-header p { font-size: 14px; color: #888; margin-top: 4px; }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--color-primary); color: #fff; border: none;
+    padding: 10px 22px; border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: var(--transition);
+  }
+  .btn-primary:hover { background: #d40000; }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--card-bg); color: #555; border: 1px solid var(--border);
+    padding: 10px 22px; border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: var(--transition);
+  }
+  .btn-secondary:hover { background: var(--bg); }
+
+  /* ===== SETTINGS SECTIONS ===== */
+  .settings-section {
+    background: var(--card-bg); border-radius: var(--radius);
+    border: 1px solid var(--border); margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .settings-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 20px 28px; border-bottom: 1px solid var(--border);
+  }
+  .settings-header .icon {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    background: #f5f5f9; display: flex; align-items: center;
+    justify-content: center; font-size: 16px; color: var(--color-primary);
+  }
+  .settings-header h3 { font-size: 15px; font-weight: 600; }
+  .settings-header p { font-size: 13px; color: #888; }
+
+  .settings-body { padding: 28px; }
+
+  /* ===== FORM ===== */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 32px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-size: 13px; font-weight: 500; color: #444; }
+  .form-group .hint { font-size: 11px; color: #aaa; }
+
+  .form-group input[type="text"],
+  .form-group input[type="url"],
+  .form-group select {
+    padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); font-family: 'Inter', sans-serif;
+    font-size: 13px; transition: var(--transition); outline: none;
+    background: var(--card-bg);
+  }
+  .form-group input:focus,
+  .form-group select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(255,0,0,.08);
+  }
+
+  .color-picker-row {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .color-picker-row input[type="color"] {
+    width: 48px; height: 48px; border: none; padding: 0;
+    cursor: pointer; border-radius: var(--radius-sm);
+    flex-shrink: 0;
+  }
+  .color-picker-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  .color-picker-row input[type="color"]::-webkit-color-swatch { border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .color-picker-row .hex-input { font-family: 'Inter', monospace; }
+
+  .logo-upload {
+    display: flex; align-items: center; gap: 20px;
+    padding: 16px; border: 1.5px dashed var(--border);
+    border-radius: var(--radius-sm); background: #fafafa;
+    cursor: pointer; transition: var(--transition);
+  }
+  .logo-upload:hover { border-color: var(--color-primary); background: #fff5f5; }
+  .logo-upload .preview {
+    width: 120px; height: 40px; border-radius: 6px;
+    background: #eee; display: flex; align-items: center;
+    justify-content: center; font-size: 11px; color: #999;
+    overflow: hidden;
+  }
+  .logo-upload .preview img { max-width: 100%; max-height: 100%; }
+  .logo-upload .upload-info { font-size: 13px; color: #555; }
+  .logo-upload .upload-info span { font-size: 11px; color: #aaa; display: block; margin-top: 2px; }
+
+  /* ===== LIVE PREVIEW ===== */
+  .preview-panel {
+    background: linear-gradient(135deg, var(--preview-primary, #ff0000), var(--preview-secondary, #fb3d03));
+    border-radius: var(--radius); padding: 32px; color: #fff;
+    margin-top: 24px; position: relative; overflow: hidden;
+  }
+  .preview-panel::before {
+    content: ''; position: absolute; top: -50%; right: -20%;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: rgba(255,255,255,.05); pointer-events: none;
+  }
+  .preview-panel h4 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .preview-panel p { font-size: 14px; opacity: .9; }
+  .preview-panel .demo-btn {
+    display: inline-block; margin-top: 16px;
+    padding: 8px 20px; background: rgba(255,255,255,.2);
+    color: #fff; border-radius: 50px; font-size: 13px; font-weight: 500;
+    backdrop-filter: blur(4px);
+  }
+  .preview-label {
+    font-size: 13px; font-weight: 600; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px; color: #555;
+  }
+  .preview-label i { color: var(--color-primary); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .content { padding: 20px 16px; }
+    .topbar { padding: 0 16px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="https://placehold.co/32x32/ff0000/fff?text=A" alt="AMT">
+    <span>Adsvance CMS</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-label">Main</div>
+    <a class="sidebar-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+    <a class="sidebar-item"><i class="fa-regular fa-file-lines"></i> Pages</a>
+    <a class="sidebar-item"><i class="fa-solid fa-cubes"></i> Services</a>
+    <a class="sidebar-item"><i class="fa-regular fa-rectangle-list"></i> Pricing Plans</a>
+    <a class="sidebar-item"><i class="fa-regular fa-newspaper"></i> Blog Posts</a>
+    <a class="sidebar-item"><i class="fa-solid fa-users"></i> Team</a>
+    <div class="sidebar-label">Leads</div>
+    <a class="sidebar-item"><i class="fa-regular fa-message"></i> Messages</a>
+    <a class="sidebar-item"><i class="fa-regular fa-envelope"></i> Subscribers</a>
+    <div class="sidebar-label">Settings</div>
+    <a class="sidebar-item active"><i class="fa-solid fa-palette"></i> Theme</a>
+    <a class="sidebar-item"><i class="fa-regular fa-image"></i> Media Library</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="avatar">JN</div>
+      <div>
+        <div class="name">John Narvasa</div>
+        <div class="role">Admin</div>
+      </div>
+      <i class="fa-solid fa-ellipsis-vertical" style="margin-left:auto;color:var(--sidebar-text);font-size:14px;"></i>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2>Settings</h2>
+      <span class="breadcrumb">/ <span>Theme</span></span>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn"><i class="fa-regular fa-bell"></i></button>
+      <button class="topbar-btn"><i class="fa-regular fa-circle-question"></i></button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <h1>Theme Settings</h1>
+        <p>Customize your site's appearance — colors, fonts, and logo. Changes apply after rebuilding the site.</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-secondary"><i class="fa-regular fa-rotate"></i> Reset to Default</button>
+        <button class="btn-primary" id="saveBtn"><i class="fa-regular fa-floppy-disk"></i> Save Changes</button>
+      </div>
+    </div>
+
+    <!-- COLORS -->
+    <div class="settings-section">
+      <div class="settings-header">
+        <div class="icon"><i class="fa-solid fa-palette"></i></div>
+        <div>
+          <h3>Colors</h3>
+          <p>Set your brand color palette. These apply globally across the site.</p>
+        </div>
+      </div>
+      <div class="settings-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Primary Color</label>
+            <div class="color-picker-row">
+              <input type="color" id="primaryColor" value="#ff0000">
+              <input type="text" class="hex-input" id="primaryHex" value="#ff0000" style="width:100px;font-family:monospace;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);outline:none;font-size:13px;">
+            </div>
+            <span class="hint">Buttons, links, headings, active states.</span>
+          </div>
+          <div class="form-group">
+            <label>Secondary Color</label>
+            <div class="color-picker-row">
+              <input type="color" id="secondaryColor" value="#fb3d03">
+              <input type="text" class="hex-input" id="secondaryHex" value="#fb3d03" style="width:100px;font-family:monospace;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);outline:none;font-size:13px;">
+            </div>
+            <span class="hint">Gradients, hover states, accent backgrounds.</span>
+          </div>
+          <div class="form-group">
+            <label>Accent Color</label>
+            <div class="color-picker-row">
+              <input type="color" id="accentColor" value="#FFC107">
+              <input type="text" class="hex-input" id="accentHex" value="#FFC107" style="width:100px;font-family:monospace;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);outline:none;font-size:13px;">
+            </div>
+            <span class="hint">Highlights, badges, callout elements.</span>
+          </div>
+          <div class="form-group">
+            <label>Background Color</label>
+            <div class="color-picker-row">
+              <input type="color" id="bgColor" value="#ffffff">
+              <input type="text" class="hex-input" id="bgHex" value="#ffffff" style="width:100px;font-family:monospace;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);outline:none;font-size:13px;">
+            </div>
+            <span class="hint">Page background. Leave white for most themes.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TYPOGRAPHY -->
+    <div class="settings-section">
+      <div class="settings-header">
+        <div class="icon"><i class="fa-solid fa-font"></i></div>
+        <div>
+          <h3>Typography</h3>
+          <p>Choose fonts for headings and body text. All fonts load from Google Fonts.</p>
+        </div>
+      </div>
+      <div class="settings-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Heading Font</label>
+            <select id="headingFont">
+              <option value="Poppins" selected>Poppins</option>
+              <option value="Inter">Inter</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="Merriweather">Merriweather</option>
+              <option value="Montserrat">Montserrat</option>
+              <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+            </select>
+            <span class="hint">Used for h1-h6, section titles, hero headings.</span>
+          </div>
+          <div class="form-group">
+            <label>Body Font</label>
+            <select id="bodyFont">
+              <option value="Poppins" selected>Poppins</option>
+              <option value="Inter">Inter</option>
+              <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+              <option value="Open Sans">Open Sans</option>
+              <option value="Nunito">Nunito</option>
+              <option value="DM Sans">DM Sans</option>
+            </select>
+            <span class="hint">Used for paragraphs, navigation, all body text.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGO -->
+    <div class="settings-section">
+      <div class="settings-header">
+        <div class="icon"><i class="fa-regular fa-image"></i></div>
+        <div>
+          <h3>Logo & Favicon</h3>
+          <p>Upload your brand logos. SVGs, PNGs, and WebP supported up to 2MB.</p>
+        </div>
+      </div>
+      <div class="settings-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Light Logo</label>
+            <small style="color:#999;display:block;margin-bottom:8px;">For dark/colored backgrounds (footer).</small>
+            <div class="logo-upload">
+              <div class="preview" style="background:#333;">
+                <span style="color:#fff;font-size:10px;font-weight:600;">LOGO</span>
+              </div>
+              <div class="upload-info">
+                <i class="fa-regular fa-cloud-arrow-up" style="color:var(--color-primary);"></i> Click to upload
+                <span>SVG, PNG, WebP · Max 2MB</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Dark Logo</label>
+            <small style="color:#999;display:block;margin-bottom:8px;">For light backgrounds (header, hero).</small>
+            <div class="logo-upload">
+              <div class="preview" style="background:#fff;border:1px solid #eee;">
+                <span style="color:#999;font-size:10px;font-weight:600;">LOGO</span>
+              </div>
+              <div class="upload-info">
+                <i class="fa-regular fa-cloud-arrow-up" style="color:var(--color-primary);"></i> Click to upload
+                <span>SVG, PNG, WebP · Max 2MB</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Favicon</label>
+            <div class="logo-upload" style="max-width:300px;">
+              <div class="preview" style="width:32px;height:32px;border-radius:4px;">
+                <i class="fa-solid fa-globe" style="color:#999;"></i>
+              </div>
+              <div class="upload-info">
+                <i class="fa-regular fa-cloud-arrow-up" style="color:var(--color-primary);"></i> Upload favicon
+                <span>ICO, PNG · 32x32px recommended</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE PREVIEW -->
+    <div class="settings-section" style="border-color:var(--color-primary);">
+      <div class="settings-header" style="background:#fff5f5;">
+        <div class="icon" style="background:var(--color-primary);color:#fff;"><i class="fa-solid fa-eye"></i></div>
+        <div>
+          <h3>Live Preview</h3>
+          <p>See how your theme settings will look on the public site.</p>
+        </div>
+      </div>
+      <div class="settings-body">
+        <div class="preview-label">
+          <i class="fa-solid fa-cube"></i> Demo Card
+        </div>
+        <div class="preview-panel" id="livePreview">
+          <h4 id="previewTitle">Your Brand Name</h4>
+          <p id="previewText">This is how your hero section and primary elements will appear. Buttons, links, and headings use your chosen colors.</p>
+          <div class="demo-btn" id="previewBtn">Get Started <i class="fa-solid fa-arrow-right" style="margin-left:6px;"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Sync color pickers with hex inputs
+  document.querySelectorAll('input[type="color"]').forEach(picker => {
+    const hexInput = picker.nextElementSibling;
+    if (hexInput && hexInput.classList.contains('hex-input')) {
+      picker.addEventListener('input', () => {
+        hexInput.value = picker.value;
+        updatePreview();
+      });
+      hexInput.addEventListener('input', () => {
+        if (/^#[0-9A-Fa-f]{6}$/.test(hexInput.value)) {
+          picker.value = hexInput.value;
+          updatePreview();
+        }
+      });
+    }
+  });
+
+  // Font preview
+  document.getElementById('headingFont').addEventListener('change', updatePreview);
+  document.getElementById('bodyFont').addEventListener('change', updatePreview);
+
+  function updatePreview() {
+    const primary = document.getElementById('primaryColor').value;
+    const secondary = document.getElementById('secondaryColor').value;
+    const accent = document.getElementById('accentColor').value;
+    const headingFont = document.getElementById('headingFont').value;
+    const bodyFont = document.getElementById('bodyFont').value;
+
+    const preview = document.getElementById('livePreview');
+    preview.style.setProperty('--preview-primary', primary);
+    preview.style.setProperty('--preview-secondary', secondary);
+    preview.style.background = `linear-gradient(135deg, ${primary}, ${secondary})`;
+
+    document.getElementById('previewTitle').style.fontFamily = `'${headingFont}', serif`;
+    document.getElementById('previewText').style.fontFamily = `'${bodyFont}', sans-serif`;
+    document.getElementById('previewBtn').style.background = `rgba(255,255,255,.2)`;
+  }
+
+  // Save toast
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const btn = document.getElementById('saveBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-regular fa-circle-check"></i> Saved!';
+    btn.style.background = '#22c55e';
+    setTimeout(() => {
+      btn.innerHTML = orig;
+      btn.style.background = '';
+    }, 2000);
+  });
+</script>
+</body>
+</html>
