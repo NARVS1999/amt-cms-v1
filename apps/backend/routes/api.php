@@ -1,13 +1,14 @@
 <?php
 
-use App\Domains\Billing\Http\Api\PricingPlanController;
-use App\Domains\Contact\Http\Api\ContactController;
-use App\Domains\Contact\Http\Api\SubscribeController;
-use App\Domains\Marketing\Http\Api\BlogPostController;
-use App\Domains\Marketing\Http\Api\PageController;
-use App\Domains\Marketing\Http\Api\ServiceController;
-use App\Domains\Marketing\Http\Api\TeamMemberController;
-use App\Domains\Theming\Http\Api\ThemeController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BlogPostController;
+use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\PageController;
+use App\Http\Controllers\Api\PricingPlanController;
+use App\Http\Controllers\Api\ServiceController;
+use App\Http\Controllers\Api\SubscribeController;
+use App\Http\Controllers\Api\TeamMemberController;
+use App\Http\Controllers\Api\ThemeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,12 +16,12 @@ use Illuminate\Support\Facades\Route;
 | Public REST API Routes
 |--------------------------------------------------------------------------
 |
-| GET endpoints (stubs — full implementation in Epics 2-5)
-| POST endpoints (full implementation for contact & subscribe)
+| GET endpoints — content served to the Next.js frontend at build time
+| POST endpoints — contact form and newsletter subscription
 |
 */
 
-// --- GET endpoints (stubs) ---
+// --- GET endpoints ---
 
 Route::get('/pages', [PageController::class, 'index']);
 Route::get('/pages/{slug}', [PageController::class, 'show']);
@@ -36,13 +37,40 @@ Route::get('/pricing-plans', [PricingPlanController::class, 'index']);
 
 Route::get('/theme', [ThemeController::class, 'index']);
 
-// --- POST endpoints (full implementation) ---
+// --- POST endpoints ---
 
 Route::post('/contact', [ContactController::class, 'store'])
     ->middleware('throttle:contact');
 
 Route::post('/subscribe', [SubscribeController::class, 'store'])
     ->middleware('throttle:subscribe');
+
+// --- Auth endpoints (for admin panel) ---
+
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Admin: list all pages (including unpublished)
+    Route::get('/admin/pages', [PageController::class, 'adminIndex']);
+
+    // Admin CRUD: Services
+    Route::post('/services', [ServiceController::class, 'store']);
+    Route::put('/services/{service}', [ServiceController::class, 'update']);
+    Route::delete('/services/{service}', [ServiceController::class, 'destroy']);
+
+    // Admin CRUD: Team Members
+    Route::post('/team', [TeamMemberController::class, 'store']);
+    Route::put('/team/{teamMember}', [TeamMemberController::class, 'update']);
+    Route::delete('/team/{teamMember}', [TeamMemberController::class, 'destroy']);
+
+    // Admin CRUD: Pages
+    Route::post('/pages', [PageController::class, 'store']);
+    Route::put('/pages/{page}', [PageController::class, 'update']);
+    Route::delete('/pages/{page}', [PageController::class, 'destroy']);
+});
 
 // --- 404 fallback for unknown API routes ---
 
