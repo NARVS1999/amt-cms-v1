@@ -1,0 +1,9 @@
+{
+  "name": "adsvance-media-tech-cms",
+  "private": true,
+  "workspaces": [
+    "apps/backend",
+    "apps/frontend",
+    "packages/shared"
+  ]
+}

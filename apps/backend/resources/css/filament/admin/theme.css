@@ -1,0 +1,59 @@
+@import '/vendor/filament/filament/resources/css/app.css';
+
+/* Admin Panel Custom Theme — Adsvance Media Tech CMS */
+/* Dark sidebar: #1e1b2e, Primary: #FF0000, Typeface: Inter */
+
+:root {
+    --sidebar-bg: #1e1b2e;
+    --sidebar-text: #a5a3b5;
+    --sidebar-active: #FFFFFF;
+    --sidebar-hover: rgba(255, 255, 255, 0.06);
+    --surface-bg: #f5f5f9;
+    --card-bg: #FFFFFF;
+    --border-color: #e8e7ef;
+    --foreground: #222222;
+    --muted-foreground: #888888;
+}
+
+/* Sidebar dark theme */
+.fi-sidebar {
+    background-color: var(--sidebar-bg) !important;
+    width: 260px !important;
+}
+
+.fi-sidebar .fi-sidebar-item-label,
+.fi-sidebar-nav {
+    color: var(--sidebar-text) !important;
+}
+
+.fi-sidebar-item-active {
+    background-color: var(--sidebar-hover) !important;
+}
+
+.fi-sidebar-item-active .fi-sidebar-item-label {
+    color: var(--sidebar-active) !important;
+}
+
+.fi-sidebar-item-active .fi-sidebar-item-icon {
+    color: var(--sidebar-active) !important;
+}
+
+.fi-sidebar-item:hover {
+    background-color: var(--sidebar-hover) !important;
+}
+
+/* Surface backgrounds */
+.fi-body,
+.fi-main {
+    background-color: var(--surface-bg) !important;
+}
+
+.fi-card {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Admin panel styling */
+body {
+    font-family: 'Inter', sans-serif;
+}

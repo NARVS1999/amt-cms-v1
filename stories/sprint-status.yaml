@@ -1,0 +1,114 @@
+# generated: 2026-07-19
+# last_updated: 2026-07-19
+# project: Adsvance Media Tech CMS
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: stories
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; sprint-status surfaces open ones
+
+generated: 2026-07-19
+last_updated: 2026-07-19
+project: Adsvance Media Tech CMS
+project_key: NOKEY
+tracking_system: file-system
+story_location: stories
+
+development_status:
+  # ============================================
+  # Epic 1: Foundation & Admin Shell
+  # ============================================
+   epic-1: done
+  1-1-scaffold-monorepo-backend-foundation: done
+  1-2-filament-admin-panel-authentication: done
+  1-3-admin-dashboard-stat-widgets: done
+  1-4-media-library-setup: done
+  1-5-public-rest-api-scaffold-cors-rate-limiting-contact-subscribe-endpoints: done
+  1-6-nextjs-16-frontend-scaffold-theme-foundation: done
+  1-7-shared-zod-schemas-package: done
+   epic-1-retrospective: done
+
+  # ============================================
+  # Epic 2: Core Site Content
+  # ============================================
+  epic-2: backlog
+  2-1-services-admin-crud: backlog
+  2-2-services-public-display: backlog
+  2-3-team-members-admin-crud: backlog
+  2-4-team-members-public-display: backlog
+  2-5-pages-admin-crud: backlog
+  2-6-pages-public-frontend-display: backlog
+  epic-2-retrospective: optional
+
+  # ============================================
+  # Epic 3: Pricing & Plans
+  # ============================================
+  epic-3: backlog
+  3-1-pricing-plans-admin-crud: backlog
+  3-2-pricing-plans-public-display: backlog
+  epic-3-retrospective: optional
+
+  # ============================================
+  # Epic 4: Blog Engine
+  # ============================================
+  epic-4: backlog
+  4-1-blog-posts-admin-crud: backlog
+  4-2-blog-public-listing-page: backlog
+  4-3-blog-single-post-page: backlog
+  epic-4-retrospective: optional
+
+  # ============================================
+  # Epic 5: Theme System
+  # ============================================
+  epic-5: backlog
+  5-1-theme-settings-admin-page: backlog
+  5-2-theme-css-custom-property-generation-frontend: backlog
+  epic-5-retrospective: optional
+
+  # ============================================
+  # Epic 6: Contact & Lead Capture
+  # ============================================
+  epic-6: backlog
+  6-1-contact-form-public-ui-api-integration: backlog
+  6-2-newsletter-subscribe-public-ui-api-integration: backlog
+  6-3-email-notification-contact-messages: backlog
+   epic-6-retrospective: optional
+
+action_items:
+  - epic: 1
+    action: "Add manual verification checklist to every Epic 2 story — specific URLs, forms, UI states, and actions to test after AI implementation"
+    owner: "Amelia"
+    status: open
