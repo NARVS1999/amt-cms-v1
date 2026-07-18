@@ -1,5 +1,5 @@
 # generated: 2026-07-19
-# last_updated: 2026-07-19
+# last_updated: 2026-07-19 (Story 2-2 → review)
 # project: Adsvance Media Tech CMS
 # project_key: NOKEY
 # tracking_system: file-system
@@ -42,6 +42,15 @@
 
 generated: 2026-07-19
 last_updated: 2026-07-19
+# updated: Story 2-6 → ready-for-dev (story file created)
+# updated: Story 2-5 → done (code review passed, patches applied)
+# updated: Story 2-5 → review (implementation complete)
+# updated: Story 2-5 → ready-for-dev (story file created)
+# updated: Story 2-2 → done (code review passed, patches applied)
+# updated: Story 2-3 → ready-for-dev (story file created)
+# updated: Story 2-4 → done (code review passed, patches applied)
+# updated: Story 2-5 → ready-for-dev (story file created)
+# updated: Story 2-6 → ready-for-dev (story file created)
 project: Adsvance Media Tech CMS
 project_key: NOKEY
 tracking_system: file-system
@@ -64,13 +73,13 @@ development_status:
   # ============================================
   # Epic 2: Core Site Content
   # ============================================
-   epic-2: in-progress
+   epic-2: done
   2-1-services-admin-crud: done
-  2-2-services-public-display: backlog
-  2-3-team-members-admin-crud: backlog
-  2-4-team-members-public-display: backlog
-  2-5-pages-admin-crud: backlog
-  2-6-pages-public-frontend-display: backlog
+  2-2-services-public-display: done
+  2-3-team-members-admin-crud: done
+  2-4-team-members-public-display: done
+  2-5-pages-admin-crud: done
+  2-6-pages-public-frontend-display: done
   epic-2-retrospective: optional
 
   # ============================================

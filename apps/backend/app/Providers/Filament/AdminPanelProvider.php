@@ -10,7 +10,9 @@ use Filament\Facades\Filament;
 use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
 use Filament\Navigation\NavigationBuilder;
+use App\Domains\Marketing\Filament\Resources\PageResource;
 use App\Domains\Marketing\Filament\Resources\ServiceResource;
+use App\Domains\Marketing\Filament\Resources\TeamMemberResource;
 use App\Filament\Pages\MediaLibrary;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
@@ -53,7 +55,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->group('Main'),
                                 NavigationItem::make('Team')
                                     ->icon('heroicon-o-users')
-                                    ->url('#')
+                                    ->url(fn (): string => TeamMemberResource::getUrl())
                                     ->group('Main'),
                                 NavigationItem::make('Blog')
                                     ->icon('heroicon-o-document-text')
@@ -91,13 +93,15 @@ class AdminPanelProvider extends PanelProvider
                                     ->group('Settings'),
                                 NavigationItem::make('Pages')
                                     ->icon('heroicon-o-document')
-                                    ->url('#')
+                                    ->url(fn (): string => PageResource::getUrl())
                                     ->group('Settings'),
                             ]),
                     ]);
             })
             ->resources([
                 ServiceResource::class,
+                TeamMemberResource::class,
+                PageResource::class,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

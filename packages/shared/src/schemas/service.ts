@@ -5,6 +5,7 @@ export const ServiceSchema = z.object({
   title: z.string(),
   description: z.string(),
   icon: z.string(),
+  is_featured: z.boolean().optional().default(false),
   sort_order: z.number().default(0),
   created_at: z.string().nullable(),
   updated_at: z.string().nullable(),

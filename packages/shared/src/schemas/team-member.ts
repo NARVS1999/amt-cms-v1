@@ -6,6 +6,10 @@ export const TeamMemberSchema = z.object({
   role: z.string(),
   bio: z.string().nullable(),
   photo_url: z.string().nullable(),
+  social_links: z.object({
+    linkedin: z.string().url().nullable(),
+    twitter: z.string().url().nullable(),
+  }).nullable(),
   sort_order: z.number().default(0),
   created_at: z.string().nullable(),
   updated_at: z.string().nullable(),

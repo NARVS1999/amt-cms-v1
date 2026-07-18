@@ -6,7 +6,7 @@ export const PageSchema = z.object({
   slug: z.string(),
   hero_heading: z.string().nullable(),
   hero_subtext: z.string().nullable(),
-  sections: z.record(z.unknown()).nullable(),
+  sections: z.array(z.record(z.unknown())).nullable(),
   is_published: z.boolean().default(false),
   created_at: z.string().nullable(),
   updated_at: z.string().nullable(),

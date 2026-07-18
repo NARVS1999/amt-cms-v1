@@ -2,7 +2,9 @@
 
 namespace App\Domains\Marketing\Http\Api;
 
+use App\Domains\Marketing\Models\TeamMember;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\TeamMemberResource;
 use App\Traits\ApiResponse;
 
 class TeamMemberController extends Controller
@@ -11,6 +13,11 @@ class TeamMemberController extends Controller
 
     public function index()
     {
-        return $this->success([]);
+        $teamMembers = TeamMember::query()
+            ->with('media')
+            ->orderBy('sort_order')
+            ->get();
+
+        return $this->success(TeamMemberResource::collection($teamMembers));
     }
 }

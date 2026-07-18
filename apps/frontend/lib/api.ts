@@ -1,4 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+import { PagesResponseSchema, ServicesResponseSchema, TeamMembersResponseSchema } from '@amt/shared';
+
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 export interface ThemeData {
   primary_color?: string;
@@ -13,6 +15,92 @@ export interface ThemeData {
   error_color?: string;
   body_font?: string;
   heading_font?: string;
+}
+
+export interface ServiceData {
+  id: number;
+  title: string;
+  description: string;
+  icon: string;
+  is_featured: boolean;
+  sort_order: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export async function fetchServices(): Promise<ServiceData[]> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const res = await fetch(`${API_URL}/services`, {
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`API returned ${res.status}`);
+    const json = await res.json();
+    const parsed = ServicesResponseSchema.parse(json);
+    return parsed.data;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export interface TeamMemberData {
+  id: number;
+  name: string;
+  role: string;
+  bio: string | null;
+  photo_url: string | null;
+  social_links: { linkedin: string | null; twitter: string | null } | null;
+  sort_order: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export async function fetchTeamMembers(): Promise<TeamMemberData[]> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const res = await fetch(`${API_URL}/team`, {
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`API returned ${res.status}`);
+    const json = await res.json();
+    const parsed = TeamMembersResponseSchema.parse(json);
+    return parsed.data;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export interface PageData {
+  id: number;
+  title: string;
+  slug: string;
+  hero_heading: string | null;
+  hero_subtext: string | null;
+  sections: Record<string, unknown>[] | null;
+  is_published: boolean;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export async function fetchPages(): Promise<PageData[]> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const res = await fetch(`${API_URL}/pages`, {
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`API returned ${res.status}`);
+    const json = await res.json();
+    const parsed = PagesResponseSchema.parse(json);
+    return parsed.data;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export async function fetchTheme(): Promise<ThemeData | null> {
