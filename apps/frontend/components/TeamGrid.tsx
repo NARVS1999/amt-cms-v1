@@ -21,7 +21,7 @@ function TeamCard({
   role: string;
   bio: string | null;
   photo_url: string | null;
-  social_links: { linkedin: string | null; twitter: string | null } | null;
+  social_links: { linkedin?: string | null; twitter?: string | null } | null;
 }) {
   const initials = getInitials(name);
 

@@ -53,7 +53,7 @@ export interface TeamMemberData {
   role: string;
   bio: string | null;
   photo_url: string | null;
-  social_links: { linkedin: string | null; twitter: string | null } | null;
+  social_links: { linkedin?: string | null; twitter?: string | null } | null;
   sort_order: number;
   created_at: string | null;
   updated_at: string | null;

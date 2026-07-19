@@ -59,6 +59,8 @@ last_updated: 2026-07-19
 # updated: Story 2-5 → ready-for-dev (story file created)
 # updated: Story 2-6 → ready-for-dev (story file created)
 # updated: Story 1-5 → review (tests implemented: 11 new tests, 40/40 pass, 283 assertions)
+# updated: Story 1-7 → review (comprehensive story file recreated — live vs forward contracts mapped, false ThemeProvider claim corrected, Zod v3 guardrail, Epic 3 is_popular naming risk flagged)
+# updated: Story 1-7 → done (code review: 1 patch applied — social_links inner keys made optional, cascaded to api.ts and TeamGrid.tsx; 3 deferred; build passes)
 project: Adsvance Media Tech CMS
 project_key: NOKEY
 tracking_system: file-system
@@ -84,7 +86,7 @@ development_status:
    1-4-media-library-setup: done
    1-5-public-rest-api-scaffold-cors-rate-limiting-contact-subscribe-endpoints: done
   1-6-nextjs-16-frontend-scaffold-theme-foundation: review
-  1-7-shared-zod-schemas-package: review
+  1-7-shared-zod-schemas-package: done
    epic-1-retrospective: optional
 
   # ============================================

@@ -14,3 +14,9 @@
 - No auth guard on `index()` — same as above
 - No DB transaction on upload — Spatie handles internally
 - No file content/MIME magic byte verification — Spatie handles on processing
+
+## Deferred from: code review of story 1.7 (2026-07-19)
+
+- `ThemeSchema` unused by frontend consumer — `fetchTheme()` hand-rolls validation; Known Gap #3, acceptable until third consumer appears
+- Local interfaces (`ServiceData`/`TeamMemberData`/`PageData`) duplicate `z.infer` types — Known Gap #4, future cleanup
+- `PricingPlan.price` is `z.number()` but DB stores `decimal(10,2)` — forward contract, Epic 3 must ensure resource casts to number
