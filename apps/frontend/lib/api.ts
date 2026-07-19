@@ -40,6 +40,8 @@ export async function fetchServices(): Promise<ServiceData[]> {
     const json = await res.json();
     const parsed = ServicesResponseSchema.parse(json);
     return parsed.data;
+  } catch {
+    return [];
   } finally {
     clearTimeout(timeout);
   }
@@ -69,6 +71,8 @@ export async function fetchTeamMembers(): Promise<TeamMemberData[]> {
     const json = await res.json();
     const parsed = TeamMembersResponseSchema.parse(json);
     return parsed.data;
+  } catch {
+    return [];
   } finally {
     clearTimeout(timeout);
   }
@@ -98,6 +102,8 @@ export async function fetchPages(): Promise<PageData[]> {
     const json = await res.json();
     const parsed = PagesResponseSchema.parse(json);
     return parsed.data;
+  } catch {
+    return [];
   } finally {
     clearTimeout(timeout);
   }
@@ -117,6 +123,8 @@ export async function fetchTheme(): Promise<ThemeData | null> {
       throw new Error('Unexpected API response shape');
     }
     return json.data as ThemeData;
+  } catch {
+    return null;
   } finally {
     clearTimeout(timeout);
   }

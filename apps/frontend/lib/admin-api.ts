@@ -163,3 +163,51 @@ export async function updatePage(id: number, data: Partial<PageData>): Promise<{
 export async function deletePage(id: number): Promise<void> {
   await request(`/pages/${id}`, { method: 'DELETE' });
 }
+
+/* ─── Media ─── */
+
+export interface MediaData {
+  id: number;
+  name: string;
+  file_name: string;
+  size: number;
+  mime_type: string;
+  url: string;
+  thumbnail: string;
+  created_at: string;
+}
+
+export async function fetchMedia(): Promise<{ data: MediaData[] }> {
+  return request('/media');
+}
+
+export async function uploadMedia(file: File): Promise<{ data: MediaData }> {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`${API_BASE}/media`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
+
+  if (res.status === 401) {
+    clearToken();
+    throw new UnauthorizedError();
+  }
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw { status: res.status, message: data.message || 'Upload failed' };
+  }
+
+  return res.json();
+}
+
+export async function deleteMedia(id: number): Promise<void> {
+  await request(`/media/${id}`, { method: 'DELETE' });
+}

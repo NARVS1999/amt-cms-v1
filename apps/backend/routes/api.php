@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\PricingPlanController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SubscribeController;
 use App\Http\Controllers\Api\TeamMemberController;
+use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\ThemeController;
 use Illuminate\Support\Facades\Route;
 
@@ -70,6 +71,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pages', [PageController::class, 'store']);
     Route::put('/pages/{page}', [PageController::class, 'update']);
     Route::delete('/pages/{page}', [PageController::class, 'destroy']);
+
+    // Admin: Media Library
+    Route::get('/media', [MediaController::class, 'index']);
+    Route::post('/media', [MediaController::class, 'store']);
+    Route::delete('/media/{media}', [MediaController::class, 'destroy']);
 });
 
 // --- 404 fallback for unknown API routes ---
