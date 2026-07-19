@@ -48,9 +48,18 @@ export function Header() {
     const focusableElements = drawer.querySelectorAll<HTMLElement>(focusableSelectors);
     if (focusableElements.length > 0) {
       focusableElements[0].focus();
+    } else {
+      // No focusable elements — focus the drawer itself to prevent Tab escape
+      drawer.focus();
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape key closes the mobile menu
+      if (e.key === 'Escape') {
+        closeMobile();
+        return;
+      }
+
       if (e.key !== 'Tab') return;
 
       const first = focusableElements[0];
@@ -81,8 +90,8 @@ export function Header() {
     <header
       className="fixed top-0 left-0 right-0 z-50 h-[72px]"
       style={{
-        background: 'rgba(255,255,255,0.97)',
-        borderBottom: '1px solid #f0f0f0',
+        background: 'var(--color-header-bg)',
+        borderBottom: '1px solid var(--color-border)',
       }}
     >
       <nav className="mx-auto flex h-full max-w-7xl items-center justify-between px-6" aria-label="Main navigation">
@@ -93,7 +102,7 @@ export function Header() {
         </a>
 
         {/* Desktop nav links */}
-        <ul className="hidden md:flex items-center gap-8">
+        <ul className="hidden lg:flex items-center gap-8">
           {NAV_ITEMS.map((item) => (
             <li key={item.label}>
               <a
@@ -110,7 +119,7 @@ export function Header() {
         {/* Login button */}
         <a
           href="/admin"
-          className="hidden md:inline-flex items-center rounded-lg border-2 px-5 py-2 text-sm font-semibold transition-all hover:opacity-80"
+          className="hidden lg:inline-flex items-center rounded-lg border-2 px-5 py-2 text-sm font-semibold transition-all hover:opacity-80"
           style={{
             borderColor: 'var(--color-primary)',
             color: 'var(--color-primary)',
@@ -123,7 +132,7 @@ export function Header() {
         <button
           type="button"
           ref={hamburgerRef}
-          className="md:hidden flex flex-col gap-1.5 p-2"
+          className="lg:hidden flex flex-col gap-1.5 p-2"
           onClick={toggleMobile}
           aria-expanded={mobileOpen}
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
@@ -146,7 +155,7 @@ export function Header() {
       {/* Mobile drawer */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           onClick={closeMobile}
           aria-hidden="true"
         />
@@ -157,7 +166,7 @@ export function Header() {
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation"
-        className={`fixed top-0 right-0 z-50 h-full w-72 p-6 shadow-xl transition-transform md:hidden ${
+        className={`fixed top-0 right-0 z-50 h-full w-72 p-6 shadow-xl transition-transform lg:hidden ${
           mobileOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         style={{ background: 'var(--color-background)' }}

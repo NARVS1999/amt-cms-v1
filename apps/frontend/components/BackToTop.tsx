@@ -6,6 +6,9 @@ export function BackToTop() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Set initial state (handles deep links or browser back)
+    setVisible(window.scrollY > 300);
+
     const handleScroll = () => {
       setVisible(window.scrollY > 300);
     };
@@ -15,7 +18,8 @@ export function BackToTop() {
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
   };
 
   return (

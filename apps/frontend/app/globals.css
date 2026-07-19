@@ -18,6 +18,7 @@
   --color-error: var(--color-error, #ef4444);
   --color-hero-start: #fff8f0;
   --color-hero-end: #fff5f5;
+  --color-header-bg: rgba(255, 255, 255, 0.97);
   --color-footer-bg: #1A1A1A;
   --color-footer-text: #999999;
 
@@ -42,6 +43,7 @@
 /* Base styles */
 html {
   scroll-behavior: smooth;
+  --header-height: 72px;
 }
 
 body {
@@ -106,18 +108,32 @@ body {
   --ring: oklch(0.439 0 0);
 }
 
-/* Skip-to-content link */
+/* Skip-to-content link — WCAG recommended off-screen technique */
 .skip-to-content {
   position: absolute;
-  left: -9999px;
-  top: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
   z-index: 9999;
-  padding: 1rem;
   background: var(--color-primary);
   color: white;
   text-decoration: none;
 }
 
 .skip-to-content:focus {
+  position: fixed;
+  top: 0;
   left: 0;
+  width: auto;
+  height: auto;
+  padding: 1rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
 }

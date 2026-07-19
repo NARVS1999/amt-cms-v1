@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6 pt-[72px]">
+    <main id="main-content" className="flex min-h-screen flex-col items-center justify-center px-6" style={{ paddingTop: 'var(--header-height, 72px)' }}>
       <div className="text-center">
         <h1 className="text-8xl font-extrabold" style={{ color: 'var(--color-primary)' }}>
           404
@@ -23,6 +23,6 @@ export default function NotFound() {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

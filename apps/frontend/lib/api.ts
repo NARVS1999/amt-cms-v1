@@ -119,9 +119,12 @@ export async function fetchTheme(): Promise<ThemeData | null> {
     });
     if (!res.ok) throw new Error(`API returned ${res.status}`);
     const json = await res.json();
-    if (!json || typeof json !== 'object' || !('data' in json)) {
-      throw new Error('Unexpected API response shape');
+
+    // Validate response has data field
+    if (!json || typeof json !== 'object' || !('data' in json) || typeof json.data !== 'object') {
+      throw new Error('Invalid theme response: missing or malformed data field');
     }
+
     return json.data as ThemeData;
   } catch {
     return null;

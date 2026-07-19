@@ -1,6 +1,8 @@
+'use client';
+
 export function Footer() {
   return (
-    <footer style={{ background: '#1A1A1A', color: '#999999' }}>
+    <footer style={{ background: 'var(--color-footer-bg)', color: 'var(--color-footer-text)' }}>
       <div className="mx-auto max-w-7xl px-6 py-16">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Logo + Description */}
@@ -41,16 +43,16 @@ export function Footer() {
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-widest text-white">Support</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-sm transition-colors hover:text-white">FAQ</a></li>
               <li><a href="#contact" className="text-sm transition-colors hover:text-white">Contact Us</a></li>
-              <li><a href="#" className="text-sm transition-colors hover:text-white">Privacy Policy</a></li>
-              <li><a href="#" className="text-sm transition-colors hover:text-white">Terms of Service</a></li>
+              <li><span className="text-sm cursor-not-allowed opacity-50" aria-disabled="true">FAQ</span></li>
+              <li><span className="text-sm cursor-not-allowed opacity-50" aria-disabled="true">Privacy Policy</span></li>
+              <li><span className="text-sm cursor-not-allowed opacity-50" aria-disabled="true">Terms of Service</span></li>
             </ul>
           </div>
         </div>
 
         {/* Newsletter + Social */}
-        <div className="mt-12 flex flex-col items-start gap-6 border-t pt-8 lg:flex-row lg:items-center lg:justify-between" style={{ borderColor: '#333' }}>
+        <div className="mt-12 flex flex-col items-start gap-6 border-t pt-8 lg:flex-row lg:items-center lg:justify-between" style={{ borderColor: 'var(--color-border)' }}>
           {/* Newsletter */}
           <div className="w-full max-w-md">
             <label htmlFor="newsletter-email" className="mb-2 block text-sm font-medium text-white">
@@ -61,8 +63,8 @@ export function Footer() {
                 id="newsletter-email"
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 rounded-lg px-4 py-2.5 text-sm text-white outline-none"
-                style={{ background: '#333' }}
+                className="flex-1 rounded-lg px-4 py-2.5 text-sm outline-none"
+                style={{ background: 'var(--color-muted)', color: 'var(--color-foreground)' }}
               />
               <button
                 type="button"
@@ -76,16 +78,16 @@ export function Footer() {
 
           {/* Social Icons */}
           <div className="flex items-center gap-4">
-            <a href="#" aria-label="Facebook" className="text-lg transition-colors hover:text-white">
+            <a href="#" aria-label="Facebook" className="text-lg transition-colors hover:text-white" onClick={(e) => e.preventDefault()}>
               <i className="fa-brands fa-facebook-f" />
             </a>
-            <a href="#" aria-label="Twitter" className="text-lg transition-colors hover:text-white">
+            <a href="#" aria-label="Twitter" className="text-lg transition-colors hover:text-white" onClick={(e) => e.preventDefault()}>
               <i className="fa-brands fa-twitter" />
             </a>
-            <a href="#" aria-label="LinkedIn" className="text-lg transition-colors hover:text-white">
+            <a href="#" aria-label="LinkedIn" className="text-lg transition-colors hover:text-white" onClick={(e) => e.preventDefault()}>
               <i className="fa-brands fa-linkedin-in" />
             </a>
-            <a href="#" aria-label="Instagram" className="text-lg transition-colors hover:text-white">
+            <a href="#" aria-label="Instagram" className="text-lg transition-colors hover:text-white" onClick={(e) => e.preventDefault()}>
               <i className="fa-brands fa-instagram" />
             </a>
           </div>

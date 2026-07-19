@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
 
         // Seed content
         $this->call([
+            ThemeSettingSeeder::class,
             ServiceSeeder::class,
             TeamMemberSeeder::class,
             PageSeeder::class,
