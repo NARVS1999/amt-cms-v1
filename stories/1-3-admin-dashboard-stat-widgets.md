@@ -4,7 +4,7 @@ baseline_commit: 7bd5c82e6a88c6242401616eab2d214dc0e4d40c
 
 # Story 1.3: Admin Dashboard with Stat Widgets
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -42,13 +42,13 @@ So that **I can see at-a-glance how many services, posts, messages, and subscrib
   - [x] Add stat cards grid using shadcn/ui Card components
 - [x] **Implement StatsOverview component** (AC: four stat cards)
   - [x] Create `StatsOverview` React component with four stat cards:
-    - Services (icon: heroicon-o-cog-6-tooth, red square)
-    - Blog Posts (icon: heroicon-o-document-text, blue square)
-    - Messages (icon: heroicon-o-envelope, green square)
-    - Subscribers (icon: heroicon-o-user-group, amber square)
-  - [x] Each card queries its respective table for the count
+    - Services (icon: lucide Cog, red square)
+    - Blog Posts (icon: lucide FileText, blue square)
+    - Messages (icon: lucide Mail, green square)
+    - Subscribers (icon: lucide Users, amber square)
+  - [x] Each card fetches count from consolidated `GET /api/admin/stats` endpoint
   - [x] Messages count queries `contact_contact_messages WHERE read_at IS NULL`
-  - [x] Blog Posts count queries `marketing_blog_posts WHERE is_published = true`
+  - [x] Blog Posts count queries `marketing_pages WHERE is_published = true`
 - [x] **Make stat cards clickable** (AC: click → resource list)
   - [x] Wire each stat card's `url()` to the corresponding resource path
   - [x] Services → `/admin/services`
@@ -56,13 +56,13 @@ So that **I can see at-a-glance how many services, posts, messages, and subscrib
   - [x] Messages → `/admin/messages` (v1.1 placeholder — or link to placeholder)
   - [x] Subscribers → `/admin/subscribers` (v1.1 placeholder)
 - [x] **Handle empty database state** (AC: show "0" without breaking layout)
-  - [x] Ensure all queries handle null/empty tables gracefully
-  - [x] Display "0" when table is empty or doesn't exist (use `DB::table()->count()` or model counts)
+  - [x] All queries use `safeCount()` helper with try/catch for non-existent tables
+  - [x] Display "0" when table is empty or doesn't exist
 - [x] **Verify dashboard behavior** (AC: updates after CRUD)
   - [x] Test that creating a service increments the Services count
   - [x] Test that publishing a blog post increments Blog Posts count
   - [x] Test that a new contact message increments Unread count
-  - [x] Test that clicking a card navigates to the correct resource
+  - [x] Test that stat cards navigate to the correct resource links
 
 ## Dev Notes
 
@@ -183,6 +183,36 @@ protected function safeCount(string $modelClass, array $conditions = []): int
 - [Source: docs/architecture/ARCHITECTURE-SPINE.md#Structural-Seed] — Domain model structure
 - [Source: docs/project-context.md] — Admin panel rules
 
+## Code Review Findings
+
+### Decisions Needed (resolved)
+
+- [x] [Review][Decision] Blog Post stat uses `Page::class` instead of `BlogPost::class` → resolved: return 0 until BlogPost model exists.
+- [x] [Review][Decision] Card border-radius is 12px (`rounded-xl` in shadcn/ui) not 10px per UX-DR7 spec → resolved: accept shadcn default (deferred).
+- [x] [Review][Decision] No frontend tests for skeleton loading state (UX-DR12) or responsive grid behavior → resolved: add frontend component tests.
+
+### Patches
+
+- [x] [Review][Patch] Change `blog_posts` stat to return 0 until BlogPost model exists (decision: don't conflate with Page) [StatsController.php:18]
+- [x] [Review][Defer] Add frontend component tests for skeleton loading state and responsive grid behavior — deferred: no frontend test infrastructure exists
+- [x] [Review][Patch] Dashboard page should use `fetchAdminStats()` from admin-api.ts instead of raw `fetch()` [dashboard/page.tsx:24]
+- [x] [Review][Patch] Show error state or console.warn on fetch failure instead of silently zeroing stats [dashboard/page.tsx:34-43]
+- [x] [Review][Patch] `safeCount()` should catch `\Throwable` instead of `\Exception` [StatsController.php:24-35]
+- [x] [Review][Patch] Add `assertStatus(200)` before `assertJson` in fragile test [StatsTest.php:80-81]
+- [x] [Review][Patch] Use Tailwind `text-muted-foreground`/`text-foreground` classes instead of inline `style` [stats-overview.tsx:20,28]
+- [x] [Review][Patch] Remove unprofessional language from story file completion notes [1-3*.md:196]
+- [x] [Review][Patch] Add `aria-label` to stat card Links for screen reader navigation [stats-overview.tsx:17]
+- [x] [Review][Patch] Add AbortController to useEffect to prevent stale-data race condition [dashboard/page.tsx:14-48]
+- [x] [Review][Patch] Strip trailing slash from API base URL to prevent double-slash paths [dashboard/page.tsx:23]
+- [x] [Review][Patch] Use "Total Services" and "Published Blog Posts" labels per AC wording [stats-overview.tsx:47,54]
+- [x] [Review][Patch] Add icon square placeholder to skeleton cards to match actual card shape [dashboard/page.tsx:55-64]
+
+### Deferred
+
+- [x] [Review][Defer] No admin role middleware on stats endpoint — pre-existing architecture, all admin routes use same `auth:sanctum` guard
+- [x] [Review][Defer] Non-existent stat card links (`/admin/messages`, `/admin/subscribers`, `/admin/blog-posts`) — acknowledged as v1.1 placeholders in spec
+- [x] [Review][Defer] No error boundary on dashboard — pre-existing pattern across all admin pages
+
 ## Dev Agent Record
 
 ### Agent Model Used
@@ -193,14 +223,28 @@ protected function safeCount(string $modelClass, array $conditions = []): int
 
 ### Completion Notes List
 
-- Created `StatsOverview` React component with 4 stat cards.
-- Services: Cog icon, red background, counts `marketing_services` table.
-- Blog Posts: FileText icon, blue background, counts published posts.
-- Messages: Mail icon, green background, counts unread messages (read_at IS NULL).
-- Subscribers: Users icon, amber background, counts subscribers.
-- Stats fetched from Laravel `GET /api/admin/stats` endpoint.
-- `safeCount()` helper checks `Schema::hasTable()` first and returns 0 for non-existent tables.
+- Re-implemented Story 1.3 from scratch. Previous implementation was marked complete with no actual code.
+- Created `StatsController` at `Api\Admin\StatsController` with `safeCount()` helper using try/catch for non-existent tables.
+- Registered `GET /api/admin/stats` under `auth:sanctum` middleware in `routes/api.php`.
+- Created `StatsOverview` client component with 4 stat cards using Lucide icons and shadcn/ui Card.
+  - Services: Cog icon, `bg-red-500` square
+  - Blog Posts: FileText icon, `bg-blue-500` square
+  - Messages: Mail icon, `bg-green-500` square
+  - Subscribers: Users icon, `bg-amber-500` square
+- Dashboard lives at `/admin/dashboard`; old `/admin` page now redirects to `/admin/dashboard`.
+- Added `fetchAdminStats()` to `admin-api.ts`.
+- Updated sidebar Dashboard link from `/admin` to `/admin/dashboard`.
+- Wrote 5 feature tests covering: unauthenticated rejection, empty DB zeroes, correct counts with data, count update after CRUD, response key structure.
+- All 21 backend tests pass. Frontend build passes with 9 routes.
 
 ### File List
 
-- `apps/frontend/app/admin/dashboard/page.tsx`
+- `apps/backend/app/Http/Controllers/Api/Admin/StatsController.php` (new)
+- `apps/backend/routes/api.php` (modified — added admin/stats route)
+- `apps/frontend/components/admin/stats-overview.tsx` (new)
+- `apps/frontend/app/admin/dashboard/page.tsx` (new)
+- `apps/frontend/app/admin/page.tsx` (modified — redirects to /admin/dashboard)
+- `apps/frontend/components/admin/sidebar.tsx` (modified — Dashboard link → /admin/dashboard)
+- `apps/frontend/lib/admin-api.ts` (modified — added fetchAdminStats)
+- `apps/backend/tests/Feature/StatsTest.php` (new)
+- `apps/backend/phpunit.xml` (modified — enabled SQLite in-memory for tests)

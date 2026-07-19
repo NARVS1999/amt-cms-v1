@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\StatsController;
 use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\Api\BlogPostController;
 use App\Http\Controllers\Api\ContactController;
@@ -72,6 +73,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pages', [PageController::class, 'store']);
     Route::put('/pages/{page}', [PageController::class, 'update']);
     Route::delete('/pages/{page}', [PageController::class, 'destroy']);
+
+    // Admin: Dashboard Stats
+    Route::get('/admin/stats', [StatsController::class, 'index']);
 
     // Admin: Media Library
     Route::get('/media', [MediaController::class, 'index']);

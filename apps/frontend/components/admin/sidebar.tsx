@@ -10,7 +10,7 @@ const navGroups = [
   {
     label: 'Main',
     items: [
-      { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/admin/services', label: 'Services', icon: Cog },
       { href: '/admin/team', label: 'Team', icon: Users },
       { href: '#', label: 'Blog', icon: FileText },

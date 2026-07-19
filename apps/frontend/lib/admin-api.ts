@@ -211,3 +211,16 @@ export async function uploadMedia(file: File): Promise<{ data: MediaData }> {
 export async function deleteMedia(id: number): Promise<void> {
   await request(`/media/${id}`, { method: 'DELETE' });
 }
+
+/* ─── Dashboard Stats ─── */
+
+export interface DashboardStats {
+  services: number;
+  blog_posts: number;
+  unread_messages: number;
+  subscribers: number;
+}
+
+export async function fetchAdminStats(): Promise<DashboardStats> {
+  return request('/admin/stats');
+}

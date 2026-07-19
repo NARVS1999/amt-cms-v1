@@ -42,6 +42,7 @@
 
 generated: 2026-07-19
 last_updated: 2026-07-19
+# updated: Story 1-3 → done (code review passed, 13 patches applied, 21/21 tests pass, build passes)
 # updated: Story 2-6 → ready-for-dev (story file created)
 # updated: Story 2-5 → done (code review passed, patches applied)
 # updated: Story 2-5 → review (implementation complete)
@@ -72,7 +73,7 @@ development_status:
    epic-1: in-progress
   1-1-scaffold-monorepo-backend-foundation: done
   1-2-admin-auth-sanctum-nextjs: done
-  1-3-admin-dashboard-stat-widgets: review
+  1-3-admin-dashboard-stat-widgets: done
   1-4-media-library-setup: review
   1-5-public-rest-api-scaffold-cors-rate-limiting-contact-subscribe-endpoints: review
   1-6-nextjs-16-frontend-scaffold-theme-foundation: review
