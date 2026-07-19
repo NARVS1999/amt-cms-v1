@@ -12,8 +12,10 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const errorId = 'login-error';
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -21,7 +23,7 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const data = await login(email, password);
+      const data = await login(email, password, remember);
       setToken(data.token);
       router.push('/admin');
     } catch (err: any) {
@@ -32,7 +34,10 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted p-4">
+    <div
+      className="flex min-h-screen items-center justify-center p-4"
+      style={{ background: 'var(--surface)', fontFamily: "'Inter', sans-serif" }}
+    >
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Adsvance CMS</CardTitle>
@@ -41,15 +46,48 @@ export default function AdminLoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive" role="alert" aria-live="polite">{error}</div>
+              <div
+                id={errorId}
+                className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+                role="alert"
+                aria-live="polite"
+              >
+                {error}
+              </div>
             )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                required
+                aria-describedby={error ? errorId : undefined}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+                aria-describedby={error ? errorId : undefined}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                id="remember"
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              <Label htmlFor="remember" className="text-sm font-normal">Remember me</Label>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign in'}

@@ -4,7 +4,7 @@ baseline_commit: 7bd5c82e6a88c6242401616eab2d214dc0e4d40c
 
 # Story 1.2: Admin Panel Authentication & Setup
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -187,6 +187,47 @@ In shadcn/ui, the theme is configured via CSS variables in `globals.css`:
 - [Source: docs/prds/addendum.md#Day-2-Admin-Panel--Models] — Build plan context
 - [Source: docs/prds/prd.md#FR-12-Admin-Authentication] — FR-12 requirements
 
+## Senior Developer Review (AI)
+
+**Date:** 2026-07-19
+**Review Outcome:** Changes Requested
+**Reviewers:** Blind Hunter (adversarial), Edge Case Hunter, Acceptance Auditor
+
+### Decision Needed
+
+- [x] [Review][Decision] Login endpoint renamed to `/api/admin/login` with `AdminAuthController`.
+- [x] [Review][Decision] Remember Me checkbox added to login form.
+- [x] [Review][Decision] Controller renamed to `AdminAuthController`.
+- [x] [Review][Decision] Sidebar extracted to `components/admin/sidebar.tsx`.
+
+### Patch
+
+- [x] [Review][Patch] Add `->middleware('throttle:admin-login')` to login route [routes/api.php:51].
+- [x] [Review][Patch] Fix shadcn `--primary` CSS var to `#FF0000` [globals.css:61].
+- [x] [Review][Patch] Apply `fontFamily: "'Inter', sans-serif"` on login page wrapper [admin/login/page.tsx:35].
+- [x] [Review][Patch] Add ownership check in `MediaController::destroy()` [MediaController.php:60].
+- [x] [Review][Patch] Wrap all `localStorage` access in try/catch [admin-api.ts:4-14].
+- [x] [Review][Patch] Add pagination to media index (50 per page, owner-scoped) [MediaController.php:14].
+- [x] [Review][Patch] Remove `svg` from allowed upload MIME types [MediaController.php:33].
+- [x] [Review][Patch] CORS is environment-driven via `CORS_ALLOWED_ORIGINS` env var — set in production.
+- [x] [Review][Patch] Add `autoComplete` attributes to login inputs [login/page.tsx:48,52].
+- [x] [Review][Patch] Add `aria-describedby` on inputs pointing to error [login/page.tsx:43-52].
+- [x] [Review][Patch] Add timing-safe comparison (hash dummy password) [AdminAuthController.php:26].
+- [x] [Review][Patch] Configure Sanctum token expiration (24h) [config/sanctum.php:53].
+- [x] [Review][Patch] Make sidebar responsive with mobile overlay + hamburger toggle [layout.tsx + sidebar.tsx].
+
+### Deferred
+
+- [x] [Review][Defer] Auth guard is client-side only — should be Next.js middleware for true route protection. Pre-existing, larger refactor.
+- [x] [Review][Defer] Token stored in localStorage (XSS-accessible) — httpOnly cookie requires backend session changes. Pre-existing architecture decision.
+- [x] [Review][Defer] No frontend file size validation before upload — nice-to-have, server validates.
+- [x] [Review][Defer] Multi-tab state leak on logout — low impact, requires `storage` event listener.
+- [x] [Review][Defer] Broken thumbnail has no fallback image — cosmetic.
+- [x] [Review][Defer] No maxLength on email/password inputs — low DoS risk, server limits.
+- [x] [Review][Defer] Long nav labels overflow — text-overflow: ellipsis needed.
+- [x] [Review][Defer] No scroll restoration on page navigation — cosmetic.
+- [x] [Review][Defer] Token eternal (no expiry) — acceptable for v1, separate story for token lifecycle.
+
 ## Dev Agent Record
 
 ### Agent Model Used
@@ -197,16 +238,43 @@ In shadcn/ui, the theme is configured via CSS variables in `globals.css`:
 
 ### Completion Notes List
 
-- Created Next.js admin route group at `apps/frontend/app/admin/` with auth-protected layout.
-- Created login page at `/admin/login` with shadcn/ui form components.
-- Configured Laravel Sanctum auth endpoints for admin login/logout.
-- Set up sidebar navigation groups with Lucide icons: Main (Dashboard, Services, Team, Blog, Pricing), Leads (Messages, Subscribers), Settings (Theme, Media Library, Pages).
-- Configured admin theme with Inter typeface, #FF0000 primary, dark sidebar (#1e1b2e).
+- Verified existing admin route group at `apps/frontend/app/admin/` with auth-protected layout.
+- Updated admin layout with dark sidebar (#1e1b2e), 260px, grouped navigation (Main, Leads, Settings), Lucide icons.
+- Confirmed Laravel Sanctum auth endpoints (`POST /api/admin/login`, `POST /api/logout`, `GET /api/me`) working.
+- Verified auth flow: valid login returns token, invalid returns 422 error, unauthenticated redirects to `/admin/login`.
+- Admin CSS variables configured in `globals.css` for sidebar colors and admin theme.
+- Inter font loaded in root layout.
+- Frontend build passes (with and without backend running).
+
+**Code review patches applied (all 13 patch + 4 decision items resolved):**
+- Renamed AuthController → AdminAuthController, route `/api/login` → `/api/admin/login`
+- Added `throttle:admin-login` middleware to login route
+- Added Remember Me checkbox to login form
+- Fixed shadcn `--primary` CSS var to `#FF0000`
+- Added Inter fontFamily to login page wrapper
+- Extracted sidebar to `components/admin/sidebar.tsx` with responsive mobile overlay
+- Added ownership check in MediaController::destroy()
+- Wrapped localStorage access in try/catch
+- Added pagination and owner-scoping to media index
+- Removed SVG from allowed upload MIME types (XSS prevention)
+- Added autoComplete and aria-describedby to login inputs
+- Added timing-safe comparison in login (hash dummy password)
+- Set Sanctum token expiration to 24 hours
 
 ### File List
 
-- `apps/frontend/app/admin/layout.tsx` (admin layout with sidebar + auth guard)
-- `apps/frontend/app/admin/login/page.tsx` (login form)
-- `apps/backend/routes/api.php` (admin login/logout API routes)
-- `apps/backend/app/Http/Controllers/Api/AdminAuthController.php`
-- `apps/frontend/components/admin/sidebar.tsx` (sidebar navigation component)
+- `apps/frontend/app/admin/layout.tsx` (updated — responsive sidebar layout)
+- `apps/frontend/app/admin/login/page.tsx` (login form with Remember Me + a11y)
+- `apps/frontend/app/admin/page.tsx` (dashboard)
+- `apps/frontend/app/admin/services/page.tsx` (services CRUD)
+- `apps/frontend/app/admin/team/page.tsx` (team CRUD)
+- `apps/frontend/app/admin/pages/page.tsx` (pages CRUD)
+- `apps/frontend/app/admin/media/page.tsx` (media library)
+- `apps/frontend/components/admin/sidebar.tsx` (extracted sidebar component with mobile overlay)
+- `apps/backend/app/Http/Controllers/Api/AdminAuthController.php` (renamed from AuthController)
+- `apps/backend/app/Http/Controllers/Api/AuthController.php` (deleted — renamed to AdminAuthController)
+- `apps/backend/app/Http/Controllers/Api/MediaController.php` (updated — ownership check, pagination, no SVG)
+- `apps/backend/routes/api.php` (updated — renamed auth endpoint + throttle)
+- `apps/backend/config/sanctum.php` (updated — 24h token expiration)
+- `apps/frontend/lib/admin-api.ts` (updated — renamed login path, localStorage try/catch, remember param)
+- `apps/frontend/app/globals.css` (updated — fixed --primary to #FF0000)

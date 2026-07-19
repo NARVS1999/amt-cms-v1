@@ -2,15 +2,15 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('admin_token');
+  try { return localStorage.getItem('admin_token'); } catch { return null; }
 }
 
 export function setToken(token: string) {
-  localStorage.setItem('admin_token', token);
+  try { localStorage.setItem('admin_token', token); } catch { /* storage unavailable */ }
 }
 
 export function clearToken() {
-  localStorage.removeItem('admin_token');
+  try { localStorage.removeItem('admin_token'); } catch { /* storage unavailable */ }
 }
 
 export function isAuthenticated(): boolean {
@@ -58,10 +58,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 /* ─── Auth ─── */
 
-export async function login(email: string, password: string): Promise<{ token: string; user: { id: number; name: string; email: string } }> {
-  const data = await request<{ token: string; user: { id: number; name: string; email: string } }>('/login', {
+export async function login(email: string, password: string, remember = false): Promise<{ token: string; user: { id: number; name: string; email: string } }> {
+  const data = await request<{ token: string; user: { id: number; name: string; email: string } }>('/admin/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, remember }),
   });
   return data;
 }

@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\Api\BlogPostController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PageController;
@@ -48,11 +48,12 @@ Route::post('/subscribe', [SubscribeController::class, 'store'])
 
 // --- Auth endpoints (for admin panel) ---
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/admin/login', [AdminAuthController::class, 'login'])
+    ->middleware('throttle:admin-login');
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/me', [AuthController::class, 'me']);
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AdminAuthController::class, 'me']);
+    Route::post('/logout', [AdminAuthController::class, 'logout']);
 
     // Admin: list all pages (including unpublished)
     Route::get('/admin/pages', [PageController::class, 'adminIndex']);

@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
-class AuthController extends Controller
+class AdminAuthController extends Controller
 {
     public function login(Request $request): JsonResponse
     {
@@ -20,7 +20,8 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
+        $hashCheck = Hash::check($request->password, $user?->password ?? '');
+        if (! $user || ! $hashCheck) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);

@@ -24,6 +24,19 @@
   /* Public Site Typography */
   --font-body: var(--font-body, 'Poppins'), sans-serif;
   --font-heading: var(--font-heading, 'Poppins'), sans-serif;
+
+  /* ─── Admin Sidebar Colors ─── */
+  --color-sidebar-bg: #1e1b2e;
+  --color-sidebar-text: #a5a3b5;
+  --color-sidebar-active: #ffffff;
+  --color-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --color-sidebar-active-bg: rgba(255, 255, 255, 0.1);
+  --color-sidebar-group: #6b6880;
+  --color-surface: #f5f5f9;
+  --color-admin-card: #ffffff;
+  --color-admin-border: #e8e7ef;
+  --color-admin-foreground: #222222;
+  --color-admin-primary: #FF0000;
 }
 
 /* Base styles */
@@ -45,8 +58,8 @@ body {
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0.042 265.755);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: #FF0000;
+  --primary-foreground: #FFFFFF;
   --secondary: oklch(0.965 0.001 286.375);
   --secondary-foreground: oklch(0.205 0.042 265.755);
   --muted: oklch(0.965 0.001 286.375);
@@ -59,6 +72,16 @@ body {
   --input: oklch(0.922 0.004 286.375);
   --ring: oklch(0.708 0.015 286.375);
   --radius: 0.625rem;
+
+  /* ─── Admin-Specific CSS Variables ─── */
+  --sidebar-bg: #1e1b2e;
+  --sidebar-text: #a5a3b5;
+  --sidebar-active: #ffffff;
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-active-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-group: #6b6880;
+  --surface: #f5f5f9;
+  --admin-primary: #FF0000;
 }
 
 .dark {
