@@ -4,7 +4,7 @@ baseline_commit: 7bd5c82e6a88c6242401616eab2d214dc0e4d40c
 
 # Story 1.1: Scaffold Monorepo & Backend Foundation
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -159,3 +159,36 @@ Migrations follow the pattern `YYYY_MM_DD_HHMMSS_create_{domain}_{table}_table.p
 - `apps/backend/.env` (configured for XAMPP MariaDB)
 - `apps/backend/composer.json` (with name "adsvance/backend")
 - `.gitignore` (root)
+
+## Senior Developer Review (AI)
+
+**Date:** 2026-07-19
+**Review Outcome:** Changes Requested
+**Reviewers:** Blind Hunter (adversarial), Edge Case Hunter, Acceptance Auditor
+
+### Decision Needed
+
+- [x] [Review][Decision] `apps/frontend/` and `packages/shared/` exist — accepted. Created by later stories (1.6, 1.7).
+- [x] [Review][Decision] 7 domain-specific migrations exist — accepted. Created by downstream stories.
+
+### Patch
+
+- [x] [Review][Patch] Set `supports_credentials: true` in `config/cors.php` for Sanctum SPA auth [cors.php:30].
+- [x] [Review][Patch] `.env.example` updated to match real `.env` MySQL/MariaDB config [.env.example].
+- [x] [Review][Patch] Changed `DB_CONNECTION=mysql` → `DB_CONNECTION=mariadb` for XAMPP compatibility [.env:23, .env.example].
+- [x] [Review][Patch] Fixed `REDIS_PASSWORD=null` → `REDIS_PASSWORD=` (empty string) [.env:47, .env.example].
+- [x] [Review][Patch] `minimum-stability: "dev"` acceptable — mitigated by `prefer-stable: true`. Noted as intentional.
+
+### Deferred
+
+- [x] [Review][Defer] `APP_DEBUG=true` — acceptable for .env, production override via CI. Pre-existing pattern.
+- [x] [Review][Defer] `SESSION_DRIVER=database` — session table migration already created (audit fix, story 0.1).
+- [x] [Review][Defer] Empty DB_PASSWORD — XAMPP default, acceptable for dev. Production .env override.
+- [x] [Review][Defer] `SESSION_ENCRYPT=false` — acceptable for dev, production concern.
+- [x] [Review][Defer] Spatie media config — partially published, migration exists. Defer to media story.
+- [x] [Review][Defer] Throttle message hardcodes "60 seconds" — minor UX issue, not a blocker.
+- [x] [Review][Defer] FFmpeg paths Linux-absolute — Windows users need custom config. Low impact.
+- [x] [Review][Defer] Migration naming convention inconsistencies — cosmetic, established from prior work.
+- [x] [Review][Defer] CONTACT_NOTIFICATION_EMAIL in .env — .env is gitignored, acceptable.
+- [x] [Review][Defer] `pestphp/pest-plugin` in allow-plugins — dead config, harmless.
+- [x] [Review][Defer] Queue `--tries=1` in dev script — acceptable for development.

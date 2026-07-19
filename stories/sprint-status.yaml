@@ -70,7 +70,7 @@ development_status:
   # graceful degradation, media page. Story 1.2 verified end-to-end.
   # ============================================
    epic-1: in-progress
-  1-1-scaffold-monorepo-backend-foundation: review
+  1-1-scaffold-monorepo-backend-foundation: done
   1-2-admin-auth-sanctum-nextjs: done
   1-3-admin-dashboard-stat-widgets: review
   1-4-media-library-setup: review
