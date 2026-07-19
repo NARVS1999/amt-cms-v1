@@ -1,8 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
-import { BackToTop } from '@/components/BackToTop';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -40,10 +37,7 @@ export default async function RootLayout({
             Skip to content
           </a>
 
-          <Header />
-          <main id="main-content">{children}</main>
-          <Footer />
-          <BackToTop />
+          {children}
         </ThemeProvider>
       </body>
     </html>

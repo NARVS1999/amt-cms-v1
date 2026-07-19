@@ -135,7 +135,8 @@ export async function PageRenderer() {
     );
   }
 
-  const page = pages?.[0] ?? null;
+  // Find the first published page
+  const page = pages?.find((p) => p.is_published) ?? null;
 
   // Empty state — no published page found
   if (!page) {
