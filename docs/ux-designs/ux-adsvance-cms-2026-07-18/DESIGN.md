@@ -3,7 +3,7 @@ name: Adsvance Media Tech CMS
 description: >
   A reusable, themeable CMS foundation built on Laravel 12 + Next.js 16 (SSG).
   Two distinct surfaces: the public marketing site (brand-red consumer look)
-  and the Filament admin panel (dark-sidebar tool aesthetic). This DESIGN.md
+  and the shadcn/ui admin panel (sidebar tool aesthetic). This DESIGN.md
   specifies both skins under a single brand identity.
 colors:
   public-site:
@@ -199,7 +199,7 @@ components:
 
 ## Brand & Style
 
-Adsvance Media Tech CMS serves two faces under one identity: a **public marketing site** (the consumer-facing brand for Adsvance's own services) and a **Filament admin panel** (the tool where staff manage content). The public skin inherits the legacy brand — bold red primary, warm accent amber, clean Poppins typography, card-based layouts with generous white space. The admin skin is a dark-sidebar productivity tool in Inter typeface — quiet, focused, utilitarian.
+Adsvance Media Tech CMS serves two faces under one identity: a **public marketing site** (the consumer-facing brand for Adsvance's own services) and a **shadcn/ui admin panel** (the tool where staff manage content). The public skin inherits the legacy brand — bold red primary, warm accent amber, clean Poppins typography, card-based layouts with generous white space. The admin skin is a dark-sidebar productivity tool in Inter typeface — quiet, focused, utilitarian.
 
 The brand promise — "empowering small businesses with an affordable, beautiful web presence" — threads both surfaces. The public site *demonstrates* what Adsvance sells; the admin panel *delivers* it. They share a color primary (#FF0000) as the single connective token; everything else adapts to context.
 
@@ -238,7 +238,7 @@ The public site is defined by its bold red-primary heritage. Warm, energetic, ac
 
 ### Admin Panel Palette
 
-The admin panel reads as a dark-tool sidebar + light content area — standard Filament aesthetic.
+The admin panel reads as a dark-tool sidebar + light content area — standard shadcn/ui aesthetic.
 
 | Token | Value | Usage |
 |-------|-------|-------|
@@ -375,7 +375,7 @@ The admin panel reads as a dark-tool sidebar + light content area — standard F
 | Keep the public site warm (gradient hero, amber accents, generous white space) | Make the public site cold or tool-like — its job is to *sell* |
 | Keep the admin panel cold and efficient (dark sidebar, flat cards, Inter typeface) | Over-decorate the admin panel — it's a tool, not a showcase |
 | Use Poppins across the public site and Inter across the admin | Mix typefaces within the same surface |
-| Inherit Filament's component defaults for things not listed here | Customize Filament's base components (Button, Card, Table, Modal) beyond what's in this spec |
+| Inherit the admin panel's component defaults for things not listed here | Customize the admin panel's base components (Button, Card, Table, Modal) beyond what's in this spec |
 | Font Awesome for all public site icons | Use emoji as UI icons anywhere in production |
-| Heroicons (Blade) for all admin panel icons | Mix icon families within the same surface |
+| Lucide icons for all admin panel icons | Mix icon families within the same surface |
 | Validate color contrast for all new token additions | Assume a hex value is WCAG AA-compliant without checking |

@@ -87,7 +87,7 @@ So that **I know who runs the agency**.
 - **AD-2 — Frontend is static consumer:** Data fetched at BUILD TIME via `fetch()` to Laravel REST API. `TeamGrid` is an async server component.
 - **AD-3 — REST API is the contract:** `GET /api/team` endpoint already implemented in Story 2.3, returns `{ "data": [...] }` envelope with sorted data. Zod schema must be updated to include `social_links`.
 - **AD-4 — CSS custom properties:** All visual tokens use `var(--color-*)`. No hardcoded brand colors.
-- **AD-1 — Domain isolation:** Team data flows through API only. No direct model access.
+- **Team data flows through API only.** No direct model access from frontend.
 - **No client-side state management:** TeamGrid is a server component.
 
 ### Key Architectural Decisions
@@ -244,7 +244,7 @@ export async function TeamGrid() {
 
 ### Previous Story Intelligence (Story 2.3 — Team Members Admin CRUD)
 
-- **Story 2.3** created the TeamMember model with Spatie, Filament CRUD, and API endpoint
+- **Story 2.3** created the TeamMember model with Spatie, admin CRUD, and API endpoint
 - **`GET /api/team`** returns sorted data with `{ "data": [...] }` envelope including `social_links` field
 - **`social_links`** JSON structure: `{linkedin: string|null, twitter: string|null}`
 - **`photo_url`** is a Spatie Media Library URL (thumb conversion, 150x150 crop)

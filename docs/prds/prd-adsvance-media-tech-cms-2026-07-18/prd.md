@@ -68,13 +68,12 @@ John clicks "New Post" in the Blog section, enters a title, writes the body usin
 ## 3. Glossary
 
 - **CMS** — Content Management System. The combined Laravel backend + Next.js frontend.
-- **Admin Panel** — The Filament-powered dashboard at `/admin` where staff manage content.
+- **Admin Panel** — The shadcn-powered dashboard at `/admin` in Next.js where staff manage content.
 - **Theme Settings** — Configurable brand values (colors, fonts, logos) that repaint the public site.
 - **SSG** — Static Site Generation. Next.js builds flat HTML/JS files at deploy time, served by Hostinger without a Node runtime.
-- **Domain** — A DDD boundary grouping related models and logic. Domains in v1: Marketing, Billing, Contact, Theming, Identity.
 - **Sample Data** — Pre-seeded content matching the legacy site so the CMS isn't empty on first deploy.
 - **Monorepo** — A single git repository containing `apps/backend` (Laravel), `apps/frontend` (Next.js), and `packages/shared` (shared schemas).
-- **Filament** — Open-source Laravel admin panel framework used for all admin CRUD interfaces.
+- **shadcn/ui** — Open-source React component library used for admin panel UI.
 - **Quill** — Open-source rich text editor used in the blog post composer.
 
 ---
@@ -208,26 +207,26 @@ Admin can view all contact submissions, mark messages as read, and delete messag
 
 ### 4.5 Admin Panel
 
-**Description:** The Filament-powered admin backend where all content management happens. Accessed at `/admin`. Realizes all admin-facing UJs.
+**Description:** The admin panel lives in the Next.js frontend at `/admin` using shadcn/ui components. All data flows through the Laravel REST API. Realizes all admin-facing UJs.
 
 **Functional Requirements:**
 
 #### FR-12: Admin Authentication
-Admin users log in with email and password using Filament's built-in authentication. Supports "Remember Me."
+Admin users log in with email and password using a login form at `/admin/login` that authenticates against the Laravel API. Supports "Remember Me."
 
 **Consequences (testable):**
 - Unauthenticated users are redirected to `/admin/login`.
 - Session expires after a configurable period of inactivity.
 
 #### FR-13: Admin Dashboard
-The admin dashboard displays quick-stat widgets: total services, published blog posts, unread contact messages, newsletter subscriber count.
+The admin dashboard displays quick-stat cards: total services, published blog posts, unread contact messages, newsletter subscriber count.
 
 **Consequences (testable):**
 - Widget counts update after relevant CRUD operations.
 - Clicking a widget navigates to the corresponding resource list.
 
 #### FR-14: Media Library
-Admin can upload, browse, and delete media files. Uses Spatie Media Library for file handling. Uploaded files are available for use in blog posts, team photos, theme logos, and page images.
+Admin can upload, browse, and delete media files through the admin panel. Uploaded files are available for use in blog posts, team photos, theme logos, and page images.
 
 **Consequences (testable):**
 - Accepted formats: JPG, PNG, WebP, SVG. Max file size: 2MB. `[ASSUMPTION: 2MB limit and format list are reasonable starting points — adjustable.]`
@@ -285,7 +284,7 @@ The Laravel backend exposes the following endpoints:
 - Theme System: primary/secondary/accent colors, fonts, logos — all manageable through admin
 - Contact form with database storage and email notification to configurable address
 - Newsletter subscription with database storage
-- Admin panel (Filament): all resources, auth, dashboard widgets, media library
+- Admin panel (Next.js/shadcn): admin dashboard, authentication, content CRUD, media library
 - Public REST API: all GET + POST endpoints with validation, rate limiting, CORS
 - Next.js frontend with SSG: homepage (hero, services, about, video), pricing table, blog listing + single post, team grid, footer with newsletter form
 - Mobile-responsive navigation: hamburger menu with slide-out drawer
@@ -341,7 +340,7 @@ The Laravel backend exposes the following endpoints:
 - Local development uses XAMPP's MariaDB 10.4 (MySQL-compatible).
 
 ### Budget
-- Zero cost for software: Laravel, Filament, Next.js, Quill, Spatie packages, Font Awesome — all free/open-source.
+- Zero cost for software: Laravel, shadcn/ui, Next.js, Quill, Spatie packages, Font Awesome — all free/open-source.
 - Hostinger shared hosting cost only (~$3-10/month). No paid APIs.
 
 ### Maintainability (Reusability)
@@ -355,7 +354,7 @@ The Laravel backend exposes the following endpoints:
 ## 9. Platform
 
 - **Form factor:** Web application, responsive mobile-first design.
-- **Admin panel:** Desktop-first (Filament is responsive but optimized for larger screens).
+- **Admin panel:** Desktop-first (responsive, optimized for larger screens).
 - **Frontend output:** Static HTML/CSS/JS served from Hostinger's Apache/Nginx.
 - **No mobile app, no PWA** in v1.
 - **Browser support:** Modern browsers (Chrome, Firefox, Safari, Edge — latest 2 versions).
@@ -372,7 +371,7 @@ The Laravel backend exposes the following endpoints:
 - **SM-3:** Blog post goes from "New Post" click to public live in under 3 minutes. Validates FR-3.
 
 **Counter-metrics (do not optimize)**
-- **SM-C1:** Admin panel complexity. If adding a new content type requires more than one new model + one Filament resource + one API endpoint, the architecture is overengineered. Counterbalances all FRs — lean first, extend later.
+- **SM-C1:** Admin panel complexity. If adding a new content type requires more than one new model + one admin page + one API endpoint, the architecture is overengineered. Counterbalances all FRs — lean first, extend later.
 
 ---
 

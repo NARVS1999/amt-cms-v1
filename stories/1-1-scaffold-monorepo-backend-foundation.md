@@ -60,8 +60,6 @@ project-root/
 ├── package.json              # npm workspaces root
 ├── apps/
 │   ├── backend/              # Laravel 12 (scaffolded by laravel new / composer)
-│   │   ├── app/
-│   │   │   └── Domains/      # Created later — do NOT create yet
 │   │   ├── composer.json
 │   │   └── .env              # XAMPP MariaDB config
 │   └── frontend/             # Created in Story 1.6 — do NOT create yet
@@ -72,7 +70,6 @@ project-root/
 ### Critical Rules
 
 - **ONLY the `users` table migration runs here.** Domain migrations (marketing_services, billing_pricing_plans, etc.) are created in the stories that first need them. Do NOT pre-create all migrations.
-- **Do NOT create DDD domain directories** (`app/Domains/Marketing/`, etc.) in this story — those come in downstream stories. This story only scaffolds the base Laravel installation.
 - **Do NOT scaffold `apps/frontend` or `packages/shared`** — those are created in Stories 1.6 and 1.7 respectively. Only set up the root `package.json` with workspaces definition.
 - **Never hardcode any configuration** — everything must be in `.env` (NFR-9).
 - **No raw SQL** — Eloquent ORM only (NFR-16).
@@ -125,11 +122,9 @@ CONTACT_NOTIFICATION_EMAIL=johnpaulnarvasa6@gmail.com
 - **NFR-11:** Hostinger compatible (PHP 8.2)
 - **NFR-16:** No raw SQL queries — Eloquent ORM only
 
-### Project Structure Notes
+### Migration Naming Convention
 
-- The DDD structure (`app/Domains/{Domain}/`) will be introduced in Story 1.2 when Filament resources are created. For now, Laravel's default `app/Models/` directory is fine — the `User` model lives there by default.
-- Domain isolation (AD-1) is enforced starting Story 1.2. This story just lays the Laravel foundation.
-- The migration naming convention is `YYYY_MM_DD_HHMMSS_create_{domain}_{table}_table.php` — this will be used for all domain migrations in future stories.
+Migrations follow the pattern `YYYY_MM_DD_HHMMSS_create_{domain}_{table}_table.php`.
 
 ### References
 

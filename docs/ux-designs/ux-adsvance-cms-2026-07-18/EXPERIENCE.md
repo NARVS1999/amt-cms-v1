@@ -9,17 +9,17 @@ updated: 2026-07-18
 
 # Adsvance Media Tech CMS — Experience Spine
 
-> Two-surface CMS: a public marketing site (consumer-facing brand presence) and a Filament admin panel (staff productivity tool). Built on Laravel 12 + Next.js 16 (SSG). Tailwind CSS v4. `DESIGN.md` is the visual identity reference and owns all token values; this spine is the experience layer — flows, states, behavior, accessibility.
+> Two-surface CMS: a public marketing site (consumer-facing brand presence) and a shadcn/admin panel (staff productivity tool). Built on Laravel 12 + Next.js 16 (SSG). Tailwind CSS v4. `DESIGN.md` is the visual identity reference and owns all token values; this spine is the experience layer — flows, states, behavior, accessibility.
 
 ## Foundation
 
 **Form factor:** Responsive web application. Two distinct surfaces served under one deployment:
 - **Public site:** Static HTML/JS/CSS (Next.js SSG export) served by Hostinger's Apache/Nginx. Mobile-first responsive.
-- **Admin panel:** Laravel + Filament at `/admin`. Desktop-first (optimized for 1024px+), functional on mobile for read-light operations.
+- **Admin panel:** Next.js at `/admin`. Desktop-first (optimized for 1024px+), functional on mobile for read-light operations.
 
-**UI system:** The public site is hand-crafted with Tailwind CSS. The admin panel is Filament (uses Tailwind + Blade). No off-the-shelf component library for the public site — it's intentionally lean. DESIGN.md is the visual identity reference for both surfaces; this spine specifies behavioral deltas only.
+**UI system:** The public site is hand-crafted with Tailwind CSS. The admin panel uses shadcn/ui components over Tailwind CSS. No off-the-shelf component library for the public site — it's intentionally lean. DESIGN.md is the visual identity reference for both surfaces; this spine specifies behavioral deltas only.
 
-**Content model:** API-driven. All content is authored in Filament, stored in MySQL, served via REST JSON API. The public frontend fetches API at build time (SSG) — it never hits the database at request time.
+**Content model:** API-driven. All content is authored in the admin panel, stored in MySQL, served via REST JSON API. The public frontend fetches API at build time (SSG) — it never hits the database at request time.
 
 ## Information Architecture
 
@@ -47,7 +47,7 @@ updated: 2026-07-18
 
 **Public site:** Single-page nav bar (Home, Services, About, Pricing, Blog, Contact) anchored to sections + Login button. On mobile: hamburger → slide-out drawer overlay.
 
-**Admin panel:** Persistent left sidebar with grouped navigation (Main / Leads / Settings). Active item highlighted. Sub-navigation within a resource uses Filament's built-in tabs (e.g., All / Published / Drafts on Blog Posts).
+**Admin panel:** Persistent left sidebar with grouped navigation (Main / Leads / Settings). Active item highlighted. Sub-navigation within a resource uses UI tabs (e.g., All / Published / Drafts on Blog Posts).
 
 ### IA Closure
 
@@ -96,7 +96,7 @@ Microcopy everywhere should avoid emoji, exclamation marks, and celebration anim
 
 ## Component Patterns
 
-Behavioral rules. Visual specs live in `DESIGN.md.Components`. All Filament base components (Table, Modal, Form, Toast, etc.) inherit Filament's default behaviors unless specified below.
+Behavioral rules. Visual specs live in `DESIGN.md.Components`. All base components (Table, Modal, Form, Toast, etc.) inherit the admin panel's default behaviors unless specified below.
 
 ### Public Site — Behavioral Specs
 
@@ -116,7 +116,7 @@ Behavioral rules. Visual specs live in `DESIGN.md.Components`. All Filament base
 |-----------|----------|
 | **Stat Card** | Click navigates to the corresponding resource list (e.g., clicking "5 Unread Messages" → Messages index). |
 | **Table Row** | Click navigates to edit view for that record. `aria-label` includes record name. |
-| **Quick Action Button** | Opens the create form for that resource in a modal or navigates to the create page (Filament default). |
+| **Quick Action Button** | Opens the create form for that resource in a modal or navigates to the create page. |
 | **Theme Color Picker** | Color swatch + hex input stay in sync. Changing either triggers preview panel update — no save required to preview. |
 | **Theme Save** | "Save Changes" button updates the database. Shows "Saved!" confirmation. Does NOT trigger a rebuild — that's a separate deploy step. |
 | **Logo Upload** | Click-to-upload zone with drag-and-drop support. Preview updates immediately after upload completes. Shows file name + size. |
@@ -141,17 +141,17 @@ Behavioral rules. Visual specs live in `DESIGN.md.Components`. All Filament base
 
 | State | Surface | Treatment |
 |-------|---------|-----------|
-| Loading data | All tables | Filament `Skeleton` rows (5-6) matching column structure. |
-| Empty resource | A3-A7, A10-A11 | Filament empty state: illustration, description, primary action. "No services yet. Create one." |
+| Loading data | All tables | Skeleton rows (5-6) matching column structure. |
+| Empty resource | A3-A7, A10-A11 | Empty state: illustration, description, primary action. "No services yet. Create one." |
 | Cold app load | A2 Dashboard | Skeletons for stat cards + table rows. Resolves in <500ms. |
-| Save succeeding | A3-A11 | Filament success notification (green, auto-dismiss 3s). |
-| Save failing | A3-A11 | Filament error notification (red, persistent until dismissed). "Couldn't save. {reason}" |
-| Delete confirmation | All | Filament modal: "Are you sure?" + "Delete" (destructive) / "Cancel". |
+| Save succeeding | A3-A11 | Success notification (green, auto-dismiss 3s). |
+| Save failing | A3-A11 | Error notification (red, persistent until dismissed). "Couldn't save. {reason}" |
+| Delete confirmation | All | Modal: "Are you sure?" + "Delete" (destructive) / "Cancel". |
 | Theme — unsaved changes | A8 | No explicit dirty indicator. Save button is always active. Preview panel always reflects current picker values. |
 | Media — oversized upload | A9 | Inline error: "File too large. Max 2MB." |
 | Media — wrong format | A9 | Inline error: "Format not supported. Accepted: JPG, PNG, WebP, SVG." |
 | Session expired | A1 | Redirect to login with message: "Session expired. Please log in again." |
-| Permission denied | Any admin | Filament 403 page. |
+| Permission denied | Any admin | 403 page. |
 
 ## Interaction Primitives
 
@@ -167,12 +167,12 @@ Behavioral rules. Visual specs live in `DESIGN.md.Components`. All Filament base
 ### Admin Panel
 
 - **Click to edit:** Table rows → edit view. Stat cards → resource list.
-- **Inline edit (Filament):** Blog post title, pricing plan fields, etc. — standard Filament edit forms.
+- **Inline edit:** Blog post title, pricing plan fields, etc.
 - **Quill editor:** Toolbar-driven rich text. Tab key inserts indent. `Shift+Tab` outdents lists.
-- **Keyboard navigation:** Standard Filament keyboard support. `Tab` through form fields. `Enter` submits. `Esc` closes modals.
-- **Drag-to-reorder:** Services, pricing plans, team members use Filament's reorderable table (drag handle on left). Saves order immediately on drop.
+- **Keyboard navigation:** Standard keyboard support. `Tab` through form fields. `Enter` submits. `Esc` closes modals.
+- **Drag-to-reorder:** Services, pricing plans, team members use a reorderable table (drag handle on left). Saves order immediately on drop.
 - **Search:** Admin topbar search is global — searches across all resources.
-- **Banned:** Auto-save on every keystroke (Filament already has this concern covered). Hover-only actions. Context menus. Modal stacks deeper than 1 level.
+- **Banned:** Auto-save on every keystroke. Hover-only actions. Context menus. Modal stacks deeper than 1 level.
 
 ## Accessibility Floor
 
@@ -268,7 +268,7 @@ Behavioral. Visual contrast, focus rings, and color usage are specified in `DESI
 
 ### Lifted From
 - **Lifted from the legacy site:** The pricing table layout (3-column comparison with check/cross icons, "Most Popular" ribbon), the service card grid, the hero heading pattern ("Need a business *website?*"), the Font Awesome icon vocabulary, the Poppins typeface.
-- **Lifted from Filament:** The entire admin panel UX — sidebar navigation pattern, table CRUD, modal confirmations, notification toasts, form patterns. No need to reinvent.
+- **Lifted from shadcn/ui patterns:** The admin panel UX follows standard shadcn/ui patterns — sidebar navigation pattern, table CRUD, modal confirmations, notification toasts, form patterns.
 - **Lifted from modern marketing sites (linear.app, Vercel, Tailwind UI):** The hero layout (left text + right illustration), the subtle float animation on hero imagery, the gradient hero backgrounds, the "live preview" pattern on settings pages.
 
 ### Rejected

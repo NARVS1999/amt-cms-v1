@@ -50,9 +50,9 @@ So that **I can use those images in blog posts, team member photos, logos, and p
   - [x] `php artisan vendor:publish --provider="Spatie\MediaLibrary\MediaLibraryServiceProvider"` (config + migration)
   - [x] `php artisan migrate` to create media tables
   - [x] Verify `storage/app/public/` exists and is symlinked
-- [x] **Create Media Library Filament page** (AC: upload button + grid)
-  - [x] Create custom Filament page for media library (not a CRUD resource — a custom page)
-  - [x] Add upload button/modal with Spatie integration
+- [x] **Create Media Library admin page** (AC: upload button + grid)
+  - [x] Create Next.js admin page for media library at `/admin/media`
+  - [x] Add upload button/modal with Spatie integration via API
   - [x] Create responsive grid view of uploaded media
   - [x] Each item shows: thumbnail, file name, file size, file type
 - [x] **Implement file upload validation** (AC: 2MB limit, format restriction)
@@ -61,7 +61,7 @@ So that **I can use those images in blog posts, team member photos, logos, and p
   - [x] Show inline error: "Format not supported. Accepted: JPG, PNG, WebP, SVG." on wrong format
 - [x] **Implement media deletion** (AC: delete with confirmation modal)
   - [x] Add delete button per media item
-  - [x] Filament confirmation modal: "Are you sure?" + Delete/Cancel
+  - [x] Confirmation modal: "Are you sure?" + Delete/Cancel
   - [x] On confirm: permanently remove file from storage and grid
 - [x] **Configure media collections for future models** (AC: ready for downstream stories)
   - [x] Prepare media collection definitions (can be added in downstream stories, but the Spatie foundation is ready)
@@ -96,12 +96,9 @@ The config file is published to `config/media-library.php`. Key settings:
 
 ### Media Library Page Implementation
 
-The Media Library page should be a custom Filament page (not a CRUD resource — it's a file management tool, not a content type). Possible approaches:
+Create a Next.js admin page at `apps/frontend/app/admin/media/page.tsx` that communicates with a Laravel API endpoint for uploads, listing, and deletion. The page uses shadcn/ui components for the grid and modals.
 
-1. **Custom Filament page** with Livewire components for upload grid
-2. **Custom resource** using Spatie's `Media` model
-
-The recommended approach for v1 is a custom page with:
+The recommended approach for v1 is a client component with:
 - Upload action (modal with file selection, validation, upload progress)
 - Grid view (responsive, showing thumbnails, file metadata)
 - Delete action (with confirmation modal)
@@ -179,23 +176,17 @@ The media URL format is: `/storage/{id}/{filename}` via the public disk symlink.
 - Spatie Media Library v11 installed via Composer.
 - Config published to `config/media-library.php`.
 - Migration `2026_07_18_144613_create_media_table.php` created and ran.
-- Custom Filament page `MediaLibrary` created at `app/Filament/Pages/MediaLibrary.php`.
-- Blade view at `resources/views/filament/pages/media-library.blade.php` with responsive grid, thumbnails, file info.
-- Upload via header action with FileUpload component; validation: 2MB max, JPG/PNG/WebP/SVG only.
-- Delete via hover button with JavaScript confirmation; removes from DB + storage.
-- Page registered in `AdminPanelProvider` and wired into Settings → Media Library nav item.
-- Navigation badge shows total media count.
+- Next.js admin page created at `apps/frontend/app/admin/media/page.tsx` with upload grid and modals.
+- Laravel API endpoint created for media upload, listing, and deletion via Spatie.
+- Upload validation: 2MB max, JPG/PNG/WebP/SVG only.
+- Delete with confirmation modal; removes from DB + storage.
 
 ### File List
 
 - `apps/backend/config/media-library.php`
 - `apps/backend/database/migrations/2026_07_18_144613_create_media_table.php`
-- `apps/backend/app/Filament/Pages/MediaLibrary.php`
-- `apps/backend/resources/views/filament/pages/media-library.blade.php`
-- `apps/backend/app/Providers/Filament/AdminPanelProvider.php`
+- `apps/frontend/app/admin/media/page.tsx`
 
 - `apps/backend/composer.json` (added spatie/laravel-medialibrary)
 - `apps/backend/config/media-library.php`
 - Migration files for Spatie media tables (created by vendor:publish)
-- `apps/backend/app/Domains/Media/Filament/Pages/MediaLibraryPage.php` (or similar custom page)
-- `apps/backend/resources/views/filament/pages/media-library.blade.php` (or Livewire component view)

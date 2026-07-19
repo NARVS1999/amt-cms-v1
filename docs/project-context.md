@@ -29,8 +29,6 @@ _This file contains critical rules and patterns that AI agents must follow when 
 |-----------|---------|-----------|
 | PHP | 8.2.12 | Hostinger Business Shared compatible |
 | Laravel | 12.x | Current LTS (security until Feb 2027) |
-| Filament | 5.7.x | Requires Tailwind v4 + Livewire v4 |
-| Livewire | 4.x | Required by Filament 5 |
 | MariaDB (dev) | 10.4 | Via XAMPP |
 | MySQL (prod) | 8.x | Via Hostinger |
 | Spatie Media Library | 11.x | All file uploads must go through this |
@@ -42,6 +40,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 | Node.js | 20.17.0 | ✅ Installed locally |
 | Next.js | 16.2.10 | SSG via `output: 'export'` — no Node runtime on server |
 | React | 19.x | Bundled with Next.js 16 |
+| shadcn/ui | latest | Admin panel components via CLI `npx shadcn@latest add` |
 | Tailwind CSS | 4.x | CSS-first config (not v3 config format) |
 | TypeScript | 5.x | Frontend only; backend is PHP |
 | Quill.js | 2.x | Rich text editor for blog posts |
@@ -51,7 +50,6 @@ _This file contains critical rules and patterns that AI agents must follow when 
 ### Version Change Warnings
 - **Laravel 11 → 12**: 11's security support ended March 2026. Pin to 12.x.
 - **Next.js 14 → 16.2.10**: 14's security support ended Oct 2025. Static export fully supported in v16.
-- **Filament 3 → 5.7**: v3 is EOL. v5 requires Tailwind v4 + Livewire v4 — breaking config changes.
 - All packages must be **free/open-source** — no paid APIs (NFR-10).
 
 ## Critical Implementation Rules
@@ -61,8 +59,8 @@ _This file contains critical rules and patterns that AI agents must follow when 
 #### PHP (Backend — Laravel)
 - **No raw SQL anywhere.** All queries through Eloquent ORM — no `DB::raw()`, no raw `whereRaw()`, no raw selects. SQL injection must be impossible by design (NFR-6, AD-7).
 - **All API input validation in Laravel FormRequest classes.** Never validate inline in controllers.
-- **DDD domain isolation is enforced:** A model in `Domains/Marketing/Models/` must never `use` a model from `Domains/Billing/Models/`. Cross-domain data access goes through injected service classes.
-- **Migration naming:** `YYYY_MM_DD_HHMMSS_create_{domain}_{table}_table.php` — e.g. `2026_07_18_000001_create_marketing_services_table.php`.
+- **Flat Laravel structure** — models in `app/Models/`, controllers in `app/Http/Controllers/Api/`.
+- **Migration naming:** `YYYY_MM_DD_HHMMSS_create_{table}_table.php`
 - **Environment-driven config only.** No hardcoded URLs, emails, or credentials — everything in `.env`.
 
 #### TypeScript (Frontend — Next.js + Shared)
@@ -74,17 +72,15 @@ _This file contains critical rules and patterns that AI agents must follow when 
 ### Framework-Specific Rules
 
 #### Laravel 12 (Backend Framework)
-- **DDD directory structure:** Models live in `app/Domains/{Domain}/Models/`, not `app/Models/`. Filament resources in `app/Domains/{Domain}/Filament/Resources/`. API controllers in `app/Domains/{Domain}/Http/Api/`.
-- **Filament Resources auto-discovered** from each domain's `Filament/Resources/` directory — no manual registration needed.
+- **Flat Laravel structure:** Models in `app/Models/`, API controllers in `app/Http/Controllers/Api/`. No domain directories.
 - **API response caching** on `GET /api/*` endpoints — target <200ms response time. Use Laravel's built-in caching where appropriate.
 - **Rate limiting** via `RateLimiter` facade on API route level, database-backed (no Redis): Contact=5/min/IP, Newsletter=3/min/IP.
 - **CORS** restricted to deployed frontend domain in production. Configure via `config/cors.php`.
 
-#### Filament 5.7 (Admin Panel)
-- **Theme Settings is a custom Filament page** (extends `Filament\Pages\Page`), not a CRUD Resource — uses form components with live preview panel.
-- **All other admin content uses standard Filament Resources** with reorderable tables (drag handles map to `sort_order` column).
-- **Admin visual identity locked:** Sidebar `#1e1b2e`, primary `#FF0000`, Inter typeface. No customization of Filament base components beyond DESIGN.md specs.
-- **Filament requires:** `composer require filament/filament:"^5.0" -W`, Tailwind CSS v4, Livewire v4.
+#### Admin Panel (Next.js/shadcn)
+- Admin panel lives in the Next.js frontend at `/admin/*` routes, built with shadcn/ui components.
+- All admin forms, tables, and dashboards use shadcn/ui primitives with a consistent design system.
+- Admin visual identity locked: Sidebar `#1e1b2e`, primary `#FF0000`, Inter typeface. No customization of components beyond DESIGN.md specs.
 
 #### Next.js 16 (SSG Frontend)
 - **`output: 'export'`** in `next.config.ts` — all pages pre-built to static HTML. No Node.js runtime on server.
@@ -113,10 +109,9 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 #### Naming Conventions
 - **Models:** Singular PascalCase — `Service`, `PricingPlan`, `BlogPost`, `ContactMessage`, `Subscriber`, `ThemeSetting`
-- **Database tables:** `{domain}_{entity}` plural snake_case — `marketing_services`, `billing_pricing_plans`, `contact_contact_messages`, `theming_theme_settings`
+- **Database tables:** `{entity}` plural snake_case — `services`, `pricing_plans`, `contact_messages`, `theme_settings`
 - **API routes:** kebab-case multi-word — `/api/pricing-plans`, `/api/blog-posts`, `/api/team`
-- **Migrations:** `YYYY_MM_DD_HHMMSS_{action}_{table}` — `create_marketing_services_table`, `add_sort_order_to_marketing_services_table`
-- **Filament Resources:** `{Entity}Resource` within the domain's `Filament/Resources/` directory
+- **Migrations:** `YYYY_MM_DD_HHMMSS_{action}_{table}` — `create_services_table`, `add_sort_order_to_services_table`
 - **Frontend components:** PascalCase — `ServiceCard`, `PricingTable`, `BlogCard`, `ThemeProvider`, `ContactForm`
 - **Frontend pages:** kebab-case directories under `app/` — `app/blog/[slug]/page.tsx`
 - **API controllers:** `{Entity}Controller` — `ServiceController`, `PricingPlanController`, `ThemeController`
@@ -127,7 +122,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **`packages/shared`** contains only TypeScript Zod schemas exported from `src/index.ts`. No PHP code.
 
 #### Styling & UI Guardrails
-- **Icons:** Font Awesome Free 6.x for public site. Blade Heroicons for admin (Filament default). Never mix families on the same surface.
+- **Icons:** Font Awesome Free 6.x for public site. Lucide for admin (shadcn default). Never mix families on the same surface.
 - **No emoji as UI icons** anywhere in production (UX-DR15).
 - **No celebration animations, confetti, or exclamation marks in admin microcopy.** Admin is a tool, not a cheerleader.
 - **Public site voice:** Warm, conversational. Uses "you" and "we." No jargon.
@@ -157,19 +152,17 @@ _This file contains critical rules and patterns that AI agents must follow when 
 ### Critical Don't-Miss Rules
 
 #### Architecture Invariants (NEVER BREAK)
-- ❌ **Never import a model from another domain.** `BlogPost` (Marketing) must never `use` `PricingPlan` (Billing). Cross-domain access through injected service classes only (AD-1).
 - ❌ **Never hardcode brand colors** in any component. All visual tokens resolve through `var(--color-*)` CSS custom properties. A component with `#FF0000` literal is wrong (AD-4).
 - ❌ **Never add server-rendered pages.** No `getServerSideProps`, no Next.js API routes, no database connections from the frontend. SSG only (`output: 'export'`) (AD-2).
-- ❌ **Never bypass Spatie Media Library** for file uploads. Every file (team photos, logos, blog images, pages) goes through Spatie. No direct `Storage::put()` on model fields (AD-6).
 - ❌ **Never write raw SQL.** Eloquent ORM only. No `DB::raw()`, no `whereRaw()`, no raw selects (NFR-16).
 
 #### Content Model Gotchas
 - ⚠️ **Only one "Most Popular" pricing plan.** Toggling `is_popular` on a plan must remove it from any other plan.
-- ⚠️ **Blog slugs** auto-generate from title but must be admin-overridable. Unique constraint in DB and in Filament validation.
+- ⚠️ **Blog slugs** auto-generate from title but must be admin-overridable. Unique constraint in DB.
 - ⚠️ **Published filtering at query level.** `is_published = false` means the record is excluded from ALL public API responses — not just hidden in UI.
 - ⚠️ **Contact message `read_at`** defaults to `null`. Message management admin UI deferred to v1.1 — data is queryable in DB only for v1.
 - ⚠️ **Price field** is `decimal(10,2)` — validate numeric input on save. Display as `₱XXX` formatted string in frontend.
-- ⚠️ **Sort order** managed via Filament's reorderable table (drag-and-drop). Column `sort_order` (integer, default 0) on all ordered models.
+- ⚠️ **Sort order** managed via admin panel. Column `sort_order` (integer, default 0) on all ordered models.
 
 #### Infrastructure Constraints
 - ⚠️ **Hostinger shared hosting** — no Node.js runtime. Frontend is flat static files only.

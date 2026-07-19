@@ -72,7 +72,7 @@ So that **the API contract is established for all downstream domain epics to imp
   - [x] Create stub controller classes for GET endpoints (will be implemented in Epics 2-5)
   - [x] Create full controllers for contact and subscribe endpoints
 - [x] **Create Contact domain** (AC: ContactMessage model + migration)
-  - [x] Create directory: `apps/backend/app/Domains/Contact/Models/`
+  - [x] Create models in `apps/backend/app/Models/`
   - [x] Create migration: `create_contact_contact_messages_table`
     - `id`, `name` (string 255), `email` (string 255), `message` (text), `read_at` (timestamp nullable), timestamps
   - [x] Create `ContactMessage` model
@@ -163,17 +163,15 @@ app/Http/Controllers/Api/
 
 Stub controllers should return `response()->json(['data' => []])` for GET index and `response()->json(['data' => null])` or 404 for show.
 
-### Domain Model Locations
+### Model Locations
 
 ```
-app/Domains/Contact/
-├── Models/
-│   ├── ContactMessage.php
-│   └── Subscriber.php
-└── Http/
-    └── Requests/
-        ├── ContactRequest.php
-        └── SubscribeRequest.php
+app/Models/
+├── ContactMessage.php
+└── Subscriber.php
+app/Http/Requests/
+├── ContactRequest.php
+└── SubscribeRequest.php
 ```
 
 ### Migration Specifications
@@ -307,7 +305,6 @@ trait ApiResponse
 - **AD-3:** REST API is the contract — consistent JSON envelope, `{ "data": ... }` for success
 - **AD-5:** Admin is sole content authority — only contact/subscribe POST endpoints on public API
 - **AD-8:** Queued email with DB fallback — message stored before email dispatch (email queueing in Story 6.3)
-- **Domain isolation:** ContactMessage and Subscriber live in `Domains/Contact/Models/` — NOT in `app/Models/`
 
 ### Testing Requirements
 
@@ -353,7 +350,7 @@ trait ApiResponse
 - ApiResponse trait created with `success()` and `error()` helper methods.
 - ApiResource base class created wrapping data in `{ "data": ... }`.
 - Migrations created and ran for `contact_contact_messages` and `contact_subscribers` tables.
-- Contact domain: ContactMessage model, Subscriber model, ContactRequest, SubscribeRequest.
+- ContactMessage model, Subscriber model, ContactRequest, SubscribeRequest created.
 - ContactController and SubscribeController fully implemented with validation and JSON responses.
 - 6 stub controllers created (Page, Service, TeamMember, BlogPost, PricingPlan, Theme) returning `{ "data": [] }`.
 - routes/api.php configured with all 8 route groups + 404 fallback.
@@ -378,26 +375,10 @@ trait ApiResponse
 - `apps/backend/app/Http/Controllers/Api/BlogPostController.php`
 - `apps/backend/app/Http/Controllers/Api/PricingPlanController.php`
 - `apps/backend/app/Http/Controllers/Api/ThemeController.php`
-- `apps/backend/app/Domains/Contact/Models/ContactMessage.php`
-- `apps/backend/app/Domains/Contact/Models/Subscriber.php`
-- `apps/backend/app/Domains/Contact/Http/Requests/ContactRequest.php`
-- `apps/backend/app/Domains/Contact/Http/Requests/SubscribeRequest.php`
-- `apps/backend/database/migrations/*_create_contact_contact_messages_table.php`
-- `apps/backend/database/migrations/*_create_contact_subscribers_table.php`
-
-- `apps/backend/routes/api.php` — All 8 route groups
-- `apps/backend/app/Http/Controllers/Api/ContactController.php`
-- `apps/backend/app/Http/Controllers/Api/SubscribeController.php`
-- `apps/backend/app/Http/Controllers/Api/PageController.php` (stub)
-- `apps/backend/app/Http/Controllers/Api/ServiceController.php` (stub)
-- `apps/backend/app/Http/Controllers/Api/TeamMemberController.php` (stub)
-- `apps/backend/app/Http/Controllers/Api/BlogPostController.php` (stub)
-- `apps/backend/app/Http/Controllers/Api/PricingPlanController.php` (stub)
-- `apps/backend/app/Http/Controllers/Api/ThemeController.php` (stub)
-- `apps/backend/app/Domains/Contact/Models/ContactMessage.php`
-- `apps/backend/app/Domains/Contact/Models/Subscriber.php`
-- `apps/backend/app/Domains/Contact/Http/Requests/ContactRequest.php`
-- `apps/backend/app/Domains/Contact/Http/Requests/SubscribeRequest.php`
+- `apps/backend/app/Models/ContactMessage.php`
+- `apps/backend/app/Models/Subscriber.php`
+- `apps/backend/app/Http/Requests/ContactRequest.php`
+- `apps/backend/app/Http/Requests/SubscribeRequest.php`
 - `apps/backend/database/migrations/*_create_contact_contact_messages_table.php`
 - `apps/backend/database/migrations/*_create_contact_subscribers_table.php`
 - `apps/backend/app/Http/Resources/Api/ApiResource.php` (base resource)

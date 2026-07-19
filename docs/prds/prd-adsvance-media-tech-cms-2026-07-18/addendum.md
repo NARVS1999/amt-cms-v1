@@ -13,15 +13,15 @@
 ├────────────────────────────────────────────────────────────┤
 │                                                            │
 │  apps/                                                     │
-│  ├── backend/              Laravel 12 + Filament 5         │
-│  │   ├── app/Domains/      DDD domain boundaries           │
-│  │   ├── app/Http/API     REST JSON API controllers        │
-│  │   ├── app/Filament/    Admin panel resources            │
-│  │   └── routes/api.php   Public API routes                │
+│  ├── backend/              Laravel 12 (REST API)           │
+│  │   ├── app/Models/      Eloquent models                 │
+│  │   ├── app/Http/Controllers/Api/  API controllers       │
+│  │   ├── app/Http/Resources/Api/    API resources         │
+│  │   └── routes/api.php   API routes                      │
 │  │                                                            │
 │  └── frontend/            Next.js 16 App Router (SSG)      │
-│      ├── app/             Page routes (SSG export)         │
-│      ├── components/      Reusable UI components           │
+│      ├── app/             Page routes + admin pages        │
+│      ├── components/      Reusable UI + shadcn/ui         │
 │      └── lib/             API client, theme context        │
 │                                                            │
 │  packages/                                                  │
@@ -40,47 +40,6 @@ Both Laravel and Next.js run on Hostinger shared hosting. Next.js in SSG mode (`
 - No server-side crashes or cold starts
 
 The tradeoff: content changes require a rebuild + redeploy. For a marketing site updated weekly, this is acceptable. A CI pipeline (GitHub Actions) can make this a one-command or git-push-triggered operation.
-
-### DDD Domain Structure
-
-```
-backend/app/Domains/
-├── Marketing/
-│   ├── Models/
-│   │   ├── Page.php
-│   │   ├── Service.php
-│   │   ├── TeamMember.php
-│   │   └── BlogPost.php
-│   └── Filament/Resources/
-│       ├── PageResource.php
-│       ├── ServiceResource.php
-│       ├── TeamMemberResource.php
-│       └── BlogPostResource.php
-├── Billing/
-│   ├── Models/
-│   │   ├── PricingPlan.php
-│   │   └── PlanFeature.php
-│   └── Filament/Resources/
-│       ├── PricingPlanResource.php
-│       └── PlanFeatureResource.php
-├── Contact/
-│   ├── Models/
-│   │   ├── ContactMessage.php
-│   │   └── Subscriber.php
-│   └── Filament/Resources/
-│       ├── ContactMessageResource.php  (v1.1)
-│       └── SubscriberResource.php      (v1.1)
-├── Theming/
-│   ├── Models/
-│   │   └── ThemeSetting.php
-│   └── Filament/Resources/
-│       └── ThemeSettingResource.php
-└── Identity/
-    ├── Models/
-    │   └── User.php  (Filament built-in)
-    └── Filament/Resources/
-        └── UserResource.php
-```
 
 ---
 
@@ -156,7 +115,7 @@ backend/app/Domains/
 | sort_order | integer | default 0 |
 | timestamps | | |
 
-### contact_contact_messages
+### contact_messages
 | Column | Type | Notes |
 |--------|------|-------|
 | id | bigIncrements | |
@@ -166,7 +125,7 @@ backend/app/Domains/
 | read_at | timestamp | nullable |
 | timestamps | | |
 
-### contact_subscribers
+### subscribers
 | Column | Type | Notes |
 |--------|------|-------|
 | id | bigIncrements | |
@@ -174,7 +133,7 @@ backend/app/Domains/
 | subscribed_at | timestamp | |
 | timestamps | | |
 
-### theming_theme_settings
+### theme_settings
 | Column | Type | Notes |
 |--------|------|-------|
 | id | bigIncrements | |
@@ -256,15 +215,13 @@ module.exports = {
 - Configure `output: 'export'` in `next.config.js`
 - Create `packages/shared` with initial Zod schemas
 
-### Day 2: Admin Panel + Models
-- Install and configure Filament PHP 5 (`composer require filament/filament:"^5.0" -W`)
+### Day 2: Models + Admin API + Admin UI
 - Create all Eloquent models with relationships
-- Create Filament Resources for: Services, PricingPlans, PlanFeatures, TeamMembers, BlogPosts, Pages
-- Create ThemeSetting Filament page (custom form, not just CRUD)
-- Create User management (Filament built-in)
+- Create admin API controllers in Laravel for: Services, PricingPlans, PlanFeatures, TeamMembers, BlogPosts, Pages, ThemeSettings
+- Create admin pages in Next.js with shadcn/ui (table views, CRUD forms)
 - Create seeder with legacy sample content
 
-### Day 3: API Layer
+### Day 3: Public API Layer
 - Create API controllers for all public endpoints
 - Create FormRequest validation classes for POST endpoints
 - Create API Resources (transformers) for consistent JSON output
@@ -373,18 +330,16 @@ GitHub Actions workflow: on push to `main`, build both apps and deploy via FTP. 
 | Package | Version | Purpose | License |
 |---------|---------|---------|---------|
 | Laravel | 12.x | Backend framework — current LTS (security until Feb 2027) | MIT |
-| Filament | 5.7.x | Admin panel — current stable (replaces v3) | MIT |
-| Livewire | 4.x | Reactive UI (Filament dependency, required by Filament 5) | MIT |
 | Spatie Media Library | 11.x | File/media management | MIT |
 | Spatie Laravel Permission | 6.x | Role-based access (v1.1 deferred) | MIT |
 | Laravel Debugbar | 3.x | Local dev debugging | MIT |
 | Next.js | 16.2.10 | Frontend framework — current LTS (replaces v14) | MIT |
-| Tailwind CSS | 4.x | Utility CSS — v4 required by Filament 5 (replaces v3) | MIT |
+| shadcn/ui | Latest | UI component library (admin panel) | MIT |
+| Tailwind CSS | 4.x | Utility CSS (replaces v3) | MIT |
 | React | 19.x | UI library (bundled with Next.js 16) | MIT |
 | TypeScript | 5.x | Type safety for frontend | Apache 2.0 |
 | Quill.js | 2.x | Rich text editor | BSD-3-Clause |
 | Font Awesome Free | 6.x | Icons (public site) | CC BY 4.0 + MIT |
-| Blade Heroicons | Latest | Icons (admin panel, Filament default) | MIT |
 | Zod | 3.x | Schema validation (shared) | MIT |
 | HTMLPurifier | 4.x | Rich text sanitization | LGPL |
 

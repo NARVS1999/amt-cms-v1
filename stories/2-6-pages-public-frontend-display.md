@@ -260,7 +260,7 @@ All blocks use `var(--color-*)` tokens. Each is wrapped in a `<section>` with `p
 
 ### Previous Story Intelligence (Story 2.5 — Pages Admin CRUD)
 
-- **Story 2.5** created the Page model, migration, Filament CRUD, API controller, and API endpoints. All backend work is done.
+- **Story 2.5** created the Page model, migration, admin CRUD, API controller, and API endpoints. All backend work is done.
 - **Story 2.5** added `fetchPages()` to `lib/api.ts` with AbortController + Zod validation pattern.
 - **Story 2.5 code review fixes:**
   - `formatStateUsing()` for sections textarea (array→JSON string)
@@ -283,7 +283,7 @@ All blocks use `var(--color-*)` tokens. Each is wrapped in a `<section>` with `p
 ### Git Intelligence
 
 - Epic 2 is in-progress with 5 of 6 stories done (2.1-2.5 done, 2.6 ready-for-dev).
-- Story 2.5 was the last completed story — added the Page model, API controller, Filament CRUD, and frontend API client.
+- Story 2.5 was the last completed story — added the Page model, API controller, admin CRUD, and frontend API client.
 - Story 2.6 is the final story in Epic 2. After this, Epic 2 is complete.
 
 ### Verification Checklist

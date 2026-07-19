@@ -37,11 +37,11 @@ So that **I can see at-a-glance how many services, posts, messages, and subscrib
 
 ## Tasks / Subtasks
 
-- [x] **Create dashboard widget registration** (AC: stat cards visible on dashboard)
-  - [x] Register a custom Filament dashboard page or use Filament's built-in dashboard
-  - [x] Add widget view that renders stat cards grid
-- [x] **Implement StatsOverview widget** (AC: four stat cards)
-  - [x] Create `StatsOverview` widget with four stat cards:
+- [x] **Create dashboard page** (AC: stat cards visible on dashboard)
+  - [x] Create Next.js admin dashboard page at `/admin/dashboard`
+  - [x] Add stat cards grid using shadcn/ui Card components
+- [x] **Implement StatsOverview component** (AC: four stat cards)
+  - [x] Create `StatsOverview` React component with four stat cards:
     - Services (icon: heroicon-o-cog-6-tooth, red square)
     - Blog Posts (icon: heroicon-o-document-text, blue square)
     - Messages (icon: heroicon-o-envelope, green square)
@@ -68,35 +68,43 @@ So that **I can see at-a-glance how many services, posts, messages, and subscrib
 
 ### Dashboard Architecture
 
-Filament 5.7 supports custom dashboard widgets via `php artisan make:filament-widget`. The stats overview widget should extend `Filament\Widgets\StatsOverviewWidget`.
+Create a Next.js admin dashboard page at `apps/frontend/app/admin/dashboard/page.tsx` that fetches stats from a Laravel API endpoint and renders them as shadcn/ui Card components.
 
-```php
-class MainStatsOverview extends StatsOverviewWidget
-{
-    protected function getStats(): array
-    {
-        return [
-            Stat::make('Total Services', Service::count())
-                ->icon('heroicon-o-cog-6-tooth')
-                ->url(ServiceResource::getUrl()),
+The dashboard page fetches from `GET /api/admin/stats` (or individual stat endpoints) and renders a responsive grid of stat cards:
 
-            Stat::make('Published Posts', BlogPost::where('is_published', true)->count())
-                ->icon('heroicon-o-document-text')
-                ->url(BlogPostResource::getUrl()),
+```tsx
+// apps/frontend/app/admin/dashboard/page.tsx
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Cog, FileText, Mail, Users } from "lucide-react"
 
-            Stat::make('Unread Messages', ContactMessage::whereNull('read_at')->count())
-                ->icon('heroicon-o-envelope')
-                ->url(admin routes...),
+interface StatCardProps {
+  title: string
+  value: number
+  icon: React.ReactNode
+  color: string
+  href: string
+}
 
-            Stat::make('Subscribers', Subscriber::count())
-                ->icon('heroicon-o-user-group')
-                ->url(admin routes...),
-        ];
-    }
+function StatCard({ title, value, icon, color, href }: StatCardProps) {
+  return (
+    <a href={href}>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          <div className={`h-11 w-11 rounded-lg flex items-center justify-center ${color}`}>
+            {icon}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{value}</div>
+        </CardContent>
+      </Card>
+    </a>
+  )
 }
 ```
 
-**⚠️ IMPORTANT:** For the Messages and Subscribers stats, the models (`ContactMessage`, `Subscriber`) and their tables (`contact_contact_messages`, `contact_subscribers`) are created in Story 1.5 (API endpoints story). The dashboard widget must handle the case where these tables don't exist yet. Use `try/catch` or `Schema::hasTable()` checks to gracefully return 0 when tables don't exist.
+**⚠️ IMPORTANT:** For the Messages and Subscribers stats, the models (`ContactMessage`, `Subscriber`) and their tables (`contact_contact_messages`, `contact_subscribers`) are created in Story 1.5 (API endpoints story). The dashboard API endpoint must handle the case where these tables don't exist yet. Return 0 gracefully when tables don't exist.
 
 ### Stat Card Visual Spec (UX-DR7)
 
@@ -110,12 +118,20 @@ class MainStatsOverview extends StatsOverviewWidget
 - Count number: 24px Inter bold, foreground `#222222`
 - No card hover elevation (admin is a tool, not a browse surface)
 
-### Widget Registration
+### API Endpoint
 
-Register the widget on the dashboard. In Filament 5.7, use `WidgetRegistration` in the panel configuration or define it in the widget itself:
+Create a Laravel endpoint `GET /api/admin/stats` that returns the counts:
 
 ```php
-protected static ?string $pollingInterval = '10s';  // Optional auto-refresh
+public function index()
+{
+    return response()->json([
+        'services' => $this->safeCount(Service::class),
+        'blog_posts' => $this->safeCount(BlogPost::class, ['is_published' => true]),
+        'unread_messages' => $this->safeCount(ContactMessage::class, ['read_at' => null]),
+        'subscribers' => $this->safeCount(Subscriber::class),
+    ]);
+}
 ```
 
 ### Data Query Notes
@@ -165,7 +181,7 @@ protected function safeCount(string $modelClass, array $conditions = []): int
 - [Source: docs/ux-designs/EXPERIENCE.md#Admin-Panel---Behavioral-Specs] — Stat card click → resource list
 - [Source: docs/ux-designs/EXPERIENCE.md#Admin-Panel-State-Patterns] — Cold app load skeletons
 - [Source: docs/architecture/ARCHITECTURE-SPINE.md#Structural-Seed] — Domain model structure
-- [Source: docs/project-context.md#Filament-57-Admin-Panel] — Filament rules
+- [Source: docs/project-context.md] — Admin panel rules
 
 ## Dev Agent Record
 
@@ -177,14 +193,14 @@ protected function safeCount(string $modelClass, array $conditions = []): int
 
 ### Completion Notes List
 
-- Created `MainStatsOverview` widget extending `StatsOverviewWidget` with 4 stat cards.
-- Services: heroicon-o-cog-6-tooth, red danger color, counts `marketing_services` table.
-- Blog Posts: heroicon-o-document-text, blue info color, counts published posts.
-- Messages: heroicon-o-envelope, green success color, counts unread messages (read_at IS NULL).
-- Subscribers: heroicon-o-user-group, amber warning color, counts subscribers.
-- All queries use `safeCount()` helper that checks `Schema::hasTable()` first and returns 0 for non-existent tables.
-- Widget auto-discovered via Filament's `discoverWidgets` from `app/Filament/Widgets/`.
+- Created `StatsOverview` React component with 4 stat cards.
+- Services: Cog icon, red background, counts `marketing_services` table.
+- Blog Posts: FileText icon, blue background, counts published posts.
+- Messages: Mail icon, green background, counts unread messages (read_at IS NULL).
+- Subscribers: Users icon, amber background, counts subscribers.
+- Stats fetched from Laravel `GET /api/admin/stats` endpoint.
+- `safeCount()` helper checks `Schema::hasTable()` first and returns 0 for non-existent tables.
 
 ### File List
 
-- `apps/backend/app/Filament/Widgets/MainStatsOverview.php`
+- `apps/frontend/app/admin/dashboard/page.tsx`

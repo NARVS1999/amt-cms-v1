@@ -19,8 +19,8 @@ inputDocuments:
 
 This document provides the complete epic and story breakdown for **Adsvance Media Tech CMS**, decomposing the requirements from the PRD, UX Design, and Architecture requirements into implementable stories. The CMS converts a legacy static HTML marketing site into a reusable, themeable CMS foundation — powering Adsvance's own marketing site and serving as a drop-in base for client projects.
 
-**Stack:** Laravel 12 + Filament 5.7 (backend/admin), Next.js 16.2.10 SSG (frontend), MySQL/MariaDB, Tailwind CSS v4.
-**Paradigm:** Domain-Driven Design, monorepo with npm workspaces (`apps/backend`, `apps/frontend`, `packages/shared`).
+**Stack:** Laravel 12 (REST API), Next.js 16.2.10 SSG (frontend with shadcn/ui), MySQL/MariaDB, Tailwind CSS v4.
+**Paradigm:** Monorepo with npm workspaces (`apps/backend`, `apps/frontend`, `packages/shared`).
 **Hosting:** Hostinger Business Shared — Laravel in `~/laravel_app/`, Next.js static export in `public_html/`.
 
 ## Requirements Inventory
@@ -61,13 +61,13 @@ Public visitors can subscribe with their email address. Single-step subscription
 Admin can view all contact submissions, mark messages as read, and delete messages. Unread messages visually distinct (bold/highlighted). *Deferred to v1.1.*
 
 **FR-12: Admin Authentication**
-Admin users log in with email and password using Filament's built-in authentication. Supports "Remember Me." Unauthenticated users redirected to `/admin/login`. Session expires after configurable inactivity.
+Admin users log in with email and password via Next.js login page against REST API. Supports "Remember Me." Unauthenticated users redirected to `/admin/login`. Session expires after configurable inactivity.
 
 **FR-13: Admin Dashboard**
-Admin dashboard displays quick-stat widgets: total services, published blog posts, unread contact messages, newsletter subscriber count. Widget counts update after relevant CRUD operations. Clicking a widget navigates to the corresponding resource list.
+Next.js admin dashboard displays quick-stat widgets with shadcn/ui components: total services, published blog posts, unread contact messages, newsletter subscriber count. Widget counts update after relevant CRUD operations. Clicking a widget navigates to the corresponding admin list page.
 
 **FR-14: Media Library**
-Admin can upload, browse, and delete media files via Spatie Media Library. Accepted formats: JPG, PNG, WebP, SVG. Max file size: 2MB. Deleting a media file removes it from storage. Media can be attached to any model (blog post, team member, page, theme).
+Admin can upload, browse, and delete media files. Accepted formats: JPG, PNG, WebP, SVG. Max file size: 2MB. Deleting a media file removes it from storage. Media can be attached to any model (blog post, team member, page, theme).
 
 **FR-15: Public REST API**
 Laravel backend exposes GET endpoints (`/api/pages`, `/api/services`, `/api/team`, `/api/blog-posts`, `/api/pricing-plans`, `/api/theme`) and POST endpoints (`/api/contact`, `/api/subscribe`). All GET return HTTP 200 with `{ "data": ... }`. POST return HTTP 201 on success, 422 on validation failure. Unknown routes return 404. Consistent JSON:API-style structure. CORS restricted to deployed frontend domain.
@@ -102,7 +102,7 @@ If the API is unreachable during Next.js build, the build fails with a clear err
 All configuration is environment-driven (`.env`), never hardcoded. Key variables: `CONTACT_NOTIFICATION_EMAIL`, `APP_NAME`, `APP_URL`, `DB_*`, `MAIL_*`.
 
 **NFR-10: Zero-Cost Software Stack**
-All software must be free/open-source: Laravel, Filament, Next.js, Quill, Spatie packages, Font Awesome. Hostinger shared hosting cost only (~$3-10/month). No paid APIs.
+All software must be free/open-source: Laravel, Next.js, shadcn/ui, Quill, Font Awesome. Hostinger shared hosting cost only (~$3-10/month). No paid APIs.
 
 **NFR-11: Hostinger Compatibility**
 Laravel runs on Hostinger Business Shared (PHP 8.2). Next.js frontend deploys as static HTML/JS/CSS — no Node runtime on server. MySQL database included in Hostinger plan.
@@ -124,18 +124,16 @@ SQL injection impossible via Eloquent ORM. No raw SQL queries in v1 codebase.
 
 ### Additional Requirements (Architecture)
 
-- **AD-1 — Domain boundaries isolated:** 5 DDD domains (Marketing, Billing, Contact, Theming, Identity). Each owns Models, Filament Resources, and API controllers. Cross-domain access through injected services — never direct model imports.
+- **AD-1 — Flat Laravel structure:** Standard `app/Models/`, `app/Http/Controllers/Api/`, `app/Http/Requests/`. No domain folders. Standard Laravel MVC conventions throughout.
 - **AD-2 — Frontend is static consumer:** Next.js in SSG mode (`output: 'export'`). All data fetched at build time via REST API. No database connections, no `getServerSideProps`. Deployed as flat `out/` folder.
 - **AD-3 — REST API is the contract:** Consistent JSON envelope: `{ "data": ... }` for success, `{ "message": "...", "errors": {...} }` for validation failures. `packages/shared` has Zod schemas mirroring API shapes.
 - **AD-4 — Theme system via CSS custom properties:** Theme settings stored as key-value pairs. Next.js writes values into `:root` CSS custom properties at build time. Tailwind extends colors/fontFamily from `var(--*)`. No hardcoded brand colors in components.
-- **AD-5 — Admin is sole content authority:** All content CRUD through Filament. Public API is read-only (GET) except contact/subscribe POST endpoints. Admin auth required for writes.
-- **AD-6 — Media via Spatie Media Library:** All file uploads through Spatie. Files in `storage/app/public/`, symlinked to `public/storage/`. Each model defines its media collections. Deleting a model cascades to its media.
+- **AD-5 — Admin is sole content authority:** All content CRUD through REST API with auth middleware. Public API is read-only (GET) except contact/subscribe POST endpoints. Admin auth required for writes.
+- **AD-6 — Media storage:** All file uploads stored in `storage/app/public/`, symlinked to `public/storage/`. Each model handles its own file attachments. Deleting a model cascades to its associated files.
 - **AD-7 — Unidirectional content flow:** Admin writes → MySQL → REST API → Next.js build → Static HTML. Content is "ready" after save, "live" after deploy. Admin does not trigger builds.
 - **AD-8 — Queued email with DB fallback:** Contact submissions saved to DB before email dispatch. Database queue driver (no Redis). Retry up to 3 times on failure.
 - **Starter template:** Greenfield monorepo — `laravel new apps/backend`, `create-next-app apps/frontend`, custom `packages/shared`.
 - **Database migrations created just-in-time:** Each migration is created in the story that first needs the table. Migrations include: `marketing_pages`, `marketing_services`, `marketing_team_members`, `marketing_blog_posts`, `billing_pricing_plans`, `billing_plan_features`, `contact_contact_messages`, `contact_subscribers`, `theming_theme_settings`, plus the default Laravel `users` table (created in Story 1.1).
-- **Filament 5.7 setup:** Requires `composer require filament/filament:"^5.0" -W`, Tailwind CSS v4, Livewire v4. Resources auto-discovered from each domain's `Filament/Resources/` directory.
-- **Theme Settings as custom Filament page:** Not a CRUD resource — a custom form page with color pickers, font selectors, logo upload zones, and live preview panel.
 - **Quill.js integration:** Rich text editor for blog posts. Toolbar: bold, italic, headings (h2/h3), ordered/unordered lists, link, image. Auto-save draft every 30 seconds.
 - **SSG build & deploy:** `npm run build` produces `apps/frontend/out/`. Upload contents to Hostinger `public_html/`. `.htaccess` rewrite for client-side routing.
 - **CORS configuration:** Restricted to deployed frontend domain in production. Allow `*` in local dev.
@@ -183,7 +181,7 @@ Build all admin panel component visuals per DESIGN.md:
 Navbar links smooth-scroll to sections (`#services`, `#pricing`, etc.). Active section highlighted via Intersection Observer. Mobile hamburger toggles slide-out drawer with semi-transparent overlay (tap-to-close), body scroll locked, `aria-expanded` toggles, `role="dialog"`, `aria-modal="true"`, focus trapped. Pricing CTA scrolls to contact section. Blog cards navigate to `/blog/{slug}`. Back-to-top hidden until 300px scroll, smooth-scroll click.
 
 **UX-DR9: Implement Admin Panel Navigation Behavior**
-Stat cards clickable → navigate to resource list. Table rows clickable → navigate to edit view. Quick action buttons create new records. Theme color swatch + hex input sync bidirectionally. Logo upload zones with click and drag-and-drop. Auto-save Quill draft every 30s. Published/unpublished toggle explicit.
+Admin sidebar navigation groups: Main (Dashboard, Services, Team, Blog, Pricing), Leads (Messages — v1.1 placeholder), Settings (Theme, Media Library, Pages). Stat cards clickable — navigate to resource list. Table rows clickable — navigate to edit view. Quick action buttons create new records. Theme color swatch + hex input sync bidirectionally. Logo upload zones with click and drag-and-drop. Auto-save Quill draft every 30s. Published/unpublished toggle explicit.
 
 **UX-DR10: Implement Contact Form State Patterns**
 Four states: idle (all fields empty), success (inline green "Thanks! We'll get back to you soon." fades after 5s, form resets), error (inline red message, fields retain values), rate limited ("Too many submissions. Try again in a minute."). All states use `aria-live="polite"` region.
@@ -193,17 +191,17 @@ Three states: success (inline "Subscribed!" clears input), duplicate ("Already s
 
 **UX-DR12: Implement Admin Panel State Patterns**
 Implement all admin state treatments:
-- Loading data: Filament skeleton rows (5-6 matching column structure).
+- Loading data: skeleton rows (5-6 matching column structure).
 - Empty resource: illustration + description + primary action button.
 - Cold app load: skeletons for stat cards + table rows.
-- Save success: green notification toast, auto-dismiss 3s.
+- Save success: green notification, auto-dismiss 3s.
 - Save failure: red notification, persistent until dismissed.
 - Delete confirmation: modal with "Are you sure?" + destructive Delete button + Cancel.
 - Theme unsaved changes: save always active, preview reflects current pickers.
 - Media oversized upload: inline error "File too large. Max 2MB."
 - Media wrong format: "Format not supported. Accepted: JPG, PNG, WebP, SVG."
 - Session expired: redirect to login with message.
-- Permission denied: Filament 403 page.
+- Permission denied: access denied page.
 
 **UX-DR13: Implement Accessibility Floor**
 WCAG 2.2 AA across both surfaces. Skip-to-content link (first focusable, visible on focus). Landmark regions (`<header>`, `<main>`, `<nav>`, `<footer>`, `<section>` with `aria-label`). All inputs have visible `<label>` elements — no placeholders as labels. Form validation errors use `aria-describedby` on input pointing to error message. Contact form success/failure uses `aria-live="polite"`. Mobile nav hamburger has `aria-expanded` (true/false). Pricing table "Most Popular" announced via `aria-label`. Color pickers have hex input as accessible alternative. Quill toolbar buttons labeled with `aria-label`. Keyboard operable — all interactive elements reachable via keyboard. Focus order matches visual reading.
@@ -212,7 +210,7 @@ WCAG 2.2 AA across both surfaces. Skip-to-content link (first focusable, visible
 Public site: ≥992px (desktop, 2-column hero, 4-column services, 3-column pricing), 768-991px (tablet, single-column hero, 2-column services), ≤767px (mobile, single column everything, hamburger nav, 40px padding). Admin: ≥1024px (full sidebar visible), 768-1023px (icon-only sidebar with hover labels), ≤767px (off-canvas sidebar, single-column content, horizontal scroll tables).
 
 **UX-DR15: Implement No-Emoji / Icon Rules**
-Font Awesome Free for all public site icons. Blade Heroicons for all admin icons (Filament default). No emoji used as UI icons anywhere in production. No celebration animations, no confetti, no exclamation marks in admin microcopy. Admin is a tool, not a cheerleader.
+Font Awesome Free for all public site icons. Lucide icons for all admin icons (shadcn/ui default). No emoji used as UI icons anywhere in production. No celebration animations, no confetti, no exclamation marks in admin microcopy. Admin is a tool, not a cheerleader.
 
 **UX-DR16: Implement Public Site Microcopy**
 Voice is warm, confident, straightforward. Uses "you" and "we." No jargon. Examples: "Need a business website?" not "Leverage our comprehensive web solutions." "Starting at ₱498/month" not "Competitively priced entry-tier offering." Admin microcopy is neutral and direct: "Saved." / "Couldn't save. Try again." / "Delete this post? This can't be undone." / "No posts yet. Create your first one."
@@ -243,9 +241,8 @@ Catch-all for unknown routes. "Page not found" with illustration and "Go Home" b
 ## Epic List
 
 ### Epic 1: Foundation & Admin Shell
-Scaffold the monorepo, Laravel 12 backend, Filament 5 admin panel with authentication and dashboard, Next.js 16 frontend with SSG, database migrations, media library, and public REST API endpoint structure. After this epic, John can log into a working admin panel and the API contract is established.
+Scaffold the monorepo, Laravel 12 backend, shadcn admin panel in Next.js with authentication and dashboard, Next.js 16 frontend with SSG, database migrations, media library, and public REST API endpoint structure. After this epic, John can log into a working admin panel and the API contract is established.
 **FRs covered:** FR-12 (Auth), FR-13 (Dashboard), FR-14 (Media Library), FR-15 (API)
-**Domains:** Identity, all infrastructure setup
 
 #### Story 1.1: Scaffold Monorepo & Backend Foundation
 
@@ -270,37 +267,49 @@ So that **the development environment is ready for feature work**.
 **When** I run `composer install` in `apps/backend`
 **Then** it completes without errors
 
-#### Story 1.2: Filament Admin Panel & Authentication
+#### Story 1.2: Next.js Admin Login Page (shadcn/ui)
 
 As an **admin user (John)**,
-I want **to log into a working Filament admin panel at `/admin` with sidebar navigation**,
+I want **to log into a shadcn admin login page at `/admin/login`**,
 So that **I can manage site content through a secure, authenticated interface**.
 
 **Acceptance Criteria:**
 
-**Given** Filament 5 is installed (`composer require filament/filament:"^5.0" -W`)
-**When** I run `php artisan filament:install --panels`
-**Then** the admin panel is accessible at `/admin`
-**And** the admin panel uses the dark sidebar theme (#1e1b2e sidebar-bg) with correct admin color tokens (Inter typeface, #FF0000 primary)
-
 **Given** I visit `/admin/login` while logged out
-**When** I submit valid email + password credentials
-**Then** I am redirected to the admin dashboard
+**When** the page loads
+**Then** I see a centered login card with email input, password input, "Remember Me" checkbox, and "Sign In" button
+**And** all form elements use shadcn/ui components (Card, Input, Button, Checkbox, Label)
+
+**Given** I submit valid email + password credentials
+**When** the form POSTs to `/api/auth/login`
+**Then** a session token is returned and stored
+**And** I am redirected to the admin dashboard at `/admin`
 
 **Given** I submit invalid credentials
-**When** the login form validates
-**Then** I see an error message and remain on the login page
+**When** the API returns 401
+**Then** I see an inline error: "Invalid credentials. Try again."
+**And** I remain on the login page
 
 **Given** I am not authenticated
 **When** I visit any `/admin/*` URL
 **Then** I am redirected to `/admin/login`
 
-**Given** Filament is installed
-**When** I check the sidebar navigation structure
-**Then** it has group headings: Main (Dashboard, Services, Team, Blog, Pricing), Leads (Messages — v1.1 placeholder), Settings (Theme, Media Library, Pages)
-**And** sidebar items use Blade Heroicons
+**Given** I mark "Remember Me"
+**When** the login request is sent
+**Then** the session expiry is extended
 
-#### Story 1.3: Admin Dashboard with Stat Widgets
+**Given** I submit the form
+**When** the request is in-flight
+**Then** the Sign In button shows a loading spinner and is disabled
+
+**Given** I inspect the login form
+**When** I tab through fields
+**Then** the focus order follows visual order (Email → Password → Remember Me → Sign In)
+**And** all fields have visible `<label>` elements (not placeholders as labels)
+
+**UX-DR coverage:** UX-DR7 (Admin form fields), UX-DR13 (A11Y — visible labels, focus order)
+
+#### Story 1.3: Admin Dashboard with shadcn Stat Widgets
 
 As an **admin user (John)**,
 I want **to see quick-stat widgets on the dashboard upon login**,
@@ -308,9 +317,9 @@ So that **I can see at-a-glance how many services, posts, messages, and subscrib
 
 **Acceptance Criteria:**
 
-**Given** I am logged into the admin panel
-**When** the dashboard loads
-**Then** I see stat cards for: Total Services, Published Blog Posts, Unread Messages, Subscribers
+**Given** I am logged into the admin page
+**When** the dashboard at `/admin` loads
+**Then** I see a grid of stat cards using shadcn/ui Card components for: Total Services, Published Blog Posts, Unread Messages, Subscribers
 **And** each card shows the current count and an icon in a colored square (red for services, blue for posts, green for messages, amber for subscribers)
 
 **Given** I create a new service in the admin
@@ -319,15 +328,19 @@ So that **I can see at-a-glance how many services, posts, messages, and subscrib
 
 **Given** I click a stat card (e.g., "2 Unread Messages")
 **When** the card is clickable
-**Then** I am navigated to the corresponding resource list
+**Then** I am navigated to the corresponding admin list page
 
 **Given** the database is empty
 **When** the dashboard loads
 **Then** stat cards show "0" and do not break layout
 
-**UX-DR coverage:** UX-DR7 (Stat Card visual spec), UX-DR12 (Admin states — cold app load shows skeletons)
+**Given** data is loading
+**When** the dashboard first loads
+**Then** skeleton placeholders appear for each stat card
 
-#### Story 1.4: Media Library Setup
+**UX-DR coverage:** UX-DR7 (Stat Card visual spec), UX-DR12 (Admin states)
+
+#### Story 1.4: Media Library Admin Page (Next.js)
 
 As an **admin user (John)**,
 I want **to upload, browse, and delete image files in a media library**,
@@ -335,14 +348,14 @@ So that **I can use those images in blog posts, team member photos, logos, and p
 
 **Acceptance Criteria:**
 
-**Given** Spatie Media Library v11 is installed (`composer require spatie/laravel-medialibrary`)
-**When** I navigate to the Media Library in the admin panel
-**Then** I see an upload button and a grid of uploaded media items
+**Given** I am logged into the admin page
+**When** I navigate to `/admin/media`
+**Then** I see an upload button and a grid of uploaded media items with thumbnails, file names, sizes, and types
 
 **Given** I upload a JPG/PNG/WebP/SVG file under 2MB
-**When** the upload completes
+**When** the upload completes via POST `/api/media`
 **Then** the file appears in the media grid with a thumbnail preview
-**And** the file is stored in `storage/app/public/` via Spatie
+**And** the file is stored in `storage/app/public/`
 
 **Given** I upload a file larger than 2MB
 **When** validation runs
@@ -359,6 +372,19 @@ So that **I can use those images in blog posts, team member photos, logos, and p
 **Given** media items exist in the library
 **When** the index page loads
 **Then** items display as a responsive grid with file name, size, type, and thumbnail
+
+**Given** the list is empty
+**When** the page loads
+**Then** I see an empty state: "No media yet. Upload your first file."
+
+**Given** the list is loading
+**When** the page first loads
+**Then** skeleton grid items appear
+
+**API endpoints implemented:**
+- `GET /api/media` — returns list of media items
+- `POST /api/media` — upload a file (multipart)
+- `DELETE /api/media/{id}` — delete a media item
 
 **UX-DR coverage:** UX-DR12 (Media states), UX-DR13 (A11Y)
 
@@ -497,24 +523,23 @@ So that **the frontend has type safety and build-time validation matching the ba
 ### Epic 2: Core Site Content
 Admin CRUD for services, team members, and homepage sections + public display on the frontend. After this epic, the public site shows the service offerings, team profiles, and editable homepage sections managed from admin.
 **FRs covered:** FR-1 (Services), FR-4 (Team Members), FR-5 (Pages/Sections)
-**Domain:** Marketing (Page, Service, TeamMember)
 
 #### Story 2.1: Services Admin CRUD
 
 As an **admin user (John)**,
-I want **to create, edit, reorder, and delete service cards from the admin panel**,
+I want **to create, edit, reorder, and delete service cards from the admin page**,
 So that **I can manage the services displayed on the public site**.
 
 **Acceptance Criteria:**
 
-**Given** I am logged into the admin panel
+**Given** I am logged into the admin page
 **When** I navigate to `/admin/services`
-**Then** I see a resource list with columns: Title, Icon, Sort Order, Featured, Created
+**Then** I see a table list with columns: Title, Icon, Sort Order, Featured, Created
 
 **Given** I click "New Service"
 **When** I fill in Title, Description, Icon (Font Awesome class selector), and toggle Featured
 **Then** clicking Save creates the record and redirects to the list
-**And** a toast shows "Saved."
+**And** a notification shows "Saved."
 
 **Given** I click an existing service
 **When** I edit the fields
@@ -525,12 +550,12 @@ So that **I can manage the services displayed on the public site**.
 **Then** clicking "Delete" removes the record permanently
 
 **Given** I have 3+ services
-**When** I reorder them via drag-and-drop in the list (reorder handle column)
+**When** I reorder them via drag-and-drop
 **Then** `sort_order` is updated and the order persists on reload
 
 **Given** the list is empty
 **When** the page loads
-**Then** I see an empty state: illustration + "No services yet. Create your first one."
+**Then** I see an empty state: "No services yet. Create your first one."
 
 **Given** the list is loading
 **When** the page first loads
@@ -584,19 +609,19 @@ So that **I understand what services they offer**.
 #### Story 2.3: Team Members Admin CRUD
 
 As an **admin user (John)**,
-I want **to manage team member profiles with photo uploads from the admin panel**,
+I want **to manage team member profiles with photo uploads from the admin page**,
 So that **I can keep the team section current**.
 
 **Acceptance Criteria:**
 
-**Given** I am logged into the admin panel
+**Given** I am logged into the admin page
 **When** I navigate to `/admin/team-members`
-**Then** I see a resource list with columns: Photo (thumbnail), Name, Role, Sort Order, Created
+**Then** I see a table list with columns: Photo (thumbnail), Name, Role, Sort Order, Created
 
 **Given** I click "New Team Member"
-**When** I fill in Name, Role, Bio, Photo (upload via Spatie Media Library), and Social Links (JSON)
+**When** I fill in Name, Role, Bio, Photo (file upload), and Social Links (JSON)
 **Then** clicking Save creates the record
-**And** the uploaded photo is stored via Spatie Media Library and linked to the model
+**And** the uploaded photo is stored and linked to the model
 
 **Given** I click an existing team member
 **When** I update the photo
@@ -607,14 +632,14 @@ So that **I can keep the team section current**.
 **Then** `sort_order` is persisted
 
 **Given** I upload a photo larger than 2MB or unsupported format
-**When** Spatie validation runs
+**When** validation runs
 **Then** I see the appropriate inline error message
 
 **Given** I click Delete
 **When** the modal confirms
-**Then** the record and associated media file are removed
+**Then** the record and associated file are removed
 
-**Fields:** name (required), role (required), bio (textarea, optional), photo (single file, Spatie Media Library conversion: `thumb` 150x150 crop + `profile` 400x400), social_links (JSON object: {linkedin, twitter} optional), sort_order (integer)
+**Fields:** name (required), role (required), bio (textarea, optional), photo (single file, converted to `thumb` 150x150 crop + `profile` 400x400), social_links (JSON object: {linkedin, twitter} optional), sort_order (integer)
 
 **UX-DR coverage:** UX-DR6 (Team grid), UX-DR12 (Admin states), UX-DR9 (Upload zone)
 
@@ -653,14 +678,14 @@ So that **I know who runs the agency**.
 #### Story 2.5: Pages Admin CRUD
 
 As an **admin user (John)**,
-I want **to manage homepage sections — hero, features, CTAs — from the admin panel**,
+I want **to manage homepage sections — hero, features, CTAs — from the admin page**,
 So that **the public site content can be updated without touching code**.
 
 **Acceptance Criteria:**
 
-**Given** I am logged into the admin panel
+**Given** I am logged into the admin page
 **When** I navigate to `/admin/pages`
-**Then** I see a resource list with columns: Title, Slug, Status (Published/Draft), Updated
+**Then** I see a table list with columns: Title, Slug, Status (Published/Draft), Updated
 
 **Given** I click "New Page"
 **When** I fill in Title, Slug (auto-generated from title, editable), Hero Heading, Hero Subtext, and Sections
@@ -735,7 +760,6 @@ So that **I get a professional first impression of the agency**.
 ### Epic 3: Pricing & Plans
 Admin CRUD for pricing plans with feature lists + public pricing table with "Most Popular" ribbon, check/cross icons, and CTA scroll. After this epic, the pricing section of the public site is fully live and editable.
 **FRs covered:** FR-2 (Pricing Plans + Features), FR-8 (Pricing Display)
-**Domain:** Billing (PricingPlan, PlanFeature)
 
 #### Story 3.1: Pricing Plans Admin CRUD
 
@@ -745,9 +769,9 @@ So that **the pricing section reflects our current offers**.
 
 **Acceptance Criteria:**
 
-**Given** I am logged into the admin panel
+**Given** I am logged into the admin page
 **When** I navigate to `/admin/pricing-plans`
-**Then** I see a resource list with columns: Name, Price, Interval, Most Popular, Sort Order, Status, Created
+**Then** I see a table list with columns: Name, Price, Interval, Most Popular, Sort Order, Status, Created
 
 **Given** I click "New Plan"
 **When** I fill in Name, Price (decimal), Interval (dropdown: Monthly/Yearly/One-time), Description, Is Most Popular (toggle), Is Published (toggle), and manage Plan Features (repeater)
@@ -781,8 +805,6 @@ So that **the pricing section reflects our current offers**.
 
 **Fields (PricingPlan):** name (required), price (decimal 10,2, required), interval (enum: monthly|yearly|one-time), description (textarea, optional), is_most_popular (boolean), is_published (boolean, default false), sort_order (integer)
 **Fields (PlanFeature — related):** description (required), is_included (boolean, default true), sort_order (integer)
-
-**Admin icon:** `heroicon-o-currency-dollar`
 
 **UX-DR coverage:** UX-DR6 (Pricing Card data), UX-DR12 (Admin states)
 
@@ -831,24 +853,23 @@ So that **I can choose the right plan and take action**.
 **UX-DR coverage:** UX-DR6 (Pricing Card), UX-DR14 (Responsive), UX-DR13 (A11Y — Most Popular announced via `aria-label`)
 
 ### Epic 4: Blog Engine
-Admin CRUD for blog posts with Quill rich text editor, auto-save, publish toggle, slug management + public blog listing and single post pages. After this epic, John can write and publish blog posts from the admin panel.
+Admin CRUD for blog posts with Quill rich text editor, auto-save, publish toggle, slug management + public blog listing and single post pages. After this epic, John can write and publish blog posts from the admin page.
 **FRs covered:** FR-3 (Blog Posts)
-**Domain:** Marketing (BlogPost)
 
 #### Story 4.1: Blog Posts Admin CRUD
 
 As an **admin user (John)**,
 I want **to create, edit, publish/unpublish, and delete blog posts with Quill rich text editing and featured images**,
-So that **I can manage the blog content entirely from the admin panel**.
+So that **I can manage the blog content entirely from the admin page**.
 
 **Acceptance Criteria:**
 
-**Given** I am logged into the admin panel
+**Given** I am logged into the admin page
 **When** I navigate to `/admin/blog-posts`
-**Then** I see a resource list with columns: Title, Author, Status (Published/Draft), Featured Image thumbnail, Published At, Updated
+**Then** I see a table list with columns: Title, Author, Status (Published/Draft), Featured Image thumbnail, Published At, Updated
 
 **Given** I click "New Blog Post"
-**When** I fill in Title, Slug (auto-generated from title, editable), Content (Quill rich text editor), Excerpt (textarea), Featured Image (upload via Spatie Media Library), Is Published (toggle), Published At (datetime picker, conditional — only shown when Is Published is true)
+**When** I fill in Title, Slug (auto-generated from title, editable), Content (Quill rich text editor), Excerpt (textarea), Featured Image (file upload), Is Published (toggle), Published At (datetime picker, conditional — only shown when Is Published is true)
 **Then** clicking Save creates the post
 **And** if Is Published is true and Published At is empty, Published At is set to now
 
@@ -859,8 +880,8 @@ So that **I can manage the blog content entirely from the admin panel**.
 
 **Given** I upload a featured image
 **When** the file is selected
-**Then** it uploads via Spatie Media Library
-**And** the Media Library file validation rules apply (2MB max, JPG/PNG/WebP/SVG only)
+**Then** it uploads to the server
+**And** file validation rules apply (2MB max, JPG/PNG/WebP/SVG only)
 
 **Given** I toggle a post from Published to Draft
 **When** I save
@@ -874,9 +895,7 @@ So that **I can manage the blog content entirely from the admin panel**.
 **When** the page loads
 **Then** I see empty state: "No posts yet. Create your first one."
 
-**Fields:** title (required), slug (required, unique), content (required, rich text — Quill HTML), excerpt (textarea, optional, max 300 chars), featured_image (single file via Spatie), is_published (boolean, default false), published_at (datetime, nullable, auto-set on first publish)
-
-**Admin icon:** `heroicon-o-document-text`
+**Fields:** title (required), slug (required, unique), content (required, rich text — Quill HTML), excerpt (textarea, optional, max 300 chars), featured_image (single file), is_published (boolean, default false), published_at (datetime, nullable, auto-set on first publish)
 
 **UX-DR coverage:** UX-DR9 (Quill auto-save draft), UX-DR12 (Admin states)
 
@@ -904,6 +923,7 @@ So that **I can read agency updates and insights**.
 **Given** I am on mobile (≤767px)
 **When** the listing renders
 **Then** cards stack in a single column
+
 **Given** I am on desktop (≥992px)
 **Then** cards display in a 3-column grid
 
@@ -964,9 +984,8 @@ So that **I can consume the complete content**.
 **UX-DR coverage:** UX-DR6 (Full post display), UX-DR13 (A11Y — proper heading hierarchy), UX-DR14 (Responsive)
 
 ### Epic 5: Theme System
-Custom Filament admin page for theme settings (colors, fonts, logos) with live preview panel + CSS custom property generation in the Next.js frontend at build time. After this epic, the entire site can be rebranded without touching code.
+Custom admin page in Next.js for theme settings (colors, fonts, logos) with live preview panel + CSS custom property generation in the Next.js frontend at build time. After this epic, the entire site can be rebranded without touching code.
 **FRs covered:** FR-6 (Theme Settings), FR-7 (Theme Frontend Application)
-**Domain:** Theming (ThemeSetting)
 
 #### Story 5.1: Theme Settings Admin Page
 
@@ -976,7 +995,7 @@ So that **I can rebrand the entire site without touching code**.
 
 **Acceptance Criteria:**
 
-**Given** I am logged into the admin panel
+**Given** I am logged into the admin page
 **When** I navigate to `/admin/settings/theme`
 **Then** I see a settings page split into sections: Colors, Fonts, Logos
 **And** the layout uses a two-column split: settings form (left) and live preview panel (right)
@@ -1007,11 +1026,11 @@ So that **I can rebrand the entire site without touching code**.
 **Then** I see three upload zones: Light Logo (for dark backgrounds), Dark Logo (for light backgrounds), Favicon
 **And** each zone supports click-to-upload and drag-and-drop
 **And** the current logo is shown as a preview thumbnail
-**And** each upload follows Media Library validation rules (2MB max, JPG/PNG/WebP/SVG)
+**And** each upload follows file validation rules (2MB max, JPG/PNG/WebP/SVG)
 
 **Given** I click "Save"
 **When** the form is valid
-**Then** a green toast shows "Saved."
+**Then** a green notification shows "Saved."
 **And** the settings are persisted to the database
 
 **Given** there are no existing theme settings
@@ -1082,7 +1101,6 @@ So that **the site reflects the current branding automatically**.
 ### Epic 6: Contact & Lead Capture
 Contact form and newsletter subscription on the public site with database storage, inline state patterns, email notification via queued jobs, and rate limiting. After this epic, visitors can reach out and John gets notified.
 **FRs covered:** FR-9 (Contact Form), FR-10 (Newsletter Subscription)
-**Domain:** Contact (ContactMessage, Subscriber)
 
 #### Story 6.1: Contact Form — Public UI & API Integration
 
@@ -1213,4 +1231,3 @@ So that **I can respond to leads promptly**.
 **And** jobs are processed in the order they were received (FIFO via default database queue)
 
 **UX-DR coverage:** UX-DR10 (Success state — user sees success before email is queued)
-

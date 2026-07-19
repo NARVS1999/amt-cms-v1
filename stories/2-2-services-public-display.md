@@ -86,7 +86,7 @@ So that **I understand what services they offer**.
 - **AD-2 — Frontend is static consumer:** Data fetched at BUILD TIME via `fetch()` to Laravel REST API, not at request time. The `ServicesGrid` is an async server component that calls `fetchServices()` directly.
 - **AD-3 — REST API is the contract:** The `GET /api/services` endpoint already exists (implemented in Story 2.1). It returns `{ "data": [...] }` envelope. Zod schema in `packages/shared` must be updated to include `is_featured`.
 - **AD-4 — CSS custom properties:** All visual tokens use `var(--color-*)`. No hardcoded brand colors. The accent color for featured border uses `var(--color-accent)`.
-- **Domain isolation:** No cross-domain imports. Service data flows through the API only.
+- **Service data flows through the API only.** No direct model access from frontend.
 - **No client-side state management:** ServicesGrid is a server component — no React hooks, no state.
 
 ### Key Architectural Decisions
@@ -248,9 +248,7 @@ Card structure:
 
 ### Previous Story Intelligence (Story 2.1)
 
-- **Story 2.1** created the Service model, Filament resource, migration, API controller, and tests
-- **Key learning:** Filament 5.0.0 has a `$resource` uninitialized property bug — requires concrete page subclasses
-- **Key learning:** Factory must be in `database/factories/Domains/Marketing/Models/ServiceFactory.php` for convention-based resolution
+- **Story 2.1** created the Service model, migration, API controller, and tests
 - **`is_featured` was deliberately deferred from Zod schema** — Story 2.1 explicitly noted "Defer updating the Zod schema to Story 2.2 — this story creates the backend schema with `is_featured`, Story 2.2 adds it to the frontend schema."
 - **API already returns `is_featured`** — the existing `ServicesTest.php` already asserts `is_featured` in the JSON response
 - **`GET /api/services` route already registered** — no route changes needed

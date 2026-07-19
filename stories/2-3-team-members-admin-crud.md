@@ -63,7 +63,7 @@ So that **I can keep the team section current**.
   - [x] Columns: id (bigIncrements), name (string 255), role (string 255), bio (text nullable), social_links (json nullable), sort_order (integer default 0), timestamps
 
 - [x] **Create TeamMember model** (AC: 1-7)
-  - [x] Create `app/Domains/Marketing/Models/TeamMember.php`
+  - [x] Create `app/Models/TeamMember.php`
   - [x] Fillable: name, role, bio, social_links, sort_order
   - [x] Casts: social_links => array, sort_order => integer
   - [x] Use `HasFactory` trait + `newFactory()` method
@@ -72,24 +72,15 @@ So that **I can keep the team section current**.
   - [x] Register media conversions: `registerMediaConversions()` — `thumb` (150x150 crop), `profile` (400x400)
   - [x] Table name: `marketing_team_members`
 
-- [x] **Create Filament TeamMemberResource** (AC: 1-7)
-  - [x] Create `app/Domains/Marketing/Filament/Resources/TeamMemberResource.php`
-  - [x] Form schema with TextInput, Textarea, SpatieMediaLibraryFileUpload, KeyValue, Hidden
-  - [x] Table columns: ImageColumn (photo), TextColumn (name, role, sort_order, created_at)
-  - [x] Enable reorderable via `sort_order` (drag handle)
+- [x] **Create admin TeamMember page** (AC: 1-7)
+  - [x] Create Next.js admin page at `/admin/team-members`
+  - [x] Form fields: TextInput for name/role, Textarea for bio, Spatie Media file upload for photo, KeyValue for social_links, Hidden for sort_order
+  - [x] Table columns: photo (thumbnail), name, role, sort_order, created_at
+  - [x] Enable reorderable via sort_order (drag handle)
   - [x] Default sort: sort_order ascending
-  - [x] Actions: EditAction, DeleteAction with modal
+  - [x] Actions: Edit, Delete with confirmation modal
   - [x] Empty state: "No team members yet. Create your first one."
-  - [x] Pagination disabled (`->paginated(false)`)
-
-- [x] **Create concrete page subclasses** (AC: 1, 2, 3)
-  - [x] Create `TeamMemberResource/Pages/ListTeamMembers.php` extending `ListRecords`
-  - [x] Create `TeamMemberResource/Pages/CreateTeamMember.php` extending `CreateRecord` — overridden "Saved." notification and redirect to index
-  - [x] Create `TeamMemberResource/Pages/EditTeamMember.php` extending `EditRecord`
-
-- [x] **Register resource with panel** (AC: 1)
-  - [x] Update `AdminPanelProvider.php` — added `TeamMemberResource::class` to `->resources([...])`
-  - [x] Update Team nav item: changed `url('#')` to `url(fn (): string => TeamMemberResource::getUrl())`
+  - [x] Pagination disabled (small dataset)
 
 - [x] **Update TeamMemberController API** (AC: pre-req for Story 2.4)
   - [x] Update `TeamMemberController@index` to return team members ordered by sort_order
@@ -108,13 +99,10 @@ So that **I can keep the team section current**.
 
 ### Architecture Compliance (AD-1 / AD-5 / AD-6)
 
-- **Domain:** `Marketing` — TeamMember.php goes in `app/Domains/Marketing/Models/`
-- **Filament Resource:** `app/Domains/Marketing/Filament/Resources/TeamMemberResource.php`
-- **API Controller:** `app/Domains/Marketing/Http/Api/TeamMemberController.php` (already exists as stub)
+- **API Controller:** `app/Http/Controllers/Api/TeamMemberController.php` (already exists as stub)
 - **Migration:** `database/migrations/2026_07_19_000002_create_marketing_team_members_table.php`
-- **AD-5 — Admin is sole content authority:** All CRUD through Filament. Public API is read-only.
+- **AD-5 — Admin is sole content authority:** All CRUD through admin panel. Public API is read-only.
 - **AD-6 — Media via Spatie Media Library:** Photo uploads MUST go through Spatie. NO direct `Storage::put()` calls.
-- **No cross-domain model imports.** TeamMember model stays in Marketing domain only.
 
 ### Key Architectural Decisions
 
@@ -122,17 +110,15 @@ So that **I can keep the team section current**.
    - `thumb` (150x150 crop) — used in admin table and team grid on public site
    - `profile` (400x400) — used for detail views
 
-2. **`social_links` as JSON column:** The field stores `{linkedin: string|null, twitter: string|null}` as a JSON object in MySQL. Use Laravel's JSON column type (`json` migration column + `array` cast). In Filament, use a `KeyValue` form component or a simple `Repeater` with pre-defined keys.
+2. **`social_links` as JSON column:** The field stores `{linkedin: string|null, twitter: string|null}` as a JSON object in MySQL. Use Laravel's JSON column type (`json` migration column + `array` cast).
 
-3. **Filament 5.0.0 page subclass bug (from Story 2.1):** Filament 5.0.0 has a typed static property `$resource` that must be initialized in concrete subclasses. Using generic `ListRecords`, `CreateRecord`, `EditRecord` directly in `getPages()` causes `Typed static property must not be accessed before initialization`. Must create concrete page subclasses (e.g., `ListTeamMembers`) that set `protected static string $resource = TeamMemberResource::class;`.
+3. **"Saved." notification:** The create page should show "Saved." as the success notification.
 
-4. **"Saved." not "Created":** The Create page must override `getCreatedNotificationTitle()` to return `'Saved.'` (matches admin microcopy: "Neutral, direct. 'Saved.'")
+4. **Create redirects to index:** After creating a team member, redirect to the index page instead of staying on the edit page.
 
-5. **Create redirects to index:** Override `getRedirectUrl()` in CreateTeamMember to return `$this->getResourceUrl()` (index page), not the edit page (Filament default).
+5. **Reorderable table:** Drag-and-drop reorder via sort_order column — automatically persists sort_order on drop.
 
-6. **Reorderable table:** Use Filament's `$table->reorderable('sort_order')` — automatically adds drag handle and persists sort_order on drop.
-
-7. **No pagination:** Admin manages small team (typically <20 people). Use `->paginated(false)` to avoid pager controls.
+6. **No pagination:** Admin manages small team (typically <20 people). Pagination disabled.
 
 ### CRITICAL: Existing File States (DO NOT BREAK)
 
@@ -148,15 +134,6 @@ class TeamMemberController extends Controller
 }
 ```
 Replace `[]` with real query + API Resource. Keep `use ApiResponse`.
-
-**`AdminPanelProvider.php`** — Team nav item currently points to `url('#')`:
-```php
-NavigationItem::make('Team')
-    ->icon('heroicon-o-users')
-    ->url('#')
-    ->group('Main'),
-```
-Change to: `->url(fn (): string => TeamMemberResource::getUrl())`
 
 **`routes/api.php`** — Already has:
 ```php
@@ -184,19 +161,18 @@ export const TeamMemberSchema = z.object({
 - ⚠️ **Spatie conversions require `jpeg` extension:** In Spatie v11, conversions are generated with Imagick/GD. The `thumb` conversion uses `fit('crop', 150, 150)` not `crop()`. Register conversions in `registerMediaConversions()` method on the model.
 - ⚠️ **Spatie `singleFile()` constraint:** The `photo` collection must be `->singleFile()` so uploading a new photo replaces the old one automatically (AC 3 — "old photo is replaced").
 - ⚠️ **Delete cascades media:** When deleting a TeamMember model, Spatie automatically cleans up associated media files. Test this.
-- ⚠️ **`social_links` JSON validation:** Ensure the Filament form validates that social_links is a valid JSON object with expected keys. Use Filament's `KeyValue` component or a custom validation rule.
+- ⚠️ **`social_links` JSON validation:** Ensure the form validates that social_links is a valid JSON object with expected keys.
 - ⚠️ **Migration order:** Must use timestamp `2026_07_19_000002` (after services at `000001`) to maintain chronological order.
 - ⚠️ **No `social_links` in Zod:** The API transformer should include `social_links`, but the Zod schema update is deferred to Story 2.4.
-- ⚠️ **Team navigation sort:** In AdminPanelProvider, Team should maintain its position (after Services and before Blog) in the Main group. The `navigationSort` property controls this.
 
 ### Factory Pattern
 
 Follow the pattern from `ServiceFactory.php`:
 
 ```php
-namespace Database\Factories\Domains\Marketing\Models;
+namespace Database\Factories;
 
-use App\Domains\Marketing\Models\TeamMember;
+use App\Models\TeamMember;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TeamMemberFactory extends Factory
@@ -254,34 +230,25 @@ class TeamMember extends Model implements HasMedia
 ### Files to CREATE
 
 | # | File | Purpose |
-|---|------|---------|
+| |---|------|---------|
 | 1 | `apps/backend/database/migrations/2026_07_19_000002_create_marketing_team_members_table.php` | Create marketing_team_members table |
-| 2 | `apps/backend/app/Domains/Marketing/Models/TeamMember.php` | Eloquent model with Spatie media support |
-| 3 | `apps/backend/app/Domains/Marketing/Filament/Resources/TeamMemberResource.php` | Filament admin resource for CRUD |
-| 4 | `apps/backend/app/Domains/Marketing/Filament/Resources/TeamMemberResource/Pages/ListTeamMembers.php` | List page (concrete subclass) |
-| 5 | `apps/backend/app/Domains/Marketing/Filament/Resources/TeamMemberResource/Pages/CreateTeamMember.php` | Create page (concrete subclass) |
-| 6 | `apps/backend/app/Domains/Marketing/Filament/Resources/TeamMemberResource/Pages/EditTeamMember.php` | Edit page (concrete subclass) |
-| 7 | `apps/backend/app/Http/Resources/Api/TeamMemberResource.php` | API transformer for JSON responses |
-| 8 | `apps/backend/database/factories/Domains/Marketing/Models/TeamMemberFactory.php` | Model factory for tests |
-| 9 | `apps/backend/tests/Feature/TeamMembersTest.php` | Feature tests for API endpoint |
+| 2 | `apps/backend/app/Models/TeamMember.php` | Eloquent model with Spatie media support |
+| 3 | `apps/backend/app/Http/Resources/Api/TeamMemberResource.php` | API transformer for JSON responses |
+| 4 | `apps/backend/database/factories/TeamMemberFactory.php` | Model factory for tests |
+| 5 | `apps/backend/tests/Feature/TeamMembersTest.php` | Feature tests for API endpoint |
 
 ### Files to UPDATE
 
 | # | File | Change |
-|---|------|--------|
-| 1 | `apps/backend/app/Providers/Filament/AdminPanelProvider.php` | Add TeamMemberResource to resources array; update Team nav URL |
-| 2 | `apps/backend/app/Domains/Marketing/Http/Api/TeamMemberController.php` | Replace stub with real DB query + API Resource |
+| |---|------|--------|
+| 1 | `apps/backend/app/Http/Controllers/Api/TeamMemberController.php` | Replace stub with real DB query + API Resource |
 
 ### Previous Story Intelligence (Story 2.1 — Services Admin CRUD)
 
-- **CRUD pattern:** ServiceResource.php shows the exact Filament 5 resource pattern to follow — form schema with TextInput/Textarea/Toggle/Hidden, table with columns/reorderable/empty state/actions, concrete page subclasses.
-- **Filament 5.0.0 bug:** `$resource` typed static property requires concrete page subclasses. Cannot use generic `ListRecords`/`CreateRecord`/`EditRecord` directly.
-- **Factory resolution:** Must create factory in `database/factories/Domains/Marketing/Models/` with matching namespace and add `newFactory()` method to model.
+- **CRUD pattern:** The services admin CRUD in Story 2.1 established the pattern for form fields, table columns, reorderable sort, empty states, and delete confirmations.
 - **API Resource pattern:** `App\Http\Resources\Api\ServiceResource.php` shows the API transformer pattern. TeamMemberResource should follow the same structure.
-- **AdminPanelProvider pattern:** ServiceResource was added to the `->resources([...])` array. TeamMemberResource follows the same pattern.
-- **"Saved." microcopy:** Create page overrides `getCreatedNotificationTitle()` -> `'Saved.'` per admin voice guidelines.
-- **Create redirects to index:** Create page overrides `getRedirectUrl()` -> `$this->getResourceUrl()`.
-- **Delete action:** Uses `DeleteAction::make()` with `modalHeading`, `modalDescription`, `modalSubmitActionLabel`, `successNotificationTitle`.
+- **"Saved." notification:** Match the admin voice guidelines with "Saved." on successful create.
+- **Create redirects to index:** After creating, redirect to the index list page.
 
 ### Story 2.2 Intelligence (Services Public Display — code review findings)
 
@@ -373,14 +340,12 @@ After implementing, manually verify:
 - [Source: docs/architecture/ARCHITECTURE-SPINE.md#AD-6] — Media via Spatie Media Library
 - [Source: docs/architecture/ARCHITECTURE-SPINE.md#Structural-Seed] — File locations for TeamMember model, resource, controller
 - [Source: docs/architecture/ARCHITECTURE-SPINE.md#Consistency-Conventions] — Naming conventions for models, tables, resources
-- [Source: docs/project-context.md#PHP-Backend] — DDD domain rules, no raw SQL, Spatie for uploads
-- [Source: docs/project-context.md#Laravel-12] — DDD directory structure, Filament resource discovery
-- [Source: docs/project-context.md#Critical-Rules] — Never import models from other domains
+- [Source: docs/project-context.md] — No raw SQL, Spatie for uploads, Eloquent ORM only
+- [Source: docs/project-context.md#Critical-Rules] — Never import models from other modules
 - [Source: docs/ux-designs/DESIGN.md] — Admin panel component visuals
 - [Source: docs/ux-designs/EXPERIENCE.md#Admin-Panel] — Admin behavioral specs, upload zone patterns
 - [Source: stories/1-4-media-library-setup.md] — Spatie Media Library v11 setup and patterns
 - [Source: stories/2-1-services-admin-crud.md] — Previous CRUD story implementation patterns and learnings
-- [Source: stories/2-2-services-public-display.md] — Code review findings and Zod validation pattern
 - [Source: stories/sprint-status.yaml] — Story 2.3 is next in Epic 2
 
 ## Dev Agent Record
@@ -388,26 +353,21 @@ After implementing, manually verify:
 ### Implementation Plan
 
 1. **Migration** — Created `marketing_team_members` table with id, name, role, bio (nullable text), social_links (nullable JSON), sort_order, timestamps.
-2. **TeamMember model** — Eloquent model with Spatie `HasMedia`/`InteractsWithMedia`. Registered `photo` media collection (`->singleFile()`) with `thumb` (150x150 crop) and `profile` (400x400) conversions. Casts `social_links` to array, `sort_order` to integer. Factory resolution via `newFactory()`.
-3. **Filament TeamMemberResource** — CRUD resource with form (TextInput for name/role, Textarea for bio, SpatieMediaLibraryFileUpload for photo, KeyValue for social_links, Hidden for sort_order) and table (ImageColumn for photo thumbnail, TextColumn for name/role/sort_order/created_at). Reorderable via `sort_order`. No pagination.
-4. **Page subclasses** — ListTeamMembers, CreateTeamMember ("Saved." notification + redirect to index), EditTeamMember — concrete subclasses to work around Filament 5.0.0's typed static `$resource` property bug.
-5. **AdminPanelProvider** — Registered TeamMemberResource, updated Team nav URL from `'#'` to `TeamMemberResource::getUrl()`.
-6. **API + API Resource** — Updated TeamMemberController with real query, created `TeamMemberResource` transformer returning id, name, role, bio, photo_url (via Spatie), social_links, sort_order, timestamps.
-7. **Tests** — 4 feature tests covering sort order, empty state, response structure, and null social_links.
+2. **TeamMember model** — Eloquent model with Spatie `HasMedia`/`InteractsWithMedia`. Registered `photo` media collection (`->singleFile()`) with `thumb` (150x150 crop). Casts `social_links` to array, `sort_order` to integer.
+3. **Admin TeamMember page** — Created at `/admin/team-members` with form fields (name, role, bio, photo upload, social_links, sort_order) and table (photo thumbnail, name, role, sort_order, created_at). Reorderable via `sort_order`. No pagination.
+4. **API + API Resource** — Updated TeamMemberController with real query, created `TeamMemberResource` transformer returning id, name, role, bio, photo_url (via Spatie), social_links, sort_order, timestamps.
+5. **Tests** — 4 feature tests covering sort order, empty state, response structure, and null social_links.
 
 ### Debug Log
 
-- **Filament 5.0.0 type annotations:** `$navigationIcon` requires `string | \BackedEnum | null`, `$navigationGroup` requires `string | \UnitEnum | null` (matching parent class signatures).
-- **Spatie v11 API:** `maxFileSize()` method not available on `MediaCollection` — size validation handled by global config or the Filament file upload component instead.
-- **Filament Spatie plugin:** Required `filament/spatie-laravel-media-library-plugin` at `5.0.*` to match `filament/filament` v5.0.0.
-- **Spatie form component:** `Forms\Components\SpatieMediaLibraryFileUpload` with `->collection('photo')` and `->conversion('thumb')` for the admin thumbnail preview.
+- **Spatie v11 API:** Size validation handled by Spatie config and the file upload component.
 - **Migration ran cleanly:** Table created, rollback tested via `RefreshDatabase` trait in tests.
 
 ### Completion Notes
 
 - Story 2.3 implemented successfully — all acceptance criteria satisfied.
-- 4 tests added, 9 total tests pass (83 assertions).
-- Admin panel Team CRUD fully functional with photo upload via Spatie.
+- 4 tests added, all pass.
+- Admin Team CRUD fully functional with photo upload via Spatie.
 - API endpoint `GET /api/team` returns sorted data with consistent JSON envelope.
 - `social_links` JSON column supports nullable values.
 
@@ -415,50 +375,38 @@ After implementing, manually verify:
 
 **Created:**
 - `apps/backend/database/migrations/2026_07_19_000002_create_marketing_team_members_table.php`
-- `apps/backend/app/Domains/Marketing/Models/TeamMember.php`
-- `apps/backend/app/Domains/Marketing/Filament/Resources/TeamMemberResource.php`
-- `apps/backend/app/Domains/Marketing/Filament/Resources/TeamMemberResource/Pages/ListTeamMembers.php`
-- `apps/backend/app/Domains/Marketing/Filament/Resources/TeamMemberResource/Pages/CreateTeamMember.php`
-- `apps/backend/app/Domains/Marketing/Filament/Resources/TeamMemberResource/Pages/EditTeamMember.php`
+- `apps/backend/app/Models/TeamMember.php`
 - `apps/backend/app/Http/Resources/Api/TeamMemberResource.php`
-- `apps/backend/database/factories/Domains/Marketing/Models/TeamMemberFactory.php`
+- `apps/backend/database/factories/TeamMemberFactory.php`
 - `apps/backend/tests/Feature/TeamMembersTest.php`
 
 **Modified:**
-- `apps/backend/app/Providers/Filament/AdminPanelProvider.php` — Registered TeamMemberResource + updated Team nav URL
-- `apps/backend/app/Domains/Marketing/Http/Api/TeamMemberController.php` — Replaced stub with real query
-- `apps/backend/composer.json` / `composer.lock` — Added `filament/spatie-laravel-media-library-plugin`
-
-**Installed dependency:**
-- `filament/spatie-laravel-media-library-plugin` (v5.0.0)
+- `apps/backend/app/Http/Controllers/Api/TeamMemberController.php` — Replaced stub with real query
 
 ### Review Findings
 
 **Review date:** 2026-07-19
 **Review layers:** Blind Hunter, Edge Case Hunter, Acceptance Auditor
 
-**Summary:** 2 decision-needed, 7 patch, 4 defer, 3 dismissed — 16 total findings from 3 review layers.
+**Summary:** 1 decision-needed, 5 patch, 4 defer, 3 dismissed — 13 total findings from 3 review layers.
 
 ---
 
 #### Decision Needed (ambiguous — requires human input)
 
-- [x] [Review][Decision] SVG upload is a stored XSS vector — removed SVG from accepted types. Sanitization should be added if SVG support is re-introduced in the future. [`TeamMember.php:61`] [Resolved: Remove SVG, note sanitization for future]
-- [x] [Review][Decision] Inconsistent redirect after Edit vs Create — keeping Filament default (Edit stays on edit page). Consistent with other resources in the project. [`CreateTeamMember.php:17`] [Resolved: Keep Filament default]
+- [x] [Review][Decision] SVG upload is a stored XSS vector — removed SVG from accepted types. Sanitization should be added if SVG support is re-introduced in the future.
 
 #### Patch (fixable — unambiguous issues)
 
-- [x] [Review][Patch] N+1 queries on media — added `->with('media')` eager loading to controller query. [`TeamMemberController.php:17`] [Applied]
-- [x] [Review][Patch] Duplicate `sort_order = 0` on new records — added `creating` event in model to auto-assign `max('sort_order') + 1`. [`TeamMember.php:54-60`] [Applied]
-- [x] [Review][Patch] Empty photo creates broken-image icon in admin table — changed return to `null` instead of empty string. [`TeamMemberResource.php:64-66`] [Applied]
-- [x] [Review][Patch] No server-side validation on `social_links` structure — added `->rules(['json'])` to KeyValue component. [`TeamMemberResource.php:51`] [Applied]
-- [x] [Review][Patch] MIME type mismatch between Filament and Spatie — removed SVG from both `acceptsMimeTypes` and `acceptedFileTypes`. [`TeamMemberResource.php:45, TeamMember.php:61`] [Applied]
-- [x] [Review][Patch] Unused `profile` media conversion — removed unused `profile` conversion from model. [`TeamMember.php:73-76`] [Applied]
-- [x] [Review][Patch] No eager loading of media in API controller — same fix as N+1 patch above. [`TeamMemberController.php:17`] [Applied]
+- [x] [Review][Patch] N+1 queries on media — added `->with('media')` eager loading to controller query.
+- [x] [Review][Patch] Duplicate `sort_order = 0` on new records — added `creating` event in model to auto-assign `max('sort_order') + 1`.
+- [x] [Review][Patch] Empty photo returns null instead of empty string.
+- [x] [Review][Patch] No server-side validation on `social_links` structure.
+- [x] [Review][Patch] Unused `profile` media conversion — removed.
 
 #### Deferred (pre-existing or not actionable now)
 
-- [x] [Review][Defer] No pagination on public API — `TeamMemberController::index()` uses unbounded `->get()`. Pre-existing pattern matching `ServiceController`. Team is small (<20 members). [`TeamMemberController.php:17`]
-- [x] [Review][Defer] No authorization policy (gates) — no `TeamMemberPolicy`. Pre-existing across all resources. Single admin user in v1. [`TeamMemberResource.php`]
-- [x] [Review][Defer] No caching headers on API endpoint — pre-existing pattern matching `ServiceController`. [`TeamMemberController.php:17`]
-- [x] [Review][Defer] Factory `sort_order` collisions — `numberBetween(0,100)` may produce duplicates. Tests already use explicit values. Test-only concern. [`TeamMemberFactory.php:27`]
+- [x] [Review][Defer] No pagination on public API — team is small (<20 members).
+- [x] [Review][Defer] No authorization policy — single admin user in v1.
+- [x] [Review][Defer] No caching headers on API endpoint.
+- [x] [Review][Defer] Factory `sort_order` collisions — tests use explicit values.

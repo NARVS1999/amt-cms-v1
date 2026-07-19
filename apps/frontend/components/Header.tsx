@@ -109,7 +109,7 @@ export function Header() {
 
         {/* Login button */}
         <a
-          href="/admin/login"
+          href="/admin"
           className="hidden md:inline-flex items-center rounded-lg border-2 px-5 py-2 text-sm font-semibold transition-all hover:opacity-80"
           style={{
             borderColor: 'var(--color-primary)',
@@ -183,7 +183,7 @@ export function Header() {
           ))}
           <li className="mt-4">
             <a
-              href="/admin/login"
+              href="/admin"
               className="inline-flex items-center rounded-lg border-2 px-5 py-2 text-sm font-semibold"
               style={{
                 borderColor: 'var(--color-primary)',

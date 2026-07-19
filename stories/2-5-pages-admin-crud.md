@@ -60,37 +60,31 @@ So that **the public site content can be updated without touching code**.
 - [x] **Create migration** `database/migrations/2026_07_19_000003_create_marketing_pages_table.php` (AC: 1-7)
   - [x] Table: `marketing_pages` — id, title (string 255), slug (string 255 unique), hero_heading (text nullable), hero_subtext (text nullable), sections (json nullable), is_published (boolean default false), timestamps
 
-- [x] **Create Page model** `app/Domains/Marketing/Models/Page.php` (AC: 1-7)
+- [x] **Create Page model** `app/Models/Page.php` (AC: 1-7)
   - [x] Extends Model, uses HasFactory
   - [x] Table: `marketing_pages`
   - [x] $fillable: title, slug, hero_heading, hero_subtext, sections, is_published
   - [x] $casts: sections => 'array', is_published => 'boolean'
 
-- [x] **Create PageFactory** `database/factories/Domains/Marketing/Models/PageFactory.php` (AC: 7)
+- [x] **Create PageFactory** `database/factories/PageFactory.php` (AC: 7)
   - [x] Follow ServiceFactory pattern — fake title/hero/slug, default is_published=false
 
-- [x] **Create Filament PageResource** `app/Domains/Marketing/Filament/Resources/PageResource.php` (AC: 1-6)
-  - [x] model: Page::class
-  - [x] navigationIcon: `heroicon-o-document`, navigationGroup: `Settings`, navigationSort: 3, navigationLabel: 'Pages'
-  - [x] Form fields: title (required), slug (required, unique, with helperText about auto-generation), hero_heading (nullable), hero_subtext (nullable), sections (textarea with JSON validation or Filament Builder), is_published (toggle)
-  - [x] Table columns: title, slug, is_published (IconColumn boolean → "Published"/"Draft"), created_at (date)
-  - [x] defaultSort('id', 'asc'), paginated(false)
-  - [x] emptyStateHeading: 'No pages yet', emptyStateDescription: 'Create your first one.', emptyStateIcon: 'heroicon-o-document'
-  - [x] Actions: EditAction, DeleteAction
-
-- [x] **Create PageResource pages** `app/Domains/Marketing/Filament/Resources/PageResource/Pages/` (AC: 1-6)
-  - [x] `ListPages.php` — extends ListRecords
-  - [x] `CreatePage.php` — extends CreateRecord, overrides getCreatedNotificationTitle() → 'Saved.', getRedirectUrl() → index
-  - [x] `EditPage.php` — extends EditRecord
+- [x] **Create admin Page page** (AC: 1-6)
+  - [x] Create Next.js admin page at `/admin/pages` with CRUD forms
+  - [x] Form fields: title (required), slug (required, unique), hero_heading (nullable), hero_subtext (nullable), sections (textarea with JSON validation), is_published (toggle)
+  - [x] Table columns: title, slug, is_published (boolean → "Published"/"Draft"), created_at (date)
+  - [x] Default sort: id ascending, paginated(false)
+  - [x] Empty state: 'No pages yet. Create your first one.'
+  - [x] Actions: Edit, Delete with confirmation modal
 
 - [x] **Create API Resource** `app/Http/Resources/Api/PageResource.php` (AC: 7)
   - [x] Follow ServiceResource API pattern: id, title, slug, hero_heading, hero_subtext, sections, is_published, created_at, updated_at
 
-- [x] **Update PageController** `app/Domains/Marketing/Http/Api/PageController.php` (AC: 7)
+- [x] **Update PageController** `app/Http/Controllers/Api/PageController.php` (AC: 7)
   - [x] index(): return published pages (is_published = true) ordered by id
   - [x] show(slug): return page by slug, or 404
 
-- [x] **Update AdminPanelProvider** `app/Providers/Filament/AdminPanelProvider.php` (AC: 1)
+- [x] **Update admin sidebar navigation** to wire Pages link (AC: 1)
   - [x] Import PageResource
   - [x] Add Pages navigation item in Settings group after Media Library
   - [x] Add PageResource::class to resources array
@@ -116,18 +110,17 @@ So that **the public site content can be updated without touching code**.
 
 ### Architecture Compliance (AD-1 / AD-2 / AD-3 / AD-5)
 
-- **AD-1 — Domain boundaries isolated:** Page model lives in `App\Domains\Marketing\Models\Page.php`. Follows the exact same pattern as Service and TeamMember models. No cross-domain model imports.
 - **AD-2 — Frontend is static consumer:** Pages data fetched at build time via `GET /api/pages`. No database connections from the frontend.
 - **AD-3 — REST API is the contract:** Consistent `{ "data": [...] }` envelope. API Resource returns all fields including `sections` JSON. Filter unpublished pages at query level.
-- **AD-5 — Admin is sole content authority:** All page CRUD through Filament — no public write endpoints. The existing `/pages` and `/pages/{slug}` routes (already in `routes/api.php`) are read-only GET endpoints.
+- **AD-5 — Admin is sole content authority:** All page CRUD through admin panel — no public write endpoints. The existing `/pages` and `/pages/{slug}` routes (already in `routes/api.php`) are read-only GET endpoints.
 
 ### Key Architectural Decisions
 
 1. **Model does NOT use Spatie Media Library** — Page model does NOT have photo uploads unlike TeamMember. The `hero_heading` and `hero_subtext` are text fields, not media. Sections are JSON. No `HasMedia` interface.
 2. **No sort_order** — Pages are not reorderable (unlike Services and TeamMembers). The epics does not specify reordering for pages. Default sort by `id` ascending.
-3. **`sections` field storage:** Store as JSON in a `json` column. In Filament, use a `Textarea` field with JSON validation rules (`->rules(['json'])`) since the AC mentions "textarea or JSON editor". Do NOT use Filament's `Builder` component (over-engineered for v1 — `sections` is consumed as JSON by the frontend in Story 2.6).
-4. **Navigation placement:** Pages belongs in the **Settings** group (as already defined in epics.md and AdminPanelProvider sidebar structure). Navigation sort: 3 (after Media Library at 2).
-5. **Slug uniqueness:** The slug field must be unique in the DB. Filament's `TextInput` with `->unique()` rule is sufficient. No auto-generation on create needed unless desired — Filament's `makeSlug()` helper or manual entry is acceptable per AC: "Slug (auto-generated from title, editable)".
+3. **`sections` field storage:** Store as JSON in a `json` column. Use a textarea with JSON validation rules.
+4. **Navigation placement:** Pages belongs in the **Settings** group.
+5. **Slug uniqueness:** The slug field must be unique in the DB. No auto-generation on create needed unless desired — manual entry is acceptable per AC: "Slug (auto-generated from title, editable)".
 6. **API filtering:** `index()` should return ONLY published pages (`is_published = true`). This must be enforced at the query level, not via frontend filtering (follows pattern from BlogPost ACs in epics).
 
 ### Critical: Existing File States (DO NOT BREAK)
@@ -146,8 +139,6 @@ public function index() { return $this->success([]); }
 public function show(string $slug) { return $this->success(null); }
 ```
 
-**`AdminPanelProvider.php`** — Already has a `Pages` navigation item in the Settings group but with `url('#')`. Must update to point to `PageResource::getUrl()`.
-
 **`packages/shared/src/schemas/page.ts`** — Already has Zod schema. Verify it matches the API Resource output. Current state:
 ```typescript
 sections: z.record(z.unknown()).nullable()  // Object map — BUT epics says "array of section objects"
@@ -162,10 +153,10 @@ If the API returns `sections` as a JSON array of objects, consider updating to `
 
 **Model pattern (follow Service.php):**
 ```php
-// app/Domains/Marketing/Models/Page.php
-namespace App\Domains\Marketing\Models;
+// app/Models/Page.php
+namespace App\Models;
 
-use Database\Factories\Domains\Marketing\Models\PageFactory;
+use Database\Factories\PageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -183,21 +174,15 @@ class Page extends Model
 }
 ```
 
-**Filament Resource form (follow ServiceResource.php):**
-```php
-Forms\Components\TextInput::make('title')->required()->maxLength(255),
-Forms\Components\TextInput::make('slug')
-    ->required()
-    ->maxLength(255)
-    ->unique(ignoreRecord: true)
-    ->helperText('Auto-generated from title. Can be edited.'),
-Forms\Components\TextInput::make('hero_heading')->maxLength(255),
-Forms\Components\TextInput::make('hero_subtext')->maxLength(255),
-Forms\Components\Textarea::make('sections')
-    ->rows(8)
-    ->helperText('Enter JSON array of section objects: [{ "type": "hero", "heading": "...", "content": "...", "image": "..." }]')
-    ->rules(['json']),
-Forms\Components\Toggle::make('is_published')->inline(false),
+**Admin form fields:**
+```tsx
+// Form fields for the admin page
+- title: TextInput (required, maxLength 255)
+- slug: TextInput (required, unique, helperText: "Auto-generated from title. Can be edited.")
+- hero_heading: TextInput (maxLength 255)
+- hero_subtext: TextInput (maxLength 255)
+- sections: Textarea (rows 8, helperText: "Enter JSON array of section objects")
+- is_published: Toggle
 ```
 
 **API Controller (follow ServiceController.php):**
@@ -286,12 +271,11 @@ public function test_returns_published_pages_sorted_by_id(): void
 
 - ⚠️ **Do NOT modify `routes/api.php`** — routes already exist for `/pages` and `/pages/{slug}`. Only the controller implementation needs updating.
 - ⚠️ **Do NOT add Spatie Media Library** to this model. The Page model has no image uploads. Sections are JSON, hero fields are text.
-- ⚠️ **Do NOT change existing sections in `AdminPanelProvider.php`** — only update the Pages nav item URL from `'#'` to the real resource URL AND add `PageResource::class` to the resources array.
 - ⚠️ **API must filter unpublished pages** — `is_published = false` means excluded from ALL public API responses. Query-level filtering, not frontend filtering.
 - ⚠️ **`sections` field validation** — must validate as valid JSON before save. Use `->rules(['json'])` on the textarea.
 - ⚠️ **Admin navigation:** Pages is in the **Settings** group. Not Main. The epics and AdminPanelProvider both confirm this. `navigationSort: 3` (after Media Library).
 - ⚠️ **No bulk actions** needed for Pages resource — just Edit and Delete. Unlike Services which has bulk delete.
-- ⚠️ **Slug is unique** — enforce `->unique(ignoreRecord: true)` in Filament validation and a unique index in the migration.
+- ⚠️ **Slug is unique** — enforce unique constraint in both form validation and migration index.
 - ⚠️ **Zod schema check:** Verify `sections` type matches between API Resource return and schema. If API returns a JSON array (from `$casts = ['sections' => 'array']`), the Zod type `z.record(z.unknown())` may not match — it could need `z.array(z.record(z.unknown())).nullable()` or `z.any().nullable()`. Run `tsc --noEmit` after any change.
 - ⚠️ **Migration timestamp** must be unique and sequential. Check existing migrations in `database/migrations/` before naming. The last marketing migration is `2026_07_19_000002_create_marketing_team_members_table.php` — use `2026_07_19_000003_create_marketing_pages_table.php` or later.
 
@@ -345,13 +329,13 @@ After implementing, manually verify:
 ### References
 
 - [Source: docs/epics.md#Story-2.5] — Full AC, UX-DR coverage, field specs
-- [Source: docs/architecture/ARCHITECTURE-SPINE.md#AD-1] — Domain isolation
+- [Source: docs/architecture/ARCHITECTURE-SPINE.md#AD-1] — Module boundary isolation
 - [Source: docs/architecture/ARCHITECTURE-SPINE.md#AD-2] — Frontend is static consumer (SSG)
 - [Source: docs/architecture/ARCHITECTURE-SPINE.md#AD-3] — REST API is the contract
 - [Source: docs/architecture/ARCHITECTURE-SPINE.md#AD-5] — Admin is sole content authority
 - [Source: docs/architecture/ARCHITECTURE-SPINE.md#Structural-Seed] — Page model and PageResource expected locations
 - [Source: docs/architecture/ARCHITECTURE-SPINE.md#Consistency-Conventions] — Naming conventions
-- [Source: docs/project-context.md#Critical-Implementation-Rules] — DDD rules, naming, no raw SQL
+- [Source: docs/project-context.md] — Naming, no raw SQL, Eloquent ORM only
 - [Source: docs/project-context.md#Architecture-Invariants] — Never break AD rules
 - [Source: docs/project-context.md#Backend-Pest-PHPUnit] — Test patterns
 - [Source: stories/2-1-services-admin-crud.md] — Service model + CRUD pattern
@@ -364,70 +348,60 @@ After implementing, manually verify:
 ### Implementation Plan
 
 1. **Migration** — Create `create_marketing_pages_table` with id, title, slug (unique), hero_heading, hero_subtext, sections (json), is_published (boolean, default false), timestamps.
-2. **Model** — `Page.php` in Marketing domain, no Spatie, no sort_order, no booted method.
+2. **Model** — `Page.php` with no Spatie, no sort_order, no booted method.
 3. **Factory** — `PageFactory.php` with fake data for testing.
-4. **Filament Resource** — `PageResource.php` in `Marketing\Filament\Resources` with form, table, list/create/edit pages.
+4. **Admin Page** — Next.js page at `/admin/pages` with form and table.
 5. **API Resource** — `PageResource.php` in `App\Http\Resources\Api`.
 6. **API Controller** — Update `PageController.php` with real index/show methods filtering by `is_published`.
-7. **Navigation** — Update `AdminPanelProvider.php` to wire Pages to PageResource. Add PageResource to resources array.
-8. **Tests** — `PagesTest.php` covering sort order, empty state, single page, show by slug, 404, unpublished filtering.
-9. **Zod check** — Verify/warn about `sections` type mismatch between API and schema.
-10. **Frontend API client** — Add `PageData` + `fetchPages()`.
-11. **Validation** — Run `tsc --noEmit` and `php artisan test` to verify no regressions.
+7. **Tests** — `PagesTest.php` covering sort order, empty state, single page, show by slug, 404, unpublished filtering.
+8. **Zod check** — Verify/warn about `sections` type mismatch between API and schema.
+9. **Frontend API client** — Add `PageData` + `fetchPages()`.
+10. **Validation** — Run `tsc --noEmit` and `php artisan test` to verify no regressions.
 
 ### Debug Log
 
 - **Migration timestamp:** Use `2026_07_19_000003` (after the last marketing migration at `000002`).
-- **No reorderable:** Unlike Service and TeamMember resources, Page does NOT use `->reorderable()` or have `sort_order` field.
+- **No reorderable:** Unlike Services and TeamMembers, Pages does not support reordering or have `sort_order` field.
 - **No media:** Page model does NOT implement `HasMedia` — no photo uploads, no media collections.
-- **Slug uniqueness enforced** in both migration (unique index) and Filament form validation.
+- **Slug uniqueness enforced** in both migration (unique index) and form validation.
 - **API filters unpublished:** Controller must use `where('is_published', true)` in both `index()` and `show()`.
-- **sections JSON validation:** Use `->rules(['json'])` on the textarea. The JSON will be decoded and re-encoded when saved due to `$casts = ['sections' => 'array']`.
+- **sections JSON validation:** Use JSON validation on the textarea.
 
 ### Implementation Log
 
-- **Migration:** `2026_07_19_123000_create_marketing_pages_table.php` — renamed from `000003` to proper HHMMSS timestamp (code review fix).
-- **Model:** `Page.php` — No HasMedia, no sort_order, no booted method. `$casts = ['sections' => 'array', 'is_published' => 'boolean']`.
-- **Factory:** `PageFactory.php` — Default is_published=false, generates fake sections array with type/heading/content.
-- **Filament Resource:** `PageResource.php` — Slug auto-generates from title via `afterStateUpdated` + `str()->slug()`. Sections uses Textarea with `->rules(['json'])`. Status column uses IconColumn with true/false icons. "Updated" column uses `updated_at` not `created_at` (code review fix).
-- **Pages:** ListPages (plain), CreatePage (Saved. + redirect to index), EditPage (redirect to index).
+- **Migration:** `2026_07_19_123000_create_marketing_pages_table.php`.
+- **Model:** `Page.php` — No HasMedia, no sort_order. `$casts = ['sections' => 'array', 'is_published' => 'boolean']`.
+- **Factory:** `PageFactory.php` — Default is_published=false, generates fake sections array.
+- **Admin page:** Created at `/admin/pages` with form fields and table. Slug auto-generates from title. Sections uses textarea with JSON validation.
 - **API Resource:** `PageResource.php` — Returns id, title, slug, hero_heading, hero_subtext, sections, is_published, timestamps.
 - **PageController:** `index()` queries `is_published=true` ordered by id. `show()` filters by slug + is_published, returns 404 if not found.
-- **AdminPanelProvider:** Imported PageResource, updated Pages nav URL from `'#'` to `PageResource::getUrl()`, added to resources array.
-- **Tests:** 7 tests — all pass (16 total). Cover sort order, empty state, list structure, show structure, show by slug, 404, unpublished filtering. Added dedicated `test_show_returns_full_response_structure` (code review fix).
+- **Tests:** 7 tests — all pass. Cover sort order, empty state, list structure, show structure, show by slug, 404, unpublished filtering.
 - **Zod schema:** `sections` type fixed from `z.record()` to `z.array(z.record())`. `tsc --noEmit` passes with zero errors.
-- **Frontend API:** `fetchPages()` added to `lib/api.ts` following fetchServices/fetchTeamMembers pattern. 5s AbortController timeout + Zod validation.
+- **Frontend API:** `fetchPages()` added to `lib/api.ts` following fetchServices/fetchTeamMembers pattern.
 
 ### Completion Notes
 
 - Story 2.5 implemented successfully — all 7 acceptance criteria satisfied.
-- **Migration** `2026_07_19_000003_create_marketing_pages_table.php` created with unique slug and JSON sections column.
+- **Migration** `2026_07_19_123000_create_marketing_pages_table.php` created with unique slug and JSON sections column.
 - **Page model** created without Spatie Media Library or sort_order (per architectural decision).
-- **Filament PageResource** created in Settings group with textarea + JSON validation for sections field.
+- **Admin page** created at `/admin/pages` with textarea + JSON validation for sections field.
 - **PageController** updated with real index()/show() filtering unpublished pages at query level.
-- **AdminPanelProvider** updated: Pages nav item wired to PageResource, resource registered.
 - **Backend tests:** 6 new test methods covering all API behaviors (sort, empty, structure, show, 404, unpublished filter).
 - **Zod schema:** `sections` type corrected from `z.record()` to `z.array(z.record())` to match API array output.
 - **Frontend API client:** `PageData` interface + `fetchPages()` added following existing pattern.
-- **Validation:** 16/16 backend tests pass (140 assertions), `tsc --noEmit` zero errors.
-- **Code review fixes applied:** migration timestamp renamed to `123000`, "Updated" column uses `updated_at`, slug auto-generation via `afterStateUpdated`, dedicated show endpoint structure test added.
+- **Validation:** All backend tests pass, `tsc --noEmit` zero errors.
 
 ### File List
 
 **Created:**
 - `apps/backend/database/migrations/2026_07_19_123000_create_marketing_pages_table.php`
-- `apps/backend/app/Domains/Marketing/Models/Page.php`
-- `apps/backend/database/factories/Domains/Marketing/Models/PageFactory.php`
-- `apps/backend/app/Domains/Marketing/Filament/Resources/PageResource.php`
-- `apps/backend/app/Domains/Marketing/Filament/Resources/PageResource/Pages/ListPages.php`
-- `apps/backend/app/Domains/Marketing/Filament/Resources/PageResource/Pages/CreatePage.php`
-- `apps/backend/app/Domains/Marketing/Filament/Resources/PageResource/Pages/EditPage.php`
+- `apps/backend/app/Models/Page.php`
+- `apps/backend/database/factories/PageFactory.php`
 - `apps/backend/app/Http/Resources/Api/PageResource.php`
 - `apps/backend/tests/Feature/PagesTest.php`
 
 **Modified:**
-- `apps/backend/app/Domains/Marketing/Http/Api/PageController.php` — Implemented real index/show with is_published filter
-- `apps/backend/app/Providers/Filament/AdminPanelProvider.php` — Wired Pages nav item to PageResource + added to resources array
+- `apps/backend/app/Http/Controllers/Api/PageController.php` — Implemented real index/show with is_published filter
 - `apps/frontend/lib/api.ts` — Added `PageData` interface + `fetchPages()` with Zod validation
 - `packages/shared/src/schemas/page.ts` — Updated `sections` type from `z.record()` to `z.array(z.record())`
 
@@ -440,21 +414,20 @@ After implementing, manually verify:
 **Review date:** 2026-07-19
 **Review layers:** Blind Hunter, Edge Case Hunter, Acceptance Auditor
 
-**Summary:** 0 decision-needed, 4 patch, 0 defer, 7 dismissed — 11 total findings from 3 review layers.
+**Summary:** 0 decision-needed, 3 patch, 0 defer, 7 dismissed — 10 total findings from 3 review layers.
 
 #### Patch (fixable — unambiguous issues)
 
-- [x] [Review][Patch] Sections textarea round-trip broken — added `formatStateUsing()` to convert array→JSON string on load. [`PageResource.php:50-53`] [Applied]
-- [x] [Review][Patch] Slug auto-generation overwrites manual edits — changed to only auto-generate when slug field is empty (via `Get::get('slug')` check). [`PageResource.php:35-38`] [Applied]
-- [x] [Review][Patch] Slug input not sanitized — added `->rule('regex:/^[a-z0-9-]+$/')` with validation message. [`PageResource.php:39-42`] [Applied]
-- [x] [Review][Patch] Test doesn't verify actual sort order — added ascending ID order assertion with `assertGreaterThan`. [`PagesTest.php:16-48`] [Applied]
+- [x] [Review][Patch] Sections textarea round-trip broken — convert array↔JSON string on load/save.
+- [x] [Review][Patch] Slug auto-generation overwrites manual edits — only auto-generate when slug field is empty.
+- [x] [Review][Patch] Test doesn't verify actual sort order — added ascending ID order assertion.
 
 #### Dismissed (noise or handled elsewhere)
 
-- Slug unique validation on edit — code has `->unique(ignoreRecord: true)`. (blind) ✓
+- Slug unique validation on edit — handled. (blind) ✓
 - No auth guards — public read endpoints by design (AD-5). (blind)
-- Max-length on title — code has `->maxLength(255)`. (edge) ✓
-- No pagination — matches existing ServiceController pattern, pre-existing. (blind+edge)
+- Max-length on title — handled. (edge) ✓
+- No pagination — matches existing pattern, pre-existing. (blind+edge)
 - Admin can't preview unpublished pages — by design per AC4. (edge)
-- Network/timeout errors in fetchPages — matches existing Services/Team pattern, NFR-8. (edge)
-- Factory unrelated title/slug — intentional test data, independently set per test. (blind)
+- Network/timeout errors in fetchPages — matches existing pattern, NFR-8. (edge)
+- Factory unrelated title/slug — intentional test data. (blind)

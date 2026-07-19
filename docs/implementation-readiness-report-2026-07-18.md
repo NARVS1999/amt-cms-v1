@@ -80,7 +80,7 @@ Public visitors can subscribe with their email address. Single-step subscription
 Admin can view all contact submissions, mark messages as read, and delete messages. Unread messages visually distinct. *Deferred to v1.1.*
 
 **FR-12: Admin Authentication**
-Admin users log in with email and password using Filament's built-in authentication. Supports "Remember Me." Unauthenticated users redirected to `/admin/login`. Session expires after configurable inactivity.
+Admin users log in with email and password via a Next.js login page. Supports "Remember Me." Unauthenticated users redirected to `/admin/login`. Session expires after configurable inactivity.
 
 **FR-13: Admin Dashboard**
 Admin dashboard displays quick-stat widgets: total services, published blog posts, unread contact messages, newsletter subscriber count. Widget counts update after relevant CRUD operations. Clicking a widget navigates to the corresponding resource list.
@@ -125,7 +125,7 @@ If the API is unreachable during Next.js build, the build fails with a clear err
 All configuration is environment-driven (`.env`), never hardcoded. Key variables: `CONTACT_NOTIFICATION_EMAIL`, `APP_NAME`, `APP_URL`, `DB_*`, `MAIL_*`.
 
 **NFR-10: Zero-Cost Software Stack**
-All software must be free/open-source: Laravel, Filament, Next.js, Quill, Spatie packages, Font Awesome. Hostinger shared hosting cost only (~$3-10/month). No paid APIs.
+All software must be free/open-source: Laravel, Next.js, Quill, Spatie packages, Font Awesome. Hostinger shared hosting cost only (~$3-10/month). No paid APIs.
 
 **NFR-11: Hostinger Compatibility**
 Laravel runs on Hostinger Business Shared (PHP 8.2). Next.js frontend deploys as static HTML/JS/CSS — no Node runtime on server. MySQL database included in Hostinger plan.
@@ -153,11 +153,11 @@ SQL injection impossible via Eloquent ORM. No raw SQL queries in v1 codebase.
 
 | AD | Rule | Binds |
 |----|------|-------|
-| AD-1 | Domain boundaries are isolated — no cross-domain model imports | All backend code |
+| AD-1 | Backend modules are isolated — no cross-module model imports | All backend code |
 | AD-2 | Frontend is a static consumer — SSG only, no database from frontend | FR-7, FR-8, FR-15 |
 | AD-3 | REST API is the contract — consistent JSON envelope, Zod schemas | FR-15 |
 | AD-4 | Theme system uses CSS custom properties — no hardcoded colors | FR-6, FR-7 |
-| AD-5 | Admin is the sole content authority — all writes through Filament | FR-1 through FR-6, FR-11-14 |
+| AD-5 | Admin panel is the sole content authority — all writes through admin panel | FR-1 through FR-6, FR-11-14 |
 | AD-6 | Media managed by Spatie Media Library — centralized file handling | FR-4, FR-5, FR-6, FR-14 |
 | AD-7 | Content flow is unidirectional — admin→MySQL→API→build→static | All FRs |
 | AD-8 | Queued email with database-backed fallback — survives mail failure | FR-9 |
@@ -221,10 +221,10 @@ SQL injection impossible via Eloquent ORM. No raw SQL queries in v1 codebase.
 | FR-9 | Contact Form Submission | Epic 6: Contact & Leads | Story 6.1 (Form UI), Story 6.3 (Email Notification) | ✅ Covered |
 | FR-10 | Newsletter Subscription | Epic 6: Contact & Leads | Story 6.2 (Subscribe UI) | ✅ Covered |
 | FR-11 | Contact Message Mgmt (Admin) | *Deferred to v1.1* | — | ⚠️ Deferred |
-| FR-12 | Admin Authentication | Epic 1: Foundation | Story 1.3 (Filament Auth) | ✅ Covered |
-| FR-13 | Admin Dashboard | Epic 1: Foundation | Story 1.4 (Stat Widgets) | ✅ Covered |
-| FR-14 | Media Library | Epic 1: Foundation | Story 1.5 (Media Setup) | ✅ Covered |
-| FR-15 | Public REST API | Epic 1: Foundation | Story 1.6 (API Endpoints) | ✅ Covered |
+| FR-12 | Admin Authentication | Epic 1: Foundation | Story 1.2 (Admin Auth) | ✅ Covered |
+| FR-13 | Admin Dashboard | Epic 1: Foundation | Story 1.3 (Stat Widgets) | ✅ Covered |
+| FR-14 | Media Library | Epic 1: Foundation | Story 1.4 (Media Setup) | ✅ Covered |
+| FR-15 | Public REST API | Epic 1: Foundation | Story 1.5 (API Endpoints) | ✅ Covered |
 
 **Coverage: 14/15 FRs in-scope for v1.0 = 100%** (FR-11 intentionally deferred)
 
@@ -232,12 +232,12 @@ SQL injection impossible via Eloquent ORM. No raw SQL queries in v1 codebase.
 
 | NFR# | Requirement | Epic/Story Coverage | Status |
 |------|------------|---------------------|--------|
-| NFR-1 | SSG Performance (<2s, <300KB) | Story 1.7 (Next.js scaffold with SSG) | ⚠️ Partial — build-time checks mentioned but no explicit performance budget testing |
+| NFR-1 | SSG Performance (<2s, <300KB) | Story 1.6 (Next.js scaffold with SSG) | ⚠️ Partial — build-time checks mentioned but no explicit performance budget testing |
 | NFR-2 | API Performance (<200ms) | No explicit story for response caching | ⚠️ Implicit — mentioned in Laravel framework rules but no dedicated testing story |
-| NFR-3 | HTTPS & CORS | Story 1.6 (CORS rejection test) | ✅ Covered |
+| NFR-3 | HTTPS & CORS | Story 1.5 (CORS rejection test) | ✅ Covered |
 | NFR-4 | Content Sanitization | No explicit story for HTMLPurifier integration | ❌ Missing — sanitization dependency listed in stack but no implementation story |
-| NFR-5 | Rate Limiting | Story 1.6 (API rate limit tests) | ✅ Covered |
-| NFR-6 | Auth Security (bcrypt) | Story 1.3 (Filament auth — bcrypt is Laravel default) | ✅ Covered (implicit) |
+| NFR-5 | Rate Limiting | Story 1.5 (API rate limit tests) | ✅ Covered |
+| NFR-6 | Auth Security (bcrypt) | Story 1.2 (admin auth — bcrypt is Laravel default) | ✅ Covered (implicit) |
 | NFR-7 | Email Queue (DB driver) | Story 6.3 (Queued email notification) | ✅ Covered |
 | NFR-8 | Graceful Degradation (API down) | No explicit story for build failure handling | ❌ Missing |
 | NFR-9 | Environment-Driven Config | No explicit story — implied by Laravel conventions | ⚠️ Implicit |
@@ -259,12 +259,12 @@ SQL injection impossible via Eloquent ORM. No raw SQL queries in v1 codebase.
 
 | AD | Rule | Stories Implementing | Status |
 |----|------|-------------------|--------|
-| AD-1 | Domain isolation | All domain stories (2.x, 3.x, 4.x, 5.x, 6.x) | ✅ Covered |
-| AD-2 | Frontend SSG only | Story 1.7 (Next.js scaffold) | ✅ Covered |
-| AD-3 | API contract (JSON envelope) | Story 1.6 (API endpoints), Story 1.8 (Zod schemas) | ✅ Covered |
+| AD-1 | Module isolation | All feature stories (2.x, 3.x, 4.x, 5.x, 6.x) | ✅ Covered |
+| AD-2 | Frontend SSG only | Story 1.6 (Next.js scaffold) | ✅ Covered |
+| AD-3 | API contract (JSON envelope) | Story 1.5 (API endpoints), Story 1.7 (Zod schemas) | ✅ Covered |
 | AD-4 | CSS custom properties | Story 5.2 (Theme generation) | ✅ Covered |
 | AD-5 | Admin sole authority | All admin CRUD stories | ✅ Covered |
-| AD-6 | Spatie Media Library | Story 1.5 (Media), references in 2.3, 4.1, 5.1 | ✅ Covered |
+| AD-6 | Spatie Media Library | Story 1.4 (Media), references in 2.3, 4.1, 5.1 | ✅ Covered |
 | AD-7 | Unidirectional content flow | Implicit across all stories | ⚠️ Implicit |
 | AD-8 | Queued email with DB fallback | Story 6.3 (Email notification) | ✅ Covered |
 
@@ -272,23 +272,23 @@ SQL injection impossible via Eloquent ORM. No raw SQL queries in v1 codebase.
 
 | UX-DR | Covered In | Status |
 |-------|-----------|--------|
-| UX-DR1 (Two-Skin Design) | Epic 1 (Story 1.3 admin theme), Epic 5 (Story 5.1-5.2 CSS vars) | ✅ Covered |
+| UX-DR1 (Two-Skin Design) | Epic 1 (Story 1.2 admin theme), Epic 5 (Story 5.1-5.2 CSS vars) | ✅ Covered |
 | UX-DR2 (Public Palette) | Story 5.2 (CSS var generation) | ✅ Covered |
-| UX-DR3 (Admin Palette) | Story 1.3 (admin panel tokens) | ✅ Covered |
+| UX-DR3 (Admin Palette) | Story 1.2 (admin panel tokens) | ✅ Covered |
 | UX-DR4 (Public Typography) | Story 5.2 (font CSS vars) | ✅ Covered |
-| UX-DR5 (Admin Typography) | Story 1.3 (admin Inter typeface) | ✅ Covered |
+| UX-DR5 (Admin Typography) | Story 1.2 (admin Inter typeface) | ✅ Covered |
 | UX-DR6 (Public Components) | Stories 2.2, 2.4, 2.6, 3.2, 4.2 | ✅ Covered |
-| UX-DR7 (Admin Components) | Stories 1.3, 1.4, 2.1, 2.3, 2.5, 3.1, 4.1, 5.1 | ✅ Covered |
-| UX-DR8 (Public Nav Behavior) | Story 1.7 (navbar, mobile hamburger) | ✅ Covered |
+| UX-DR7 (Admin Components) | Stories 1.2, 1.3, 2.1, 2.3, 2.5, 3.1, 4.1, 5.1 | ✅ Covered |
+| UX-DR8 (Public Nav Behavior) | Story 1.6 (navbar, mobile hamburger) | ✅ Covered |
 | UX-DR9 (Admin Nav Behavior) | Stories 2.1, 2.3, 2.5, 3.1, 4.1, 5.1 | ✅ Covered |
 | UX-DR10 (Contact Form States) | Story 6.1 (4 form states) | ✅ Covered |
 | UX-DR11 (Newsletter States) | Story 6.2 (3 form states) | ✅ Covered |
-| UX-DR12 (Admin States) | Stories 1.4, 2.1, 2.3, 2.5, 3.1, 4.1 | ✅ Covered |
+| UX-DR12 (Admin States) | Stories 1.3, 2.1, 2.3, 2.5, 3.1, 4.1 | ✅ Covered |
 | UX-DR13 (Accessibility Floor) | Scattered across stories as UX-DR coverage references | ⚠️ Distributed |
-| UX-DR14 (Responsive Breakpoints) | Stories 2.2, 2.4, 2.6, 3.2, 4.2, 4.3, 1.7 | ✅ Covered |
+| UX-DR14 (Responsive Breakpoints) | Stories 2.2, 2.4, 2.6, 3.2, 4.2, 4.3, 1.6 | ✅ Covered |
 | UX-DR15 (No-Emoji / Icon Rules) | Referenced in ACs | ⚠️ Implicit |
 | UX-DR16 (Microcopy) | Referenced in ACs (e.g., empty states, validation messages) | ✅ Covered |
-| UX-DR17 (404 Page) | Story 4.3 mentions 404, Story 1.7 (not-found.tsx) | ✅ Covered |
+| UX-DR17 (404 Page) | Story 4.3 mentions 404, Story 1.6 (not-found.tsx) | ✅ Covered |
 
 ### Coverage Statistics
 
@@ -310,11 +310,11 @@ SQL injection impossible via Eloquent ORM. No raw SQL queries in v1 codebase.
 **⚠️ NFR-8: Graceful Degradation — Missing explicit story**
 - The PRD states: "If the API is unreachable during Next.js build, the build fails with a clear error message."
 - No story currently tests or implements this behavior.
-- **Recommendation:** Add a sub-task to Story 1.7 (Next.js scaffold) for build-time error handling when API is unreachable.
+- **Recommendation:** Add a sub-task to Story 1.6 (Next.js scaffold) for build-time error handling when API is unreachable.
 
 **⚠️ NFR-2: API Response Caching — Partially covered**
 - Response caching for <200ms API performance is mentioned as a Laravel framework expectation but has no dedicated story.
-- **Recommendation:** Add caching configuration to Story 1.6 (REST API) as an acceptance criterion.
+- **Recommendation:** Add caching configuration to Story 1.5 (REST API) as an acceptance criterion.
 
 ---
 
@@ -389,20 +389,20 @@ UX documentation is **comprehensive**, covering visual tokens (60+ across colors
 
 ### 🔴 Critical Violations
 
-**CV-1: Story 1.6 (REST API) has forward dependencies on domain models from Epics 2-6**
-- **The issue:** Story 1.6 defines API endpoints for `/api/services`, `/api/team`, `/api/blog-posts`, `/api/pricing-plans`, `/api/pages`, and `/api/theme` — serving data from models that don't exist until Epics 2, 3, 4, and 5 are implemented.
-- **Impact:** Story 1.6 cannot be completed in Epic 1 without either (a) creating all domain models in Epic 1 (violating timing), or (b) leaving stub endpoints that get filled later (forward dependency).
-- **Recommendation:** Split Story 1.6 into a "scaffold" story (route definitions, CORS, consistent JSON envelope, rate limiting) that creates the route structure, and defer the controller implementations to the epics that own the data (e.g., ServiceController in Epic 2, BlogPostController in Epic 4). The contact/subscribe POST endpoints are the only ones that truly belong in Epic 1's Story 1.6 since they don't depend on other domains' models.
+**CV-1: Story 1.5 (REST API) has forward dependencies on models from Epics 2-6**
+- **The issue:** Story 1.5 defines API endpoints for `/api/services`, `/api/team`, `/api/blog-posts`, `/api/pricing-plans`, `/api/pages`, and `/api/theme` — serving data from models that don't exist until Epics 2, 3, 4, and 5 are implemented.
+- **Impact:** Story 1.5 cannot be completed in Epic 1 without either (a) creating all models in Epic 1 (violating timing), or (b) leaving stub endpoints that get filled later (forward dependency).
+- **Recommendation:** Split Story 1.5 into a "scaffold" story (route definitions, CORS, consistent JSON envelope, rate limiting) that creates the route structure, and defer the controller implementations to the epics that own the data (e.g., ServiceController in Epic 2, BlogPostController in Epic 4). The contact/subscribe POST endpoints are the only ones that truly belong in Epic 1's Story 1.5 since they don't depend on other models.
 
 **CV-2: All 10 migrations created upfront in Story 1.1 (violates Just-In-Time creation)**
 - **The issue:** The addendum's Day 1 plan states "Create all migration files (10 tables)" — meaning `marketing_services`, `marketing_team_members`, `billing_pricing_plans`, `billing_plan_features`, `contact_contact_messages`, `contact_subscribers`, `theming_theme_settings` are all created before their stories exist.
 - **Impact:** Tables are created for features not yet implemented. If Epics 3-6 are deprioritized, the database has orphaned tables. The conventional pattern is to create each migration in the story that first needs it.
-- **Recommendation:** Move domain-specific migrations to the stories that own them: `marketing_services` → Story 2.1, `marketing_team_members` → Story 2.3, `billing_pricing_plans` → Story 3.1, etc. Only the `users` table (Laravel default) and `contact_contact_messages` (needed for API) should be in Epic 1 migrations.
+- **Recommendation:** Move feature-specific migrations to the stories that own them: `marketing_services` → Story 2.1, `marketing_team_members` → Story 2.3, `billing_pricing_plans` → Story 3.1, etc. Only the `users` table (Laravel default) and `contact_contact_messages` (needed for API) should be in Epic 1 migrations.
 
 ### 🟠 Major Issues
 
 **MI-1: Epic 1 is a "Foundation" epic — borderline technical milestone**
-- **Observation:** Epic 1's goal ("scaffold monorepo, Laravel 12, Filament 5") sounds technical. The saving grace is that the epic output is user-visible (John can log in, dashboard works).
+- **Observation:** Epic 1's goal ("scaffold Laravel 12 with admin panel") sounds technical. The saving grace is that the epic output is user-visible (John can log in, dashboard works).
 - **Recommendation:** Reframe Epic 1 goal to emphasize user value: "John can log into a functional admin panel with a working dashboard, media library, and public API — and the development foundation is set for all subsequent epics."
 
 **MI-2: Story numbering skips 1.2**
@@ -410,10 +410,10 @@ UX documentation is **comprehensive**, covering visual tokens (60+ across colors
 - **Impact:** Confusing for developers tracking progress and sprint planning.
 - **Recommendation:** Renumber stories sequentially (1.1 → 1.2 → 1.3 → ...), or add a comment explaining the gap if Story 1.2 was intentionally removed.
 
-**MI-3: API endpoint for `/api/pages/{slug}` and `/api/pricing-plans/{id}` defined in addendum but not in Story 1.6 ACs**
-- The addendum lists `/api/pages/{slug}` and notes that some endpoints accept parameters, but Story 1.6 ACs only test `/api/pages` (collection). The `{slug}` variant is mentioned in the table but has no explicit ACs.
+**MI-3: API endpoint for `/api/pages/{slug}` and `/api/pricing-plans/{id}` defined in addendum but not in Story 1.5 ACs**
+- The addendum lists `/api/pages/{slug}` and notes that some endpoints accept parameters, but Story 1.5 ACs only test `/api/pages` (collection). The `{slug}` variant is mentioned in the table but has no explicit ACs.
 - **Impact:** Potential gap in testing — specific slug-based retrieval may not be tested.
-- **Recommendation:** Add ACs for individual resource endpoints in Story 1.6.
+- **Recommendation:** Add ACs for individual resource endpoints in Story 1.5.
 
 ### 🟡 Minor Concerns
 
@@ -426,11 +426,11 @@ UX documentation is **comprehensive**, covering visual tokens (60+ across colors
 - The legacy site has a video section and FR-5 mentions video embed URL, but no story explicitly builds a VideoSection or video embed component. It's assumed to be handled via the `sections` JSON field.
 - **Impact:** Risk of inconsistent video implementation if not explicitly specced.
 
-**MC-3: Story 4.1 refers to Quill auto-save but Filament's built-in Livewire form handling may conflict**
-- Quill auto-save every 30 seconds is specced, but the interaction between a JavaScript-based auto-save timer and Filament's Livewire form state needs careful implementation. Not explicitly addressed in ACs.
+**MC-3: Story 4.1 refers to Quill auto-save but the admin panel's built-in form handling may conflict**
+- Quill auto-save every 30 seconds is specced, but the interaction between a JavaScript-based auto-save timer and the admin panel form state needs careful implementation. Not explicitly addressed in ACs.
 
-**MC-4: Contact form rate-limit disabling (60s) in Story 6.1 ACs but not in Story 1.6 API ACs**
-- Story 6.1 says "submit button is disabled for 60 seconds" on rate limit — this is a UI behavior. Story 1.6 covers the API rate limit (429 response). The 60-second cooldown is a frontend concern, but the two must align.
+**MC-4: Contact form rate-limit disabling (60s) in Story 6.1 ACs but not in Story 1.5 API ACs**
+- Story 6.1 says "submit button is disabled for 60 seconds" on rate limit — this is a UI behavior. Story 1.5 covers the API rate limit (429 response). The 60-second cooldown is a frontend concern, but the two must align.
 
 ### Best Practices Compliance Summary
 
@@ -458,11 +458,11 @@ The planning artifacts (PRD, Architecture, UX Design, Epics & Stories) are **tho
 
 | Severity | Issue | Fix Applied |
 |----------|-------|-------------|
-| 🔴 CV-1 | Story 1.6 had forward dependencies on domain models from Epics 2-6 | ✅ Story 1.5 (formerly 1.6) scoped down to API scaffold + POST endpoints only; domain GET endpoints added to their owning epics (2.2, 2.4, 2.6, 3.2, 4.2, 4.3, 5.2) |
-| 🔴 CV-2 | All 10 migrations created upfront in Story 1.1 | ✅ Only `users` table migration remains in Story 1.1; domain migrations moved to stories that first need them |
+| 🔴 CV-1 | Story 1.5 had forward dependencies on models from Epics 2-6 | ✅ Story 1.5 scoped down to API scaffold + POST endpoints only; GET endpoints added to their owning epics (2.2, 2.4, 2.6, 3.2, 4.2, 4.3, 5.2) |
+| 🔴 CV-2 | All 10 migrations created upfront in Story 1.1 | ✅ Only `users` table migration remains in Story 1.1; feature migrations moved to stories that first need them |
 | 🟠 MI-2 | Story numbering skipped 1.2 | ✅ Stories renumbered sequentially: 1.3→1.2, 1.4→1.3, 1.5→1.4, 1.6→1.5, 1.7→1.6, 1.8→1.7 |
 | ❌ NFR-4 | Content sanitization (HTMLPurifier) had no implementation story | ✅ Added explicit sanitization ACs to Story 4.3 with HTMLPurifier reference |
-| ❌ NFR-8 | Graceful degradation (API-down build failure) had no implementation story | ✅ Added build-error handling AC to Story 1.6 (formerly 1.7) |
+| ❌ NFR-8 | Graceful degradation (API-down build failure) had no implementation story | ✅ Added build-error handling AC to Story 1.6 |
 
 ### Remaining Minor Items
 
@@ -470,14 +470,14 @@ The planning artifacts (PRD, Architecture, UX Design, Epics & Stories) are **tho
 |----------|-------|-------|
 | 🟡 MC-1 | Page model scope (homepage sections vs standalone URLs) | Requires product clarification — not blocking implementation |
 | 🟡 MC-2 | Video embed section not tracked as distinct component | Assumed handled via `sections` JSON — add explicit story if needed |
-| 🟡 MC-3 | Quill auto-save Livewire interaction | Design concern — address during Story 4.1 implementation |
+| 🟡 MC-3 | Quill auto-save admin form interaction | Design concern — address during Story 4.1 implementation |
 | 🟡 MC-4 | Contact form 60s cooldown alignment | Frontend/API alignment — address during Story 1.5 + 6.1 |
 
 ### Recommended Next Steps (by Implementation Sequence)
 
 1. ✅ ~~Fix Epic 1 structure (pre-implementation)~~
-   - ~~Split Story 1.6: route scaffold in Epic 1, data controllers in owning epics~~ **DONE**
-   - ~~Move domain migrations out of Story 1.1 to their first-need stories~~ **DONE**
+   - ~~Split Story 1.5: route scaffold in Epic 1, data controllers in owning epics~~ **DONE**
+   - ~~Move migrations out of Story 1.1 to their first-need stories~~ **DONE**
    - ~~Renumber stories sequentially (1.1 → 1.2 starting)~~ **DONE**
    - ~~Add NFR-4 (HTMLPurifier) ACs to Story 4.3~~ **DONE**
    - ~~Add NFR-8 (build-time API failure) AC to Story 1.6~~ **DONE**
@@ -507,6 +507,6 @@ The planning artifacts (PRD, Architecture, UX Design, Epics & Stories) are **tho
 
 ### Final Note
 
-This assessment identified **9 issues** across 6 categories (Discovery, PRD, Coverage, UX, Quality, Final). The planning artifacts are **high quality** — the 2 critical violations (CV-1, CV-2) and 3 major issues (MI-2, NFR-4, NFR-8) have been resolved by restructuring Epic 1, renumbering stories sequentially, distributing migrations to their first-need stories, adding domain GET endpoints to owning epics, and adding missing NFR implementation ACs. The remaining 4 minor concerns require product clarification but do not block implementation. **The project is now ready to begin Sprint 1.**
+This assessment identified **9 issues** across 6 categories (Discovery, PRD, Coverage, UX, Quality, Final). The planning artifacts are **high quality** — the 2 critical violations (CV-1, CV-2) and 3 major issues (MI-2, NFR-4, NFR-8) have been resolved by restructuring Epic 1, renumbering stories sequentially, distributing migrations to their first-need stories, adding GET endpoints to owning epics, and adding missing NFR implementation ACs. The remaining 4 minor concerns require product clarification but do not block implementation. **The project is now ready to begin Sprint 1.**
 
 The presence of a comprehensive Architecture Spine with 8 ADs, detailed UX design docs with 17 DRs, and well-structured story ACs (all in proper Given/When/Then format) puts this project well ahead of typical planning quality. The issues found were **fixable structural adjustments**, not fundamental gaps in understanding the product.
