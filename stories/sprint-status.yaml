@@ -43,6 +43,10 @@
 generated: 2026-07-19
 last_updated: 2026-07-19
 # updated: Story 1-3 → done (code review passed, 13 patches applied, 21/21 tests pass, build passes)
+# updated: Story 1-4 → ready-for-dev (comprehensive story file recreated — 621 lines, 10 ACs, 14 task groups, exhaustive dev notes)
+# updated: Story 1-4 → review (code review passed, 11 patches applied, 29/29 tests, 206 assertions, build passes)
+# updated: Story 1-4 → done (re-review passed, all patches verified)
+# updated: Story 1-5 → ready-for-dev (comprehensive story file recreated — 550+ lines, all ACs, exhaustive dev notes, current code state documented)
 # updated: Story 2-6 → ready-for-dev (story file created)
 # updated: Story 2-5 → done (code review passed, patches applied)
 # updated: Story 2-5 → review (implementation complete)
@@ -74,8 +78,8 @@ development_status:
   1-1-scaffold-monorepo-backend-foundation: done
   1-2-admin-auth-sanctum-nextjs: done
   1-3-admin-dashboard-stat-widgets: done
-  1-4-media-library-setup: review
-  1-5-public-rest-api-scaffold-cors-rate-limiting-contact-subscribe-endpoints: review
+  1-4-media-library-setup: done
+  1-5-public-rest-api-scaffold-cors-rate-limiting-contact-subscribe-endpoints: ready-for-dev
   1-6-nextjs-16-frontend-scaffold-theme-foundation: review
   1-7-shared-zod-schemas-package: review
    epic-1-retrospective: optional

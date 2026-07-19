@@ -202,7 +202,7 @@ export async function uploadMedia(file: File): Promise<{ data: MediaData }> {
 
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw { status: res.status, message: data.message || 'Upload failed' };
+    throw { status: res.status, errors: data.errors, message: data.message || 'Upload failed' };
   }
 
   return res.json();

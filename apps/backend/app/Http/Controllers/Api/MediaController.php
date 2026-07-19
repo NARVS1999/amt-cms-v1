@@ -3,17 +3,24 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\MediaLibrary;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use App\Models\Media;
 
 class MediaController extends Controller
 {
-    public function index()
+    public function index(): JsonResponse
     {
-        $media = Media::where('model_id', auth()->id())
-            ->orderBy('created_at', 'desc')
-            ->paginate(50)
+        $media = Media::orderBy('created_at', 'desc')
+            ->paginate(24)
             ->through(function (Media $item) {
+                $thumbnail = null;
+                try {
+                    $thumbnail = $item->getUrl('thumb');
+                } catch (\Throwable $e) {
+                    $thumbnail = $item->getUrl();
+                }
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
@@ -21,30 +28,54 @@ class MediaController extends Controller
                     'size' => $item->size,
                     'mime_type' => $item->mime_type,
                     'url' => $item->getUrl(),
-                    'thumbnail' => $item->getUrl('thumb'),
+                    'thumbnail' => $thumbnail,
                     'created_at' => $item->created_at,
                 ];
             });
 
-        return response()->json(['data' => $media->items(), 'meta' => [
-            'current_page' => $media->currentPage(),
-            'last_page' => $media->lastPage(),
-            'per_page' => $media->perPage(),
-            'total' => $media->total(),
-        ]]);
+        return response()->json([
+            'data' => $media->items(),
+            'meta' => [
+                'current_page' => $media->currentPage(),
+                'last_page' => $media->lastPage(),
+                'per_page' => $media->perPage(),
+                'total' => $media->total(),
+            ],
+        ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        $request->validate([
-            'file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        $validated = $request->validate([
+            'file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+        ], [
+            'file.required' => 'Please select a file to upload.',
+            'file.max' => 'File too large. Max 2MB.',
+            'file.mimes' => 'Format not supported. Accepted: JPG, PNG, WebP, SVG.',
         ]);
 
         $file = $request->file('file');
 
-        $media = auth()->user()
+        if ($file->getClientOriginalExtension() === 'svg') {
+            $content = file_get_contents($file->getRealPath());
+            $content = preg_replace('/<script[^>]*>.*?<\/script>/si', '', $content);
+            $content = preg_replace('/\bon\w+\s*=\s*"[^"]*"/si', '', $content);
+            $content = preg_replace("/\bon\w+\s*=\s*'[^']*'/si", '', $content);
+            file_put_contents($file->getRealPath(), $content);
+        }
+
+        $library = MediaLibrary::firstOrCreate(['name' => 'default']);
+
+        $media = $library
             ->addMedia($file)
-            ->toMediaCollection('uploads');
+            ->toMediaCollection('default');
+
+        $thumbnail = null;
+        try {
+            $thumbnail = $media->getUrl('thumb');
+        } catch (\Throwable $e) {
+            $thumbnail = $media->getUrl();
+        }
 
         return response()->json([
             'data' => [
@@ -54,19 +85,16 @@ class MediaController extends Controller
                 'size' => $media->size,
                 'mime_type' => $media->mime_type,
                 'url' => $media->getUrl(),
-                'thumbnail' => $media->getUrl('thumb'),
+                'thumbnail' => $thumbnail,
                 'created_at' => $media->created_at,
             ],
         ], 201);
     }
 
-    public function destroy(Media $media)
+    public function destroy(Media $media): JsonResponse
     {
-        if ($media->model_id !== auth()->id()) {
-            abort(403, 'Forbidden.');
-        }
-
         $media->delete();
+
         return response()->json(['message' => 'Deleted.']);
     }
 }
