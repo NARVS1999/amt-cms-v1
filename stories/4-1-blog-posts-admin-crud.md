@@ -1,6 +1,6 @@
 # Story 4.1: Blog Posts Admin CRUD
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
