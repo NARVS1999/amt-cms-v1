@@ -14,7 +14,7 @@ const navGroups = [
       { href: '/admin/services', label: 'Services', icon: Cog },
       { href: '/admin/team', label: 'Team', icon: Users },
       { href: '#', label: 'Blog', icon: FileText },
-      { href: '#', label: 'Pricing', icon: DollarSign },
+      { href: '/admin/pricing-plans', label: 'Pricing', icon: DollarSign },
     ],
   },
   {

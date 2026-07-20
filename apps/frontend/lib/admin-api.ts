@@ -212,6 +212,46 @@ export async function deleteMedia(id: number): Promise<void> {
   await request(`/media/${id}`, { method: 'DELETE' });
 }
 
+/* ─── Pricing Plans ─── */
+
+export interface PricingPlanFeatureData {
+  id?: number;
+  description: string;
+  is_included: boolean;
+  sort_order: number;
+}
+
+export interface PricingPlanData {
+  id: number;
+  name: string;
+  price: number;
+  interval: string;
+  description: string | null;
+  cta_text: string | null;
+  is_popular: boolean;
+  is_published: boolean;
+  sort_order: number;
+  features: PricingPlanFeatureData[];
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export async function fetchPricingPlans(): Promise<{ data: PricingPlanData[] }> {
+  return request('/pricing-plans');
+}
+
+export async function createPricingPlan(data: Partial<PricingPlanData>): Promise<{ data: PricingPlanData }> {
+  return request('/pricing-plans', { method: 'POST', body: JSON.stringify(data) });
+}
+
+export async function updatePricingPlan(id: number, data: Partial<PricingPlanData>): Promise<{ data: PricingPlanData }> {
+  return request(`/pricing-plans/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+}
+
+export async function deletePricingPlan(id: number): Promise<void> {
+  await request(`/pricing-plans/${id}`, { method: 'DELETE' });
+}
+
 /* ─── Dashboard Stats ─── */
 
 export interface DashboardStats {

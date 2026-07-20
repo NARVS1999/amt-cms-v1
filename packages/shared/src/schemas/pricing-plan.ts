@@ -4,6 +4,7 @@ export const PlanFeatureSchema = z.object({
   id: z.number(),
   description: z.string(),
   is_included: z.boolean(),
+  sort_order: z.number().default(0),
 });
 
 export const PricingPlanSchema = z.object({
