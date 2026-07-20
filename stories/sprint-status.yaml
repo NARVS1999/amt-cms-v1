@@ -108,7 +108,7 @@ development_status:
   # ============================================
    epic-3: in-progress
   3-1-pricing-plans-admin-crud: done
-  3-2-pricing-plans-public-display: ready-for-dev
+   3-2-pricing-plans-public-display: done
   epic-3-retrospective: optional
 
   # ============================================
