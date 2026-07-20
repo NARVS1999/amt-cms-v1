@@ -95,12 +95,12 @@ development_status:
   # Code needs audit (Story 0.1) before marking stories as done under new architecture.
   # ============================================
    epic-2: in-progress
-  2-1-services-admin-crud: review
-  2-2-services-public-display: review
-  2-3-team-members-admin-crud: review
-  2-4-team-members-public-display: review
-  2-5-pages-admin-crud: review
-  2-6-pages-public-frontend-display: review
+  2-1-services-admin-crud: done
+  2-2-services-public-display: done
+  2-3-team-members-admin-crud: done
+  2-4-team-members-public-display: done
+  2-5-pages-admin-crud: done
+  2-6-pages-public-frontend-display: done
   epic-2-retrospective: optional
 
   # ============================================
