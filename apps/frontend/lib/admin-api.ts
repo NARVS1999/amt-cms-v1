@@ -1,6 +1,6 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
-function getToken(): string | null {
+export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   try { return localStorage.getItem('admin_token'); } catch { return null; }
 }
@@ -250,6 +250,37 @@ export async function updatePricingPlan(id: number, data: Partial<PricingPlanDat
 
 export async function deletePricingPlan(id: number): Promise<void> {
   await request(`/pricing-plans/${id}`, { method: 'DELETE' });
+}
+
+/* ─── Blog Posts ─── */
+
+export interface BlogPostData {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string | null;
+  featured_image_url: string | null;
+  is_published: boolean;
+  published_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export async function fetchBlogPosts(): Promise<{ data: BlogPostData[] }> {
+  return request('/blog-posts');
+}
+
+export async function createBlogPost(data: Partial<BlogPostData>): Promise<{ data: BlogPostData }> {
+  return request('/blog-posts', { method: 'POST', body: JSON.stringify(data) });
+}
+
+export async function updateBlogPost(id: number, data: Partial<BlogPostData>): Promise<{ data: BlogPostData }> {
+  return request(`/blog-posts/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+}
+
+export async function deleteBlogPost(id: number): Promise<void> {
+  await request(`/blog-posts/${id}`, { method: 'DELETE' });
 }
 
 /* ─── Dashboard Stats ─── */

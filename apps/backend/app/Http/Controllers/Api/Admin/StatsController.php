@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BlogPost;
 use App\Models\ContactMessage;
 use App\Models\Page;
 use App\Models\Service;
@@ -15,7 +16,7 @@ class StatsController extends Controller
     {
         return response()->json([
             'services' => $this->safeCount(Service::class),
-            'blog_posts' => 0,
+            'blog_posts' => $this->safeCount(BlogPost::class),
             'unread_messages' => $this->safeCount(ContactMessage::class, ['read_at' => null]),
             'subscribers' => $this->safeCount(Subscriber::class),
         ]);

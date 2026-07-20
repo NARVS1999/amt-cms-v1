@@ -79,6 +79,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/pricing-plans/{pricingPlan}', [PricingPlanController::class, 'update']);
     Route::delete('/pricing-plans/{pricingPlan}', [PricingPlanController::class, 'destroy']);
 
+    // Admin CRUD: Blog Posts
+    Route::post('/blog-posts', [BlogPostController::class, 'store']);
+    Route::put('/blog-posts/{blogPost}', [BlogPostController::class, 'update']);
+    Route::delete('/blog-posts/{blogPost}', [BlogPostController::class, 'destroy']);
+
     // Admin: Dashboard Stats
     Route::get('/admin/stats', [StatsController::class, 'index']);
 
