@@ -107,7 +107,7 @@ development_status:
   # Epic 3: Pricing & Plans
   # ============================================
    epic-3: in-progress
-  3-1-pricing-plans-admin-crud: ready-for-dev
+  3-1-pricing-plans-admin-crud: done
   3-2-pricing-plans-public-display: backlog
   epic-3-retrospective: optional
 

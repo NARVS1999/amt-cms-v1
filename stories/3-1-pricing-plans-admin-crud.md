@@ -1,6 +1,6 @@
 # Story 3.1: Pricing Plans Admin CRUD
 
-Status: review
+Status: done
 baseline_commit: b00f63387e9ccd6ccc1c49fd0ca2449c4956ef70
 
 ## Story
