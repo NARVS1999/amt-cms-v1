@@ -1,4 +1,4 @@
-import { PagesResponseSchema, ServicesResponseSchema, TeamMembersResponseSchema } from '@amt/shared';
+import { PagesResponseSchema, PricingPlansResponseSchema, ServicesResponseSchema, TeamMembersResponseSchema } from '@amt/shared';
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
@@ -104,6 +104,45 @@ export async function fetchPages(): Promise<PageData[]> {
     return parsed.data;
   } catch {
     return [];
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export interface PlanFeatureData {
+  id: number;
+  description: string;
+  is_included: boolean;
+  sort_order: number;
+}
+
+export interface PricingPlanData {
+  id: number;
+  name: string;
+  price: number;
+  interval: string;
+  description: string | null;
+  is_popular: boolean;
+  is_published: boolean;
+  cta_text: string | null;
+  sort_order: number;
+  features: PlanFeatureData[];
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export async function fetchPricingPlans(): Promise<PricingPlanData[]> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const res = await fetch(`${API_URL}/pricing-plans`, {
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`API returned ${res.status}`);
+    const json = await res.json();
+    const parsed = PricingPlansResponseSchema.parse(json);
+    return parsed.data;
   } finally {
     clearTimeout(timeout);
   }

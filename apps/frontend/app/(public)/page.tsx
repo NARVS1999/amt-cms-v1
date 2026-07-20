@@ -1,4 +1,5 @@
 import { PageRenderer } from '@/components/PageRenderer';
+import { PricingTable } from '@/components/PricingTable';
 import { ServicesGrid } from '@/components/ServicesGrid';
 import { TeamGrid } from '@/components/TeamGrid';
 
@@ -25,37 +26,7 @@ export default function HomePage() {
 
       <TeamGrid />
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <h2 className="text-3xl font-bold text-center" style={{ color: 'var(--color-foreground)' }}>
-            Pricing Plans
-          </h2>
-          <p className="mt-4 text-center" style={{ color: 'var(--color-muted-foreground)' }}>
-            Flexible plans to match your business goals
-          </p>
-          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {['Starter', 'Professional', 'Enterprise'].map((plan, i) => (
-              <div
-                key={plan}
-                className="rounded-xl border p-8 text-center transition-shadow hover:shadow-lg"
-                style={{ borderColor: 'var(--color-border)' }}
-              >
-                <h3 className="text-xl font-bold" style={{ color: 'var(--color-foreground)' }}>{plan}</h3>
-                <p className="mt-4 text-sm" style={{ color: 'var(--color-muted-foreground)' }}>
-                  {i === 0 && 'Perfect for small businesses'}
-                  {i === 1 && 'Ideal for growing companies'}
-                  {i === 2 && 'For large enterprises'}
-                </p>
-                <p className="mt-6 text-4xl font-extrabold" style={{ color: 'var(--color-foreground)' }}>
-                  ${i === 0 ? '99' : i === 1 ? '249' : '499'}
-                  <span className="text-base font-normal" style={{ color: 'var(--color-muted-foreground)' }}>/mo</span>
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <PricingTable />
 
       {/* Blog Section */}
       <section id="blog" className="py-20" style={{ background: 'var(--color-muted)' }}>
