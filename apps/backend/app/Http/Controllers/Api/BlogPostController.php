@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\BlogPostResource;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 
 class BlogPostController extends Controller
 {
@@ -43,6 +42,7 @@ class BlogPostController extends Controller
             'excerpt' => 'nullable|string|max:300',
             'is_published' => 'boolean',
             'published_at' => 'nullable|date',
+            'featured_image' => 'nullable|file|mimes:jpeg,png,webp,svg|max:2048',
         ]);
 
         if (!empty($data['is_published']) && empty($data['published_at'])) {
@@ -68,6 +68,7 @@ class BlogPostController extends Controller
             'excerpt' => 'nullable|string|max:300',
             'is_published' => 'boolean',
             'published_at' => 'nullable|date',
+            'featured_image' => 'nullable|file|mimes:jpeg,png,webp,svg|max:2048',
         ]);
 
         if (array_key_exists('is_published', $data)) {

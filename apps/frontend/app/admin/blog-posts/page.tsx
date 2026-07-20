@@ -54,6 +54,7 @@ export default function AdminBlogPostsPage() {
   const [featuredImageFile, setFeaturedImageFile] = useState<File | null>(null);
   const [featuredImagePreview, setFeaturedImagePreview] = useState<string | null>(null);
   const [lastAutoSave, setLastAutoSave] = useState<string | null>(null);
+  const [saveToast, setSaveToast] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BlogPostData | null>(null);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
@@ -139,6 +140,11 @@ export default function AdminBlogPostsPage() {
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert('File must be under 2MB.');
+        e.target.value = '';
+        return;
+      }
       setFeaturedImageFile(file);
       setFeaturedImagePreview(URL.createObjectURL(file));
     }
@@ -183,6 +189,8 @@ export default function AdminBlogPostsPage() {
 
       setEditing(null);
       await load();
+      setSaveToast('Saved.');
+      setTimeout(() => setSaveToast(null), 2000);
     } catch (e: unknown) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
       else alert((e as { message?: string })?.message || 'Save failed');
@@ -298,9 +306,9 @@ export default function AdminBlogPostsPage() {
         </CardContent>
       </Card>
 
-      {lastAutoSave && (
+      {(lastAutoSave || saveToast) && (
         <div className="fixed bottom-4 right-4 z-50 rounded-md bg-green-600 px-3 py-2 text-sm text-white shadow-lg">
-          {lastAutoSave}
+          {saveToast || lastAutoSave}
         </div>
       )}
 
@@ -376,14 +384,9 @@ export default function AdminBlogPostsPage() {
                     checked={editing.is_published || false}
                     onChange={(e) => {
                       const checked = e.target.checked;
-                      setEditing((prev) => {
-                        if (!prev) return prev;
-                        const updates: Partial<BlogPostData> = { is_published: checked };
-                        if (checked && !prev.published_at) {
-                          updates.published_at = new Date().toISOString().slice(0, 16);
-                        }
-                        return { ...prev, ...updates };
-                      });
+                      setEditing((prev) =>
+                        prev ? { ...prev, is_published: checked } : prev
+                      );
                     }}
                     className="h-4 w-4"
                   />
