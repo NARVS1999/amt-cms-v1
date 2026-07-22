@@ -16,6 +16,7 @@ class ServiceController extends Controller
     public function index()
     {
         $services = QueryBuilder::for(Service::class)
+            ->defaultSort('sort_order')
             ->allowedSorts(['title', 'sort_order', 'created_at'])
             ->allowedFilters(['title'])
             ->paginate();

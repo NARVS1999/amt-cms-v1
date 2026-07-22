@@ -18,6 +18,7 @@ class PricingPlanController extends Controller
         $plans = QueryBuilder::for(PricingPlan::class)
             ->with('features')
             ->where('is_published', true)
+            ->defaultSort('sort_order')
             ->allowedSorts(['sort_order', 'price', 'created_at'])
             ->paginate();
 

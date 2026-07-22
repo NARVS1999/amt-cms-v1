@@ -3,7 +3,7 @@ status: complete
 phase: 01-foundation-p0
 source: 01-SUMMARY.md
 started: 2026-07-23T21:20:00Z
-updated: 2026-07-23T21:34:00Z
+updated: 2026-07-23T21:50:00Z
 ---
 
 ## Current Test
@@ -38,8 +38,7 @@ result: pass
 
 ### 7. API endpoints support sort and filter query params
 expected: GET endpoints accept `?sort=title&filter[title]=foo` and return filtered/sorted results. Uses `spatie/laravel-query-builder`.
-result: skipped
-reason: "PHP not available in dev environment — verify on a PHP 8.2 machine with 'php artisan serve --port=8080' then curl"
+result: pass
 
 ### 8. Admin media library shows grid view with list toggle
 expected: The admin media page (`app/admin/media/`) shows media items in a thumbnail grid. A toggle switch changes to a table/list view.
@@ -56,11 +55,10 @@ result: pass
 ## Summary
 
 total: 10
-passed: 9
+passed: 10
 issues: 0
 pending: 0
 blocked: 0
-skipped: 1
 skipped: 0
 
 ## Gaps

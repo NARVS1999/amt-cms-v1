@@ -26,7 +26,7 @@ class ForgotPasswordController extends Controller
 
         $token = Password::broker()->createToken($user);
 
-        if (app()->environment('local')) {
+        if (app()->environment('local', 'testing')) {
             return $this->success([
                 'message' => 'Password reset link sent.',
                 'token' => $token,

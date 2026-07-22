@@ -18,6 +18,7 @@ class TeamMemberController extends Controller
     {
         $teamMembers = QueryBuilder::for(TeamMember::class)
             ->with('media')
+            ->defaultSort('sort_order')
             ->allowedSorts(['sort_order', 'name', 'created_at'])
             ->paginate();
 
