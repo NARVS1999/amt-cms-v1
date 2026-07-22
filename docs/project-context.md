@@ -185,6 +185,8 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 **For AI Agents:**
 - Read this file before implementing any code in this project
+- **ALSO read `docs/SPEC.md` before writing any endpoint or frontend type** — it is the single source of truth for API contracts, DB columns, and validation rules
+- **ALSO read `docs/ERROR-HANDLING.md` before implementing any feature** — it documents every edge case and boundary condition
 - Follow ALL rules exactly as documented — they encode architecture invariants and business constraints
 - When in doubt, prefer the more restrictive option (e.g., another Eloquent query over raw SQL)
 - Update this file if new patterns emerge that should be preserved

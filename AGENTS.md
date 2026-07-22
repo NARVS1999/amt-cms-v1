@@ -1,5 +1,38 @@
 # Adsvance Media Tech CMS — Agent Guide
 
+---
+
+## CRITICAL — Read Before Every Session
+
+These 8 rules MUST be followed for every implementation task. Breaking them introduces bugs.
+
+| # | Rule | Why |
+|---|------|-----|
+| 1 | **Never hardcode brand colors** — all visual tokens via `var(--color-*)` or Tailwind classes (`bg-primary`, `text-foreground`). No `#FF0000` literals. | (AD-4) |
+| 2 | **Eloquent ORM only** — no `DB::raw()`, no `whereRaw()`, no raw selects. | (NFR-16) |
+| 3 | **SSG only** — no `getServerSideProps`, no Next.js API routes, no DB from frontend. `output: 'export'`. | (AD-2) |
+| 4 | **Spatie Media Library** for all uploads — no `Storage::put()` anywhere. | (AD-6) |
+| 5 | **API contract is the authority** — read `docs/SPEC.md` before writing any endpoint or frontend type. Match exactly. | (AD-3) |
+| 6 | **Check SPEC.md for API shapes** before writing frontend code — the Zod schemas, PHP resources, and frontend interfaces must all agree. | Prevents contract mismatch bugs |
+| 7 | **Check ERROR-HANDLING.md for edge cases** — every feature has documented boundary conditions. Don't guess. | Prevents edge-case bugs |
+| 8 | **No raw SQL** — Eloquent ORM only. SQL injection must be impossible by design. | (NFR-6, AD-7) |
+
+---
+
+## Key reference documents
+
+| Document | Path | When to read |
+|----------|------|-------------|
+| **Implementation SPEC** | `docs/SPEC.md` | **Every session** — exact API shapes, DB columns, validation rules |
+| **Error Handling & Edge Cases** | `docs/ERROR-HANDLING.md` | **Before implementing any feature** — known bugs, edge cases |
+| **Architecture Spine** | `docs/architecture/architecture-AMT_V2-2026-07-18/ARCHITECTURE-SPINE.md` | Understanding AD-1 through AD-8 |
+| **UX Design Spec** | `docs/ux-designs/ux-adsvance-cms-2026-07-18/DESIGN.md` | Visual tokens, component specs |
+| **UX Experience Spine** | `docs/ux-designs/ux-adsvance-cms-2026-07-18/EXPERIENCE.md` | Behavioral flows, accessibility, state patterns |
+| **Epics & Stories** | `docs/epics.md` | Acceptance criteria for each user story |
+| **Project Context** | `docs/project-context.md` | Detailed technology stack rules (84 rules) |
+
+---
+
 ## Project structure
 
 ```
@@ -13,6 +46,8 @@
 ```
 
 npm workspaces root. Run commands from `apps/backend/` or `apps/frontend/`.
+
+---
 
 ## Key commands
 
@@ -30,6 +65,8 @@ cd apps/frontend; npm run dev                                       # dev server
 cd apps/frontend; npm run lint                                      # ESLint
 ```
 
+---
+
 ## Architecture invariants (AD-1 through AD-8)
 
 - **Flat Laravel** — all models in `app/Models/`, controllers in `Http/Controllers/Api/`, resources in `Http/Resources/Api/`. No DDD.
@@ -38,6 +75,8 @@ cd apps/frontend; npm run lint                                      # ESLint
 - **CSS custom properties** — all visual tokens via `var(--color-*)`. No hardcoded brand colors.
 - **Spatie Media Library** — all file uploads go through Spatie. No direct `Storage::put()`.
 - **Unidirectional flow** — admin writes → MySQL → REST API → Next.js build → static HTML. Content is "ready" after save, "live" after deploy.
+
+---
 
 ## Naming conventions
 
@@ -53,6 +92,8 @@ cd apps/frontend; npm run lint                                      # ESLint
 | Admin pages | kebab-case under `app/admin/` | `app/admin/pricing-plans/page.tsx` |
 | Admin API functions | camelCase in `lib/admin-api.ts` | `fetchPricingPlans()`, `createPricingPlan()` |
 
+---
+
 ## Admin CRUD pattern (for adding new resources)
 
 1. Migration (two tables if 1:N relation, e.g. PricingPlan + PlanFeature)
@@ -66,9 +107,13 @@ cd apps/frontend; npm run lint                                      # ESLint
 9. Update sidebar in `components/admin/sidebar.tsx`
 10. Feature tests: test public GET only (sorting, empty state, structure)
 
+---
+
 ## Stats endpoint note
 
 `GET /api/admin/stats` returns `blog_posts: 0` hardcoded until BlogPost model exists. The `safeCount()` helper wraps queries in try/catch for tables that don't exist yet.
+
+---
 
 ## Varied conventions to note
 
@@ -78,10 +123,14 @@ cd apps/frontend; npm run lint                                      # ESLint
 - `phpunit.xml` uses SQLite `:memory:` for tests — migrations run automatically per test class via `RefreshDatabase` trait
 - `id` on API features is optional in frontend types (`id?: number`) since new records don't have one yet
 
+---
+
 ## Story workflow
 
 - Story files under `stories/` with status: `backlog → ready-for-dev → in-progress → review → done`
 - Sprint status in `stories/sprint-status.yaml`
+
+---
 
 ## What NOT to do
 
