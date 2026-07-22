@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\BlogPostResource;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class BlogPostController extends Controller
 {
@@ -14,12 +15,14 @@ class BlogPostController extends Controller
 
     public function index()
     {
-        $posts = BlogPost::query()
+        $posts = QueryBuilder::for(BlogPost::class)
             ->with('media')
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->defaultSort('-created_at')
+            ->allowedSorts(['published_at', 'title', 'created_at'])
+            ->allowedFilters(['title', 'is_published'])
+            ->paginate();
 
-        return $this->success(BlogPostResource::collection($posts));
+        return BlogPostResource::collection($posts);
     }
 
     public function show(string $slug)

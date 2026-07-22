@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\ServiceResource;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class ServiceController extends Controller
 {
@@ -14,11 +15,12 @@ class ServiceController extends Controller
 
     public function index()
     {
-        $services = Service::query()
-            ->orderBy('sort_order')
-            ->get();
+        $services = QueryBuilder::for(Service::class)
+            ->allowedSorts(['title', 'sort_order', 'created_at'])
+            ->allowedFilters(['title'])
+            ->paginate();
 
-        return $this->success(ServiceResource::collection($services));
+        return ServiceResource::collection($services);
     }
 
     public function store(Request $request)

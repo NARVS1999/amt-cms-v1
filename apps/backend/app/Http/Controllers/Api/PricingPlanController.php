@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\PricingPlanResource;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class PricingPlanController extends Controller
 {
@@ -14,13 +15,13 @@ class PricingPlanController extends Controller
 
     public function index()
     {
-        $plans = PricingPlan::query()
+        $plans = QueryBuilder::for(PricingPlan::class)
             ->with('features')
             ->where('is_published', true)
-            ->orderBy('sort_order')
-            ->get();
+            ->allowedSorts(['sort_order', 'price', 'created_at'])
+            ->paginate();
 
-        return $this->success(PricingPlanResource::collection($plans));
+        return PricingPlanResource::collection($plans);
     }
 
     public function adminIndex()

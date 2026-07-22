@@ -8,6 +8,7 @@ use App\Http\Resources\Api\TeamMemberResource;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class TeamMemberController extends Controller
 {
@@ -15,12 +16,12 @@ class TeamMemberController extends Controller
 
     public function index()
     {
-        $teamMembers = TeamMember::query()
+        $teamMembers = QueryBuilder::for(TeamMember::class)
             ->with('media')
-            ->orderBy('sort_order')
-            ->get();
+            ->allowedSorts(['sort_order', 'name', 'created_at'])
+            ->paginate();
 
-        return $this->success(TeamMemberResource::collection($teamMembers));
+        return TeamMemberResource::collection($teamMembers);
     }
 
     public function store(Request $request)

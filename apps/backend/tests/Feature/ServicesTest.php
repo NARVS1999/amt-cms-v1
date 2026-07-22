@@ -36,6 +36,7 @@ class ServicesTest extends TestCase
                     'updated_at',
                 ],
             ],
+            'meta' => ['current_page', 'last_page', 'per_page', 'total'],
         ]);
 
         // Verify sort order
