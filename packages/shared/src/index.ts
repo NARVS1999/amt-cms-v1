@@ -6,3 +6,6 @@ export * from './schemas/pricing-plan';
 export * from './schemas/theme';
 export * from './schemas/contact';
 export * from './schemas/subscriber';
+export * from './schemas/auth';
+export * from './schemas/stats';
+export * from './schemas/media';
