@@ -1,0 +1,21 @@
+{
+  "source": "docs/prds/prd-adsvance-media-tech-cms-2026-07-18/addendum.md",
+  "type": "PRD",
+  "precedence": 2,
+  "title": "Technical Architecture & Build Plan",
+  "status": "companion",
+  "date": "2026-07-18",
+  "summary": "Technical companion to PRD — architecture overview, DB schema, theme implementation, 7-day build plan, deployment, package choices.",
+  "architecture": {
+    "paradigm": "Flat MVC monorepo with npm workspaces",
+    "apps": ["apps/backend (Laravel 12 REST API)", "apps/frontend (Next.js 16 SSG)", "packages/shared (Zod schemas)"]
+  },
+  "database_tables": [
+    "marketing_pages", "marketing_services", "marketing_team_members", "marketing_blog_posts",
+    "billing_pricing_plans", "billing_plan_features",
+    "contact_messages", "subscribers",
+    "theme_settings"
+  ],
+  "default_theme": {"primary": "#ff0000", "secondary": "#fb3d03", "accent": "#FFC107", "fonts": "Poppins"},
+  "build_plan": "7-day sprint: Day 1 Scaffold, Day 2 Models+Admin, Day 3 Public API, Day 4 Next.js Foundation, Day 5 Frontend Pages, Day 6 Contact+Polish, Day 7 Deploy Prep"
+}

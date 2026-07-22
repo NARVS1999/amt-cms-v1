@@ -1,0 +1,20 @@
+{
+  "source": "docs/architecture/architecture-AMT_V2-2026-07-18/ARCHITECTURE-SPINE.md",
+  "type": "DOC",
+  "precedence": 1,
+  "title": "Architecture Spine",
+  "status": "final",
+  "date": "2026-07-18",
+  "summary": "8 architecture decisions (AD-1 through AD-8) defining the system's invariants: flat Laravel, SSG-only frontend, REST API contract, CSS custom properties theming, admin content authority, Spatie media, unidirectional flow, queued email.",
+  "decisions": [
+    {"id": "AD-1", "title": "Flat Laravel structure", "rule": "All models in app/Models/, controllers in Http/Controllers/Api/. No DDD."},
+    {"id": "AD-2", "title": "Frontend is static consumer", "rule": "SSG only (output: 'export'). No getServerSideProps, no DB from frontend."},
+    {"id": "AD-3", "title": "REST API is the contract", "rule": "{ data: ... } envelope. Zod schemas mirror API shapes."},
+    {"id": "AD-4", "title": "CSS custom properties theming", "rule": "All visual tokens via var(--color-*). No hardcoded colors."},
+    {"id": "AD-5", "title": "Admin is sole content authority", "rule": "All writes through authenticated API endpoints."},
+    {"id": "AD-6", "title": "Spatie Media Library", "rule": "All uploads through Spatie. No direct Storage::put()."},
+    {"id": "AD-7", "title": "Unidirectional content flow", "rule": "Admin writes → MySQL → API → Next.js build → static HTML."},
+    {"id": "AD-8", "title": "Queued email with DB fallback", "rule": "Messages saved before email dispatch. Queue retries up to 3x."}
+  ],
+  "binds": ["FR-1 through FR-15"]
+}

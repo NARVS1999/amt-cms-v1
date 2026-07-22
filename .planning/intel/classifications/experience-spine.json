@@ -1,0 +1,20 @@
+{
+  "source": "docs/ux-designs/ux-adsvance-cms-2026-07-18/EXPERIENCE.md",
+  "type": "DOC",
+  "precedence": 3,
+  "title": "Experience Spine",
+  "status": "draft",
+  "date": "2026-07-18",
+  "summary": "Behavioral flows, state patterns, accessibility requirements, navigation, information architecture.",
+  "surfaces": [
+    {"id": "P1", "name": "Homepage", "path": "/"},
+    {"id": "P2", "name": "Blog Listing", "path": "/blog"},
+    {"id": "P3", "name": "Blog Post", "path": "/blog/{slug}"},
+    {"id": "A1", "name": "Admin Login", "path": "/admin/login"},
+    {"id": "A2", "name": "Admin Dashboard", "path": "/admin"},
+    {"id": "A3-A9", "name": "Admin CRUD pages", "path": "/admin/*"},
+    {"id": "A10-A11", "name": "Messages + Subscribers (v1.1)", "path": "/admin/*"}
+  ],
+  "accessibility": ["Skip-to-content link", "Form labels with aria-describedby", "aria-live for status", "Focus trap in mobile hamburger"],
+  "states": ["idle", "loading", "success", "error", "rate-limited"]
+}

@@ -1,0 +1,18 @@
+{
+  "source": "docs/ux-designs/ux-adsvance-cms-2026-07-18/DESIGN.md",
+  "type": "DOC",
+  "precedence": 3,
+  "title": "UX Design Specification",
+  "status": "final",
+  "date": "2026-07-18",
+  "summary": "Visual design tokens for public site and admin panel: colors, typography, component specs, spacing, iconography.",
+  "design_tokens": {
+    "public_primary": "#FF0000",
+    "public_background": "#FFFFFF",
+    "admin_sidebar_bg": "#1e1b2e",
+    "admin_primary": "#FF0000",
+    "body_font": "Poppins",
+    "heading_font": "Poppins"
+  },
+  "surfaces": ["public-site (consumer brand)", "admin-panel (shadcn/ui sidebar tool)"]
+}

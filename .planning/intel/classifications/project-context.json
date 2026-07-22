@@ -1,0 +1,20 @@
+{
+  "source": "docs/project-context.md",
+  "type": "DOC",
+  "precedence": 4,
+  "title": "Project Context for AI Agents",
+  "status": "complete",
+  "date": "2026-07-18",
+  "summary": "84 implementation rules for AI agents: tech stack, naming conventions, testing rules, code quality, architecture invariants, accessibility requirements.",
+  "constraints": [
+    "No raw SQL — Eloquent ORM only",
+    "No hardcoded brand colors — all via var(--color-*)",
+    "No getServerSideProps — SSG only",
+    "No direct Storage::put() — Spatie only",
+    "All API validation in FormRequest classes",
+    "React Server Components by default",
+    "No client-side state management library",
+    "Font Awesome for public, Lucide for admin",
+    "No emoji as UI icons"
+  ]
+}

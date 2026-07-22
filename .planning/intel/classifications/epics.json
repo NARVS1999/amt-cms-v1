@@ -1,0 +1,28 @@
+{
+  "source": "docs/epics.md",
+  "type": "DOC",
+  "precedence": 3,
+  "title": "Epic Breakdown",
+  "status": "final",
+  "date": "2026-07-18",
+  "summary": "Complete epic and story breakdown for the CMS. Decomposes PRD/UX/Architecture requirements into implementable stories.",
+  "requirements": [
+    {"id": "FR-1", "name": "Manage Services"},
+    {"id": "FR-2", "name": "Manage Pricing Plans"},
+    {"id": "FR-3", "name": "Manage Blog Posts"},
+    {"id": "FR-4", "name": "Manage Team Members"},
+    {"id": "FR-5", "name": "Manage Pages / Site Sections"},
+    {"id": "FR-6", "name": "Manage Theme Settings"},
+    {"id": "FR-7", "name": "Theme Application (Frontend)"},
+    {"id": "FR-8", "name": "Display Pricing Table"},
+    {"id": "FR-9", "name": "Contact Form Submission"},
+    {"id": "FR-10", "name": "Newsletter Subscription"},
+    {"id": "FR-11", "name": "Contact Message Management (Admin) — v1.1"},
+    {"id": "FR-12", "name": "Admin Authentication"},
+    {"id": "FR-13", "name": "Admin Dashboard"},
+    {"id": "FR-14", "name": "Media Library"},
+    {"id": "FR-15", "name": "Public REST API"}
+  ],
+  "nfrs": ["NFR-1 Frontend Performance", "NFR-2 API Performance"],
+  "epics": ["Epic 1: Foundation (auth, API, admin shell)", "Epic 2: Marketing Content Backend", "Epic 3: Theme System", "Epic 4: Frontend Pages", "Epic 5: Contact & Lead Capture", "Epic 6: Admin Panel"]
+}

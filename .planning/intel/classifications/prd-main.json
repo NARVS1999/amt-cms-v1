@@ -1,0 +1,28 @@
+{
+  "source": "docs/prds/prd-adsvance-media-tech-cms-2026-07-18/prd.md",
+  "type": "PRD",
+  "precedence": 2,
+  "title": "Adsvance Media Tech CMS v1.0",
+  "status": "draft",
+  "date": "2026-07-18",
+  "summary": "Product Requirements Document defining v1.0 of the CMS — powers Adsvance's marketing site and serves as themeable client foundation.",
+  "requirements": [
+    {"id": "FR-1", "name": "Manage Services", "description": "CRUD + reorder services with icon, title, description"},
+    {"id": "FR-2", "name": "Manage Pricing Plans", "description": "CRUD pricing plans with features, popular toggle, CTA"},
+    {"id": "FR-3", "name": "Manage Blog Posts", "description": "CRUD blog with Quill editor, slug, featured image, publish toggle"},
+    {"id": "FR-4", "name": "Manage Team Members", "description": "CRUD team with photo, bio, sort order"},
+    {"id": "FR-5", "name": "Manage Pages / Site Sections", "description": "CRUD pages with hero fields, JSON sections"},
+    {"id": "FR-6", "name": "Manage Theme Settings", "description": "Colors, fonts, logos via admin theme settings page"},
+    {"id": "FR-7", "name": "Theme Application (Frontend)", "description": "CSS custom properties from API theme endpoint"},
+    {"id": "FR-8", "name": "Display Pricing Table", "description": "Responsive pricing table with features, CTA, popular ribbon"},
+    {"id": "FR-9", "name": "Contact Form Submission", "description": "Name/email/message form, DB storage, email notification"},
+    {"id": "FR-10", "name": "Newsletter Subscription", "description": "Single-step email subscribe with duplicate check"},
+    {"id": "FR-11", "name": "Contact Message Management (Admin)", "description": "View/manage contact submissions — deferred to v1.1"},
+    {"id": "FR-12", "name": "Admin Authentication", "description": "Email/password login via Laravel Sanctum"},
+    {"id": "FR-13", "name": "Admin Dashboard", "description": "Stat widgets: services, posts, messages, subscribers"},
+    {"id": "FR-14", "name": "Media Library", "description": "Upload/browse/delete JPG, PNG, WebP, SVG (max 2MB)"},
+    {"id": "FR-15", "name": "Public REST API", "description": "GET endpoints for all content + POST for contact/subscribe"}
+  ],
+  "non_goals": ["Not drag-and-drop page builder", "Not multi-tenant", "Not e-commerce", "Not multilingual v1"],
+  "metrics": ["SM-1: Content update live within 5 min of rebuild", "SM-2: Client deployment under 2 hours", "SM-3: Blog post live in under 3 min"]
+}
