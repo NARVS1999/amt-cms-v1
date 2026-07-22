@@ -23,7 +23,7 @@ A clean, reusable CMS on Laravel + Next.js. Six phases build from foundation (au
   3. Public GET endpoints respond with `{ "data": ... }` envelope
   4. Media library upload/browse/delete works for JPG/PNG/WebP/SVG
   5. Shared Zod schemas in `packages/shared` mirror API response shapes
-**Plans**: TBD
+**Plans**: 1 (01-PLAN.md — 4 waves, 6 tasks)
 
 ### Phase 2: Marketing Content Backend (P0)
 **Goal**: Backend CRUD for services, pricing plans, team members, pages
@@ -93,7 +93,7 @@ A clean, reusable CMS on Laravel + Next.js. Six phases build from foundation (au
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Foundation | v1.0-alpha | — | Not started | - |
+| 1. Foundation | v1.0-alpha | 1 | Planned | - |
 | 2. Marketing Content Backend | v1.0-alpha | — | Not started | - |
 | 3. Blog System | v1.0-beta | — | Not started | - |
 | 4. Frontend Public Pages | v1.0-beta | — | Not started | - |
