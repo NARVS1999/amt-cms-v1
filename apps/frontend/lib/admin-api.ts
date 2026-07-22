@@ -75,6 +75,10 @@ export async function logout(): Promise<void> {
   clearToken();
 }
 
+export async function forgotPassword(email: string): Promise<{ message: string; token?: string }> {
+  return request('/forgot-password', { method: 'POST', body: JSON.stringify({ email }) });
+}
+
 /* ─── Services ─── */
 
 export interface ServiceData {

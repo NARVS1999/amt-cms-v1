@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\Admin\StatsController;
 use App\Http\Controllers\Api\AdminAuthController;
+use App\Http\Controllers\Api\ForgotPasswordController;
+use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\BlogPostController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PageController;
@@ -51,6 +53,11 @@ Route::post('/subscribe', [SubscribeController::class, 'store'])
 
 Route::post('/admin/login', [AdminAuthController::class, 'login'])
     ->middleware('throttle:admin-login');
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])
+    ->middleware('throttle:3,1');
+
+Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AdminAuthController::class, 'me']);

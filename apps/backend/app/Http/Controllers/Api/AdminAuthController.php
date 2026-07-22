@@ -8,14 +8,18 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Traits\ApiResponse;
 
 class AdminAuthController extends Controller
 {
+    use ApiResponse;
+
     public function login(Request $request): JsonResponse
     {
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
+            'remember' => ['boolean'],
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -27,10 +31,14 @@ class AdminAuthController extends Controller
             ]);
         }
 
-        $token = $user->createToken('admin-token')->plainTextToken;
+        $token = $user->createToken('admin-token');
+        $token->accessToken->expires_at = $request->remember
+            ? now()->addDays(30)
+            : now()->addHours(24);
+        $token->accessToken->save();
 
-        return response()->json([
-            'token' => $token,
+        return $this->success([
+            'token' => $token->plainTextToken,
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -41,12 +49,10 @@ class AdminAuthController extends Controller
 
     public function me(Request $request): JsonResponse
     {
-        return response()->json([
-            'user' => [
-                'id' => $request->user()->id,
-                'name' => $request->user()->name,
-                'email' => $request->user()->email,
-            ],
+        return $this->success([
+            'id' => $request->user()->id,
+            'name' => $request->user()->name,
+            'email' => $request->user()->email,
         ]);
     }
 
@@ -54,6 +60,6 @@ class AdminAuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logged out.']);
+        return $this->success(['message' => 'Logged out.']);
     }
 }
