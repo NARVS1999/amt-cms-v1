@@ -5,14 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ServiceData, UnauthorizedError, createService, deleteService, fetchServices, updateService } from '@/lib/admin-api';
+import { ServiceData, UnauthorizedError, createService, deleteService, fetchServices, reorderServices, updateService } from '@/lib/admin-api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { ArrowUp, ArrowDown } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
 
 export default function AdminServicesPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [services, setServices] = useState<ServiceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<ServiceData> | null>(null);
@@ -31,6 +34,21 @@ export default function AdminServicesPage() {
 
   useEffect(() => { load(); }, []);
 
+  async function moveItem(index: number, direction: 'up' | 'down') {
+    const target = direction === 'up' ? index - 1 : index + 1;
+    if (target < 0 || target >= services.length) return;
+    const newItems = [...services];
+    [newItems[index], newItems[target]] = [newItems[target], newItems[index]];
+    setServices(newItems);
+    try {
+      await reorderServices(newItems.map(i => i.id));
+      showToast('Reordered.', 'success');
+    } catch (e: any) {
+      showToast('Reorder failed', 'error');
+      await load();
+    }
+  }
+
   async function handleSave() {
     if (!editing) return;
     setSaving(true);
@@ -38,14 +56,16 @@ export default function AdminServicesPage() {
     try {
       if (editing.id) {
         await updateService(editing.id, editing);
+        showToast('Saved.', 'success');
       } else {
         await createService(editing);
+        showToast('Created.', 'success');
       }
       setEditing(null);
       await load();
     } catch (e: any) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else setError(e?.message || 'Save failed');
+      else { setError(e?.message || 'Save failed'); showToast('Save failed', 'error'); }
     } finally {
       setSaving(false);
     }
@@ -56,10 +76,11 @@ export default function AdminServicesPage() {
     try {
       await deleteService(deleteTarget.id);
       setDeleteTarget(null);
+      showToast('Deleted.', 'success');
       await load();
     } catch (e) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else setError((e as any)?.message || 'Delete failed');
+      else { setError((e as any)?.message || 'Delete failed'); showToast('Delete failed', 'error'); }
     }
   }
 
@@ -97,12 +118,22 @@ export default function AdminServicesPage() {
                 ))
               ) : services.length === 0 ? (
                 <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No services yet.</TableCell></TableRow>
-              ) : services.map((s) => (
+              ) : services.map((s, index) => (
                 <TableRow key={s.id}>
                   <TableCell className="font-medium">{s.title}</TableCell>
                   <TableCell className="font-mono text-xs">{s.icon}</TableCell>
                   <TableCell>{s.is_featured ? 'Yes' : 'No'}</TableCell>
-                  <TableCell>{s.sort_order}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <span className="w-4 text-center text-xs">{s.sort_order}</span>
+                      <button onClick={() => moveItem(index, 'up')} className={index === 0 ? 'opacity-50 pointer-events-none' : ''} aria-label="Move up">
+                        <ArrowUp size={14} />
+                      </button>
+                      <button onClick={() => moveItem(index, 'down')} className={index === services.length - 1 ? 'opacity-50 pointer-events-none' : ''} aria-label="Move down">
+                        <ArrowDown size={14} />
+                      </button>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => setEditing(s)}>Edit</Button>

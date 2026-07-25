@@ -5,11 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PricingPlanData, PricingPlanFeatureData, UnauthorizedError, createPricingPlan, deletePricingPlan, fetchAdminPricingPlans, updatePricingPlan } from '@/lib/admin-api';
+import { PricingPlanData, PricingPlanFeatureData, UnauthorizedError, createPricingPlan, deletePricingPlan, fetchAdminPricingPlans, reorderPricingPlans, updatePricingPlan } from '@/lib/admin-api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { ArrowUp, ArrowDown } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
 
 interface FeatureRow {
   description: string;
@@ -25,6 +27,7 @@ const EMPTY_FEATURE = (): FeatureRow => ({ description: '', is_included: true, s
 
 export default function AdminPricingPlansPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [plans, setPlans] = useState<PricingPlanData[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<PricingPlanData> | null>(null);
@@ -43,6 +46,21 @@ export default function AdminPricingPlansPage() {
   }
 
   useEffect(() => { load(); }, []);
+
+  async function moveItem(index: number, direction: 'up' | 'down') {
+    const target = direction === 'up' ? index - 1 : index + 1;
+    if (target < 0 || target >= plans.length) return;
+    const newItems = [...plans];
+    [newItems[index], newItems[target]] = [newItems[target], newItems[index]];
+    setPlans(newItems);
+    try {
+      await reorderPricingPlans(newItems.map(i => i.id));
+      showToast('Reordered.', 'success');
+    } catch (e: any) {
+      showToast('Reorder failed', 'error');
+      await load();
+    }
+  }
 
   function startEdit(plan: Partial<PricingPlanData>) {
     setEditing(plan);
@@ -80,14 +98,16 @@ export default function AdminPricingPlansPage() {
       };
       if (editing.id) {
         await updatePricingPlan(editing.id, payload);
+        showToast('Saved.', 'success');
       } else {
         await createPricingPlan(payload);
+        showToast('Created.', 'success');
       }
       setEditing(null);
       await load();
     } catch (e: any) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else setError(e?.message || 'Save failed');
+      else { setError(e?.message || 'Save failed'); showToast('Save failed', 'error'); }
     } finally {
       setSaving(false);
     }
@@ -98,10 +118,11 @@ export default function AdminPricingPlansPage() {
     try {
       await deletePricingPlan(deleteTarget.id);
       setDeleteTarget(null);
+      showToast('Deleted.', 'success');
       await load();
     } catch (e) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else setError((e as any)?.message || 'Delete failed');
+      else { setError((e as any)?.message || 'Delete failed'); showToast('Delete failed', 'error'); }
     }
   }
 
@@ -141,7 +162,7 @@ export default function AdminPricingPlansPage() {
                 ))
               ) : plans.length === 0 ? (
                 <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No pricing plans yet. Create your first one.</TableCell></TableRow>
-              ) : plans.map((p) => (
+              ) : plans.map((p, index) => (
                 <TableRow key={p.id}>
                   <TableCell className="font-medium">{p.name}</TableCell>
                   <TableCell>${p.price.toFixed(2)}</TableCell>
@@ -152,7 +173,17 @@ export default function AdminPricingPlansPage() {
                       {p.is_published ? 'Published' : 'Draft'}
                     </span>
                   </TableCell>
-                  <TableCell>{p.sort_order}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <span className="w-4 text-center text-xs">{p.sort_order}</span>
+                      <button onClick={() => moveItem(index, 'up')} className={index === 0 ? 'opacity-50 pointer-events-none' : ''} aria-label="Move up">
+                        <ArrowUp size={14} />
+                      </button>
+                      <button onClick={() => moveItem(index, 'down')} className={index === plans.length - 1 ? 'opacity-50 pointer-events-none' : ''} aria-label="Move down">
+                        <ArrowDown size={14} />
+                      </button>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => startEdit(p)}>Edit</Button>

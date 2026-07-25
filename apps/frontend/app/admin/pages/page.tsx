@@ -5,11 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PageData, UnauthorizedError, createPage, deletePage, fetchAdminPages, updatePage } from '@/lib/admin-api';
+import { PageData, UnauthorizedError, createPage, deletePage, fetchAdminPages, reorderPages, updatePage } from '@/lib/admin-api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { ArrowUp, ArrowDown } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
 
 const EXAMPLE_SECTIONS = [
   {
@@ -37,6 +39,7 @@ const EXAMPLE_SECTIONS = [
 
 export default function AdminPagesPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [pages, setPages] = useState<PageData[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<PageData> | null>(null);
@@ -61,6 +64,21 @@ export default function AdminPagesPage() {
   }
 
   useEffect(() => { load(); }, []);
+
+  async function moveItem(index: number, direction: 'up' | 'down') {
+    const target = direction === 'up' ? index - 1 : index + 1;
+    if (target < 0 || target >= pages.length) return;
+    const newItems = [...pages];
+    [newItems[index], newItems[target]] = [newItems[target], newItems[index]];
+    setPages(newItems);
+    try {
+      await reorderPages(newItems.map(i => i.id));
+      showToast('Reordered.', 'success');
+    } catch (e: any) {
+      showToast('Reorder failed', 'error');
+      await load();
+    }
+  }
 
   function startEdit(page: Partial<PageData>) {
     setEditing(page);
@@ -111,14 +129,16 @@ export default function AdminPagesPage() {
       }
       if (editing.id) {
         await updatePage(editing.id, payload);
+        showToast('Saved.', 'success');
       } else {
         await createPage(payload);
+        showToast('Created.', 'success');
       }
       setEditing(null);
       await load();
     } catch (e: any) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else setError(e?.message || 'Save failed');
+      else { setError(e?.message || 'Save failed'); showToast('Save failed', 'error'); }
     } finally {
       setSaving(false);
     }
@@ -129,10 +149,11 @@ export default function AdminPagesPage() {
     try {
       await deletePage(deleteTarget.id);
       setDeleteTarget(null);
+      showToast('Deleted.', 'success');
       await load();
     } catch (e) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else setError((e as any)?.message || 'Delete failed');
+      else { setError((e as any)?.message || 'Delete failed'); showToast('Delete failed', 'error'); }
     }
   }
 
@@ -158,6 +179,7 @@ export default function AdminPagesPage() {
                 <TableHead>Title</TableHead>
                 <TableHead>Slug</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Sort</TableHead>
                 <TableHead className="w-32">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -165,7 +187,7 @@ export default function AdminPagesPage() {
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 4 }).map((_, j) => (
+                    {Array.from({ length: 5 }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-4 w-full" />
                       </TableCell>
@@ -173,8 +195,8 @@ export default function AdminPagesPage() {
                   </TableRow>
                 ))
               ) : pages.length === 0 ? (
-                <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">No pages yet.</TableCell></TableRow>
-              ) : pages.map((p) => (
+                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No pages yet.</TableCell></TableRow>
+              ) : pages.map((p, index) => (
                 <TableRow key={p.id}>
                   <TableCell className="font-medium">{p.title}</TableCell>
                   <TableCell className="font-mono text-xs">{p.slug}</TableCell>
@@ -182,6 +204,17 @@ export default function AdminPagesPage() {
                     <span className={p.is_published ? 'text-green-600 font-medium' : 'text-muted-foreground'}>
                       {p.is_published ? 'Published' : 'Draft'}
                     </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <span className="w-4 text-center text-xs">{p.sort_order}</span>
+                      <button onClick={() => moveItem(index, 'up')} className={index === 0 ? 'opacity-50 pointer-events-none' : ''} aria-label="Move up">
+                        <ArrowUp size={14} />
+                      </button>
+                      <button onClick={() => moveItem(index, 'down')} className={index === pages.length - 1 ? 'opacity-50 pointer-events-none' : ''} aria-label="Move down">
+                        <ArrowDown size={14} />
+                      </button>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">

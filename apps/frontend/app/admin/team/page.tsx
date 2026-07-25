@@ -5,12 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { TeamMemberData, UnauthorizedError, createTeamMember, deleteTeamMember, fetchTeamMembers, removeTeamMemberPhoto, updateTeamMember, uploadTeamMemberPhoto } from '@/lib/admin-api';
+import { TeamMemberData, UnauthorizedError, createTeamMember, deleteTeamMember, fetchTeamMembers, reorderTeamMembers, removeTeamMemberPhoto, updateTeamMember, uploadTeamMemberPhoto } from '@/lib/admin-api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { User, Upload, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, User, Upload, Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 
 export default function AdminTeamPage() {
@@ -36,6 +36,21 @@ export default function AdminTeamPage() {
   }
 
   useEffect(() => { load(); }, []);
+
+  async function moveItem(index: number, direction: 'up' | 'down') {
+    const target = direction === 'up' ? index - 1 : index + 1;
+    if (target < 0 || target >= members.length) return;
+    const newItems = [...members];
+    [newItems[index], newItems[target]] = [newItems[target], newItems[index]];
+    setMembers(newItems);
+    try {
+      await reorderTeamMembers(newItems.map(i => i.id));
+      showToast('Reordered.', 'success');
+    } catch (e: any) {
+      showToast('Reorder failed', 'error');
+      await load();
+    }
+  }
 
   async function handleSave() {
     if (!editing) return;
@@ -73,10 +88,11 @@ export default function AdminTeamPage() {
     try {
       await deleteTeamMember(deleteTarget.id);
       setDeleteTarget(null);
+      showToast('Deleted.', 'success');
       await load();
     } catch (e) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else setError((e as any)?.message || 'Delete failed');
+      else { setError((e as any)?.message || 'Delete failed'); showToast('Delete failed', 'error'); }
     }
   }
 
@@ -113,7 +129,7 @@ export default function AdminTeamPage() {
                 ))
               ) : members.length === 0 ? (
                 <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">No team members yet.</TableCell></TableRow>
-              ) : members.map((m) => (
+              ) : members.map((m, index) => (
                   <TableRow key={m.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
@@ -128,7 +144,17 @@ export default function AdminTeamPage() {
                       </div>
                     </TableCell>
                   <TableCell>{m.role}</TableCell>
-                  <TableCell>{m.sort_order}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <span className="w-4 text-center text-xs">{m.sort_order}</span>
+                      <button onClick={() => moveItem(index, 'up')} className={index === 0 ? 'opacity-50 pointer-events-none' : ''} aria-label="Move up">
+                        <ArrowUp size={14} />
+                      </button>
+                      <button onClick={() => moveItem(index, 'down')} className={index === members.length - 1 ? 'opacity-50 pointer-events-none' : ''} aria-label="Move down">
+                        <ArrowDown size={14} />
+                      </button>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => { setPhotoFile(null); setPhotoPreview(null); setEditing(m); }}>Edit</Button>
