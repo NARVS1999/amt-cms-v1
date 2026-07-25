@@ -3,12 +3,20 @@
 namespace Tests\Feature;
 
 use App\Models\TeamMember;
+use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class TeamMembersTest extends TestCase
 {
     use RefreshDatabase;
+
+    private function authToken(): string
+    {
+        $user = User::factory()->create();
+        return $user->createToken('test')->plainTextToken;
+    }
 
     /**
      * Test GET /api/team returns 200 with sorted data.
@@ -99,5 +107,66 @@ class TeamMembersTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
         $this->assertNull($response->json('data.0.social_links'));
+    }
+
+    public function test_can_upload_team_member_photo(): void
+    {
+        $member = TeamMember::factory()->create();
+        $token = $this->authToken();
+
+        $file = UploadedFile::fake()->image('photo.jpg');
+        $response = $this->withToken($token)->postJson("/api/team/{$member->id}/photo", [
+            'photo' => $file,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['data' => ['id', 'photo_url']]);
+        $this->assertNotNull($response->json('data.photo_url'));
+    }
+
+    public function test_cannot_upload_photo_when_already_exists(): void
+    {
+        $member = TeamMember::factory()->create();
+        $token = $this->authToken();
+
+        $file = UploadedFile::fake()->image('photo.jpg');
+        $this->withToken($token)->postJson("/api/team/{$member->id}/photo", [
+            'photo' => $file,
+        ]);
+
+        $response = $this->withToken($token)->postJson("/api/team/{$member->id}/photo", [
+            'photo' => UploadedFile::fake()->image('photo2.jpg'),
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJson(['message' => 'Remove existing photo first']);
+    }
+
+    public function test_can_remove_team_member_photo(): void
+    {
+        $member = TeamMember::factory()->create();
+        $token = $this->authToken();
+
+        $file = UploadedFile::fake()->image('photo.jpg');
+        $this->withToken($token)->postJson("/api/team/{$member->id}/photo", [
+            'photo' => $file,
+        ]);
+
+        $response = $this->withToken($token)->deleteJson("/api/team/{$member->id}/photo");
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['data' => ['id', 'photo_url']]);
+        $this->assertNull($response->json('data.photo_url'));
+    }
+
+    public function test_photo_endpoints_return_401_without_token(): void
+    {
+        $member = TeamMember::factory()->create();
+
+        $postResponse = $this->postJson("/api/team/{$member->id}/photo");
+        $postResponse->assertStatus(401);
+
+        $deleteResponse = $this->deleteJson("/api/team/{$member->id}/photo");
+        $deleteResponse->assertStatus(401);
     }
 }

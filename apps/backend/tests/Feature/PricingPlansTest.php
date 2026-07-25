@@ -4,12 +4,19 @@ namespace Tests\Feature;
 
 use App\Models\PricingPlan;
 use App\Models\PlanFeature;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class PricingPlansTest extends TestCase
 {
     use RefreshDatabase;
+
+    private function authToken(): string
+    {
+        $user = User::factory()->create();
+        return $user->createToken('test')->plainTextToken;
+    }
 
     public function test_returns_published_plans_sorted_by_sort_order(): void
     {
@@ -116,5 +123,29 @@ class PricingPlansTest extends TestCase
         $popularPlans = collect($response->json('data'))->where('is_popular', true);
         $this->assertCount(1, $popularPlans);
         $this->assertEquals('Plan A', $popularPlans->first()['name']);
+    }
+
+    public function test_admin_can_view_all_pricing_plans(): void
+    {
+        PricingPlan::factory()->create(['name' => 'Published Plan', 'is_published' => true, 'sort_order' => 1]);
+        PricingPlan::factory()->create(['name' => 'Unpublished Plan', 'is_published' => false, 'sort_order' => 2]);
+
+        $token = $this->authToken();
+
+        $response = $this->withToken($token)->getJson('/api/admin/pricing-plans');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(2, 'data');
+
+        $names = $response->json('data.*.name');
+        $this->assertContains('Published Plan', $names);
+        $this->assertContains('Unpublished Plan', $names);
+    }
+
+    public function test_admin_pricing_plans_returns_401_without_token(): void
+    {
+        $response = $this->getJson('/api/admin/pricing-plans');
+
+        $response->assertStatus(401);
     }
 }
