@@ -163,9 +163,9 @@ export default function AdminServicesPage() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete service?</AlertDialogTitle>
+            <AlertDialogTitle>Delete &ldquo;{deleteTarget?.title}&rdquo;?</AlertDialogTitle>
             <AlertDialogDescription>
-              Delete this service? This cannot be undone.
+              Delete &ldquo;{deleteTarget?.title}&rdquo;? This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

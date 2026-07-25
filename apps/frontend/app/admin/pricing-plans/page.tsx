@@ -213,9 +213,9 @@ export default function AdminPricingPlansPage() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete pricing plan?</AlertDialogTitle>
+            <AlertDialogTitle>Delete &ldquo;{deleteTarget?.name}&rdquo;?</AlertDialogTitle>
             <AlertDialogDescription>
-              Delete this pricing plan? This cannot be undone.
+              Delete &ldquo;{deleteTarget?.name}&rdquo;? This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

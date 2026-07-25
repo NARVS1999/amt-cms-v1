@@ -184,9 +184,9 @@ export default function AdminTeamPage() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete team member?</AlertDialogTitle>
+            <AlertDialogTitle>Delete &ldquo;{deleteTarget?.name}&rdquo;?</AlertDialogTitle>
             <AlertDialogDescription>
-              Delete this team member? This cannot be undone.
+              Delete &ldquo;{deleteTarget?.name}&rdquo;? This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

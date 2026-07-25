@@ -249,9 +249,9 @@ export default function AdminPagesPage() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete page?</AlertDialogTitle>
+            <AlertDialogTitle>Delete &ldquo;{deleteTarget?.title}&rdquo;?</AlertDialogTitle>
             <AlertDialogDescription>
-              Delete this page? This cannot be undone.
+              Delete &ldquo;{deleteTarget?.title}&rdquo;? This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
