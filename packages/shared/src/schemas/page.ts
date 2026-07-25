@@ -8,6 +8,7 @@ export const PageSchema = z.object({
   hero_subtext: z.string().nullable(),
   sections: z.array(z.record(z.unknown())).nullable(),
   is_published: z.boolean().default(false),
+  sort_order: z.number().default(0),
   created_at: z.string().nullable(),
   updated_at: z.string().nullable(),
 });
