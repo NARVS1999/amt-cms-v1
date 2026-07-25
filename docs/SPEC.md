@@ -568,9 +568,11 @@ All admin CRUD endpoints follow the same pattern:
 
 | Method | URI | Controller | Notes |
 |--------|-----|-----------|-------|
-| POST | `/api/team` | `TeamMemberController@store` | |
-| PUT | `/api/team/{teamMember}` | `TeamMemberController@update` | |
+| POST | `/api/team` | `TeamMemberController@store` | JSON-only (no photo) |
+| PUT | `/api/team/{teamMember}` | `TeamMemberController@update` | JSON-only (no photo) |
 | DELETE | `/api/team/{teamMember}` | `TeamMemberController@destroy` | |
+| POST | `/api/team/{teamMember}/photo` | `TeamMemberController@uploadPhoto` | Multipart; returns 422 if photo exists |
+| DELETE | `/api/team/{teamMember}/photo` | `TeamMemberController@removePhoto` | Clears photo, returns updated member |
 
 #### Pages Admin
 
@@ -585,11 +587,12 @@ All admin CRUD endpoints follow the same pattern:
 
 | Method | URI | Controller | Notes |
 |--------|-----|-----------|-------|
+| GET | `/api/admin/pricing-plans` | `PricingPlanController@adminIndex` | All plans (including unpublished) |
 | POST | `/api/pricing-plans` | `PricingPlanController@store` | |
 | PUT | `/api/pricing-plans/{pricingPlan}` | `PricingPlanController@update` | |
 | DELETE | `/api/pricing-plans/{pricingPlan}` | `PricingPlanController@destroy` | |
 
-**Note:** There is no admin-specific GET for all pricing plans. The admin uses the same `GET /api/pricing-plans` which filters by `is_published: true`. This means the admin cannot see unpublished plans — this may be a bug.
+**Note:** Admin-specific route `GET /api/admin/pricing-plans` returns ALL plans (including unpublished), served by `PricingPlanController@adminIndex`.
 
 **Store/Update request fields (PricingPlan):**
 | Field | Rules |
@@ -793,7 +796,7 @@ Note: `ServiceData`, `TeamMemberData`, `PageData`, `PricingPlanData`, `PlanFeatu
 | | bio | `nullable`, `string` |
 | | social_links | `nullable`, `json` |
 | | sort_order | `integer` |
-| | photo | `nullable`, `file`, `mimes:jpeg,png,webp`, `max:2048` |
+| POST team/{id}/photo | photo | `required`, `file`, `mimes:jpeg,png,webp` |
 | POST/PUT pricing-plans | name | `required` / `sometimes`, `string`, `max:255` |
 | | price | `required` / `sometimes`, `numeric`, `min:0` |
 | | interval | `required` / `sometimes`, `string`, `in:monthly,yearly,one-time` |

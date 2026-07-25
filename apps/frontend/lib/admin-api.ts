@@ -138,6 +138,37 @@ export async function deleteTeamMember(id: number): Promise<void> {
   await request(`/team/${id}`, { method: 'DELETE' });
 }
 
+export async function removeTeamMemberPhoto(id: number): Promise<{ data: TeamMemberData }> {
+  return request(`/team/${id}/photo`, { method: 'DELETE' });
+}
+
+export async function uploadTeamMemberPhoto(id: number, file: File): Promise<{ data: TeamMemberData }> {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append('photo', file);
+
+  const res = await fetch(`${API_BASE}/team/${id}/photo`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
+
+  if (res.status === 401) {
+    clearToken();
+    throw new UnauthorizedError();
+  }
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw { status: res.status, errors: data.errors, message: data.message || 'Upload failed' };
+  }
+
+  return res.json();
+}
+
 /* ─── Pages ─── */
 
 export interface PageData {
@@ -242,6 +273,10 @@ export interface PricingPlanData {
 
 export async function fetchPricingPlans(): Promise<{ data: PricingPlanData[] }> {
   return request('/pricing-plans');
+}
+
+export async function fetchAdminPricingPlans(): Promise<{ data: PricingPlanData[] }> {
+  return request('/admin/pricing-plans');
 }
 
 export async function createPricingPlan(data: Partial<PricingPlanData>): Promise<{ data: PricingPlanData }> {
