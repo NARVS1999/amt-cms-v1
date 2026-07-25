@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\Admin\\Desktop\\project\\AMT_V2\\docs\\guides\\development.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Development",
+  "summary": "Development guide covering Laravel backend and Next.js frontend conventions for the AMT V2 monorepo.",
+  "scope": ["Laravel", "Next.js", "monorepo", "development guide"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

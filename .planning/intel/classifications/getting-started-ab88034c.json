@@ -1,0 +1,13 @@
+{
+  "source_path": "C:/Users/Admin/Desktop/project/AMT_V2/docs/guides/getting-started.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Getting Started",
+  "summary": "Setup guide for AMT_V2 covering prerequisites, backend and frontend setup, and production build.",
+  "scope": ["backend setup", "frontend setup", "API", "MariaDB", "MySQL", "PHP", "Node.js", "Laravel", "Next.js"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

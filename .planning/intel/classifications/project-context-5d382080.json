@@ -1,0 +1,12 @@
+{
+  "source_path": "C:\\Users\\Admin\\Desktop\\project\\AMT_V2\\docs\\project-context.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Project Context for AI Agents",
+  "summary": "Rules and patterns for AI agents implementing code in the Adsvance Media Tech CMS project.",
+  "scope": ["Laravel", "Next.js", "TypeScript", "PHP", "Tailwind CSS", "shadcn/ui", "Spatie Media Library", "Zod", "Hostinger", "MariaDB", "MySQL"],
+  "cross_refs": ["docs/SPEC.md", "docs/ERROR-HANDLING.md"],
+  "locked": false,
+  "precedence": null
+}

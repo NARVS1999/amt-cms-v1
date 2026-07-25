@@ -47,8 +47,10 @@ See `.planning/intel/decisions.md` for full details. Key locked decisions:
 - **AD-2:** SSG only — no server-side rendering
 - **AD-3:** REST API contract with `{ "data": ... }` envelope
 - **AD-4:** CSS custom properties — no hardcoded brand colors
+- **AD-5:** Admin is the sole content authority (all writes require Sanctum auth)
 - **AD-6:** Spatie Media Library for all file uploads
 - **AD-7:** Unidirectional content flow
+- **AD-8:** Queued email with database-backed fallback (3 retries)
 
 ## Hosting
 

@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\Admin\\Desktop\\project\\AMT_V2\\docs\\architecture\\overview.md",
+  "type": "DOC",
+  "confidence": "medium",
+  "manifest_override": false,
+  "title": "Architecture Overview",
+  "summary": "Overview of the project architecture including paradigms, layout, data flow, and key decisions.",
+  "scope": ["Laravel", "Next.js", "SSG", "REST API", "MySQL", "Eloquent", "Sanctum", "architecture decisions", "data flow"],
+  "cross_refs": ["./architecture-AMT_V2-2026-07-18/ARCHITECTURE-SPINE.md"],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

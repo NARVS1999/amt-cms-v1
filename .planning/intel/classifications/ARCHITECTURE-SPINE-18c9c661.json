@@ -1,0 +1,18 @@
+{
+  "source_path": "C:\\Users\\Admin\\Desktop\\project\\AMT_V2\\docs\\architecture\\architecture-AMT_V2-2026-07-18\\ARCHITECTURE-SPINE.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Architecture Spine — Adsvance Media Tech CMS",
+  "summary": "Architecture decisions, conventions, and technical stack for the Adsvance Media Tech CMS monorepo.",
+  "scope": ["Laravel", "Next.js", "REST API", "CSS custom properties", "Spatie Media Library", "Sanctum authentication", "SSG"],
+  "cross_refs": [
+    "docs/prds/prd-adsvance-media-tech-cms-2026-07-18/prd.md",
+    "docs/prds/prd-adsvance-media-tech-cms-2026-07-18/addendum.md",
+    "docs/ux-designs/ux-adsvance-cms-2026-07-18/DESIGN.md",
+    "docs/ux-designs/ux-adsvance-cms-2026-07-18/EXPERIENCE.md"
+  ],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

@@ -1,0 +1,13 @@
+{
+  "source_path": "C:/Users/Admin/Desktop/project/AMT_V2/docs/prds/prd-adsvance-media-tech-cms-2026-07-18/addendum.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": false,
+  "title": "Addendum: Technical Architecture & Build Plan",
+  "summary": "Technical addendum to the PRD covering architecture, database schemas, theme system, build plan, and deployment.",
+  "scope": ["Laravel 12", "Next.js 16", "monorepo", "SSG", "database schema", "theme system", "Hostinger deployment", "7-day build plan", "package choices"],
+  "cross_refs": ["docs/architecture/architecture-AMT_V2-2026-07-18/ARCHITECTURE-SPINE.md"],
+  "locked": false,
+  "precedence": null,
+  "notes": "Path suggests PRD (**/prd/**) but content is dominantly technical specification — database schemas, implementation details, code snippets, package versions. Self-describes as 'Companion to PRD'. TYPE=SPEC selected via precedence rule (SPEC > PRD) on content-dominant signals."
+}

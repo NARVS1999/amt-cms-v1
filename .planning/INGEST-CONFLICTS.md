@@ -2,19 +2,19 @@
 
 ### BLOCKERS (0)
 
-No blockers found.
+No LOCKED-vs-LOCKED ADR contradictions. No UNKNOWN-confidence-low documents. No cycle-detection blockers affecting content extraction.
 
 ### WARNINGS (0)
 
-No warnings found.
+No competing acceptance criteria variants across PRDs. All FRs are consistently defined across prd.md and epics.md.
 
 ### INFO (3)
 
-[INFO] Table naming convention variance
-  Note: The architecture spine (AD-1 conventions) references unprefixed table names (e.g. `services`, `pricing_plans`). The actual migration files use domain-prefixed names (`marketing_services`, `billing_pricing_plans`). The codebase (migrations) is the source of truth — prefix convention is established.
+[INFO] Cross-document reference cycles detected
+  Note: The cross_ref graph contains multiple cycles (ARCHITECTURE-SPINE <-> addendum, EXPERIENCE <-> prd <-> addendum <-> ARCHITECTURE-SPINE, etc.). These are informational links between companion documents describing the same project. Content extraction reads source files independently, so cross-ref cycles do not create synthesis loops.
 
-[INFO] Deferred features noted
-  Note: FR-11 (Contact Message Admin) and subscriber management are explicitly deferred to v1.1. Requirements list marks them accordingly.
+[INFO] Known bug: GET /api/blog-posts returns unpublished posts
+  Note: docs/SPEC.md documents that GET /api/blog-posts does NOT filter by is_published, returning all posts including drafts. docs/ERROR-HANDLING.md lists this as a known unfixed bug. PRD FR-3 requires unpublished posts excluded from public site. This is an implementation gap, not a document conflict.
 
-[INFO] Version bumps already applied
-  Note: The architecture spine and actual codebase (composer.json, package.json) already reflect the version bumps from Laravel 11→12 and Next.js 14→16.2.10. The PRD's original version references are superseded.
+[INFO] Known bug: No admin-specific pricing plans endpoint
+  Note: docs/SPEC.md documents that the admin uses the same GET /api/pricing-plans which filters by is_published: true. docs/ERROR-HANDLING.md lists this as a known unfixed bug — admin cannot see unpublished plans. No admin-specific GET /api/admin/pricing-plans route exists.

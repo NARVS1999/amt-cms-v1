@@ -1,0 +1,34 @@
+{
+  "source_path": "C:/Users/Admin/Desktop/project/AMT_V2/docs/epics.md",
+  "type": "PRD",
+  "confidence": "medium",
+  "manifest_override": false,
+  "title": "Adsvance Media Tech CMS - Epic Breakdown",
+  "summary": "Epic and story breakdown for the CMS, decomposing PRD, UX, and Architecture requirements into implementable stories.",
+  "scope": [
+    "Adsvance Media Tech CMS",
+    "Laravel 12",
+    "Next.js 16",
+    "REST API",
+    "services",
+    "pricing plans",
+    "blog posts",
+    "team members",
+    "theme settings",
+    "contact form",
+    "newsletter",
+    "admin authentication",
+    "media library",
+    "Zod schemas"
+  ],
+  "cross_refs": [
+    "docs/prds/prd-adsvance-media-tech-cms-2026-07-18/prd.md",
+    "docs/prds/prd-adsvance-media-tech-cms-2026-07-18/addendum.md",
+    "docs/architecture/architecture-AMT_V2-2026-07-18/ARCHITECTURE-SPINE.md",
+    "docs/ux-designs/ux-adsvance-cms-2026-07-18/DESIGN.md",
+    "docs/ux-designs/ux-adsvance-cms-2026-07-18/EXPERIENCE.md"
+  ],
+  "locked": false,
+  "precedence": null,
+  "notes": "Epic breakdown synthesizing PRD, UX, and Architecture source docs. Dominant signals are user stories + acceptance criteria (PRD hallmark) with embedded SPEC-like field/migration detail. Cross-references 5 source documents."
+}

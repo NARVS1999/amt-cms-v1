@@ -1,35 +1,58 @@
-# Ingest Synthesis
+# Synthesis Complete
 
 ## Summary
 
-8 documents ingested from `docs/` directory. All describe the same project (Adsvance Media Tech CMS v1.0) at different altitudes. No contradictions found among locked decisions.
+15 source documents synthesized. All describe the same project (Adsvance Media Tech CMS v1.0) at different altitudes. No hard contradictions found.
 
-## Source Documents
+## Doc Counts by Type
 
-| # | File | Type | Status |
-|---|------|------|--------|
-| 1 | docs/prds/prd-adsvance-media-tech-cms-2026-07-18/prd.md | PRD | draft |
-| 2 | docs/prds/prd-adsvance-media-tech-cms-2026-07-18/addendum.md | PRD | companion |
-| 3 | docs/architecture/architecture-AMT_V2-2026-07-18/ARCHITECTURE-SPINE.md | DOC | final |
-| 4 | docs/epics.md | DOC | final |
-| 5 | docs/implementation-readiness-report-2026-07-18.md | DOC | complete |
-| 6 | docs/project-context.md | DOC | complete |
-| 7 | docs/ux-designs/ux-adsvance-cms-2026-07-18/DESIGN.md | DOC | final |
-| 8 | docs/ux-designs/ux-adsvance-cms-2026-07-18/EXPERIENCE.md | DOC | draft |
+| Type | Count | Documents |
+|------|-------|-----------|
+| SPEC | 3 | docs/SPEC.md, docs/prds/prd-adsvance-media-tech-cms-2026-07-18/addendum.md, docs/architecture/architecture-AMT_V2-2026-07-18/ARCHITECTURE-SPINE.md |
+| PRD | 2 | docs/prds/prd-adsvance-media-tech-cms-2026-07-18/prd.md, docs/epics.md |
+| DOC | 10 | docs/architecture/overview.md, docs/configuration/configuration.md, docs/ERROR-HANDLING.md, docs/guides/development.md, docs/guides/getting-started.md, docs/implementation-readiness-report-2026-07-18.md, docs/project-context.md, docs/testing/testing.md, docs/ux-designs/ux-adsvance-cms-2026-07-18/DESIGN.md, docs/ux-designs/ux-adsvance-cms-2026-07-18/EXPERIENCE.md |
 
-## Key Content
+## Decisions
 
-- **Project:** Adsvance Media Tech CMS — monorepo with Laravel 12 REST API + Next.js 16 SSG frontend + shared Zod schemas
-- **Purpose:** Powers Adsvance's own marketing site and serves as themeable CMS foundation for client projects
-- **Stack:** PHP 8.2, Laravel 12, Next.js 16.2.10, React 19, Tailwind CSS v4, MySQL/MariaDB
-- **8 Architecture Decisions (AD-1 through AD-8):** Flat Laravel, SSG-only, API contract, CSS custom properties, admin authority, Spatie media, unidirectional flow, queued email
-- **15 Functional Requirements (FR-1 through FR-15):** 13 P0 for v1, 2 deferred to v1.1
-- **Hosting:** Hostinger Business Shared — no Node runtime, Laravel outside public_html
+- **Locked:** 8 (AD-1 through AD-8 from ARCHITECTURE-SPINE.md)
+- **Proposed:** 8 (D-9 through D-16 from PRD, addendum, project-context docs)
+- **Source:** `.planning/intel/decisions.md`
 
-## Decisions Status
+## Requirements
 
-All 17 extracted decisions are compatible. The architecture spine (AD-1 through AD-8) is the authoritative source — lower-precedence PRD and DOC documents agree.
+- **Functional:** 15 (FR-1 through FR-15) — 14 P0 for v1, 1 deferred to v1.1
+- **Non-functional:** 16 (NFR-1 through NFR-16)
+- **Source:** `.planning/intel/requirements.md`
 
-## Next Action
+## Constraints
 
-Routing to gsd-roadmapper (merge mode) to create PROJECT.md, REQUIREMENTS.md, ROADMAP.md, and STATE.md.
+- Total: 30 entries
+- API contract: 12 (endpoint definitions)
+- Schema: 7 (database tables + validation rules)
+- NFR: 8 (rate limiting, CORS, theme, media, versions)
+- Protocol: 1 (build plan)
+- Source: `.planning/intel/constraints.md`
+
+## Context Topics
+
+12 topics covered: project description, target users, user journeys, success metrics, non-goals, architecture overview, error handling, configuration, development guide, testing, UX design, project context rules.
+- Source: `.planning/intel/context.md`
+
+## Conflicts
+
+- **Blockers:** 0
+- **Warnings:** 0
+- **Info:** 3 (cross-ref cycles noted, 2 known implementation bugs)
+- Report: `.planning/INGEST-CONFLICTS.md`
+
+## Precedence Applied
+
+SPEC (3 docs) > PRD (2 docs) > DOC (10 docs). No contradictions required resolution. The ARCHITECTURE-SPINE ADs are the authoritative source for architectural invariants.
+
+## Notes
+
+- Mode: merge (existing .planning/ present with codebase map and Phase 1 artifacts)
+- Existing intel files (decisions.md, requirements.md, constraints.md, context.md, SYNTHESIS.md) rewritten in new format
+- No UNKNOWN/low-confidence documents found
+- Cross-reference cycles are benign informational links between companion docs
+- 2 known implementation bugs documented in ERROR-HANDLING.md (blog posts published filter, pricing plans admin route) recorded as INFO

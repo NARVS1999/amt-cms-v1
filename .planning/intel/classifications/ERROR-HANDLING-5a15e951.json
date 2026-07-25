@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\Admin\\Desktop\\project\\AMT_V2\\docs\\ERROR-HANDLING.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Error Handling & Edge Cases",
+  "summary": "Central registry of error types, edge cases, and boundary conditions.",
+  "scope": ["error handling", "HTTP status codes", "edge cases", "boundary values", "concurrency", "race conditions", "known bugs"],
+  "cross_refs": ["EXPERIENCE.md"],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

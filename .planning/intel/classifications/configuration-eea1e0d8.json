@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\Admin\\Desktop\\project\\AMT_V2\\docs\\configuration\\configuration.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Configuration",
+  "summary": "Configuration reference for backend .env, frontend env, and config files.",
+  "scope": ["backend environment", "frontend environment", "Tailwind theme", "config files", "shared package"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

@@ -32,3 +32,11 @@
 | NFR-6 | No raw SQL | Eloquent ORM only |
 | NFR-7 | Email retry | 3 retries, DB queue |
 | NFR-8 | Zero-cost software | All packages free/OSS |
+| NFR-9 | Environment-driven config | All config via .env, never hardcoded |
+| NFR-10 | Hostinger compatibility | Laravel + static frontend deployment |
+| NFR-11 | WCAG 2.2 AA accessibility | Both surfaces meet WCAG AA |
+| NFR-12 | Browser support | Latest 2 versions Chrome, Firefox, Safari, Edge |
+| NFR-13 | Mobile responsive (public) | Mobile-first: >=992/768-991/<=767 breakpoints |
+| NFR-14 | Admin panel responsive | Desktop-first: full/icon-only/off-canvas breakpoints |
+| NFR-15 | Authentication security | Passwords hashed via bcrypt |
+| NFR-16 | Graceful degradation | API-unreachable build fails with clear message |

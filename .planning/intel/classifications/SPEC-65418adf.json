@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\Admin\\Desktop\\project\\AMT_V2\\docs\\SPEC.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Adsvance Media Tech CMS — Implementation SPEC",
+  "summary": "Single source of truth for all API contracts, database schemas, validation rules, component interfaces, and data flows.",
+  "scope": ["API contracts", "database schemas", "validation rules", "component interfaces", "data flows", "CSS custom properties", "media handling", "rate limiting", "CORS configuration", "theme system"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

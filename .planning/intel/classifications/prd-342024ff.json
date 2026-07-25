@@ -1,0 +1,26 @@
+{
+  "source_path": "C:\\Users\\Admin\\Desktop\\project\\AMT_V2\\docs\\prds\\prd-adsvance-media-tech-cms-2026-07-18\\prd.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "PRD: Adsvance Media Tech CMS v1.0",
+  "summary": "Product requirements for v1.0 CMS covering marketing content, theme system, admin panel, and API.",
+  "scope": [
+    "Adsvance Media Tech CMS",
+    "marketing content management",
+    "theme system",
+    "admin panel",
+    "contact form",
+    "newsletter subscription",
+    "pricing plans",
+    "blog posts",
+    "team members",
+    "media library"
+  ],
+  "cross_refs": [
+    "addendum.md"
+  ],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

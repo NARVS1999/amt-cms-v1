@@ -1,0 +1,16 @@
+{
+  "source_path": "C:/Users/Admin/Desktop/project/AMT_V2/docs/ux-designs/ux-adsvance-cms-2026-07-18/EXPERIENCE.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Adsvance Media Tech CMS — Experience Spine",
+  "summary": "Behavioral experience spine for a two-surface CMS — flows, states, accessibility, and interaction patterns.",
+  "scope": ["CMS", "public site", "admin panel", "UX", "accessibility", "user flows", "state patterns", "responsive design"],
+  "cross_refs": [
+    "{docs}/prds/prd-adsvance-media-tech-cms-2026-07-18/prd.md",
+    "docs/ux-designs/ux-adsvance-cms-2026-07-18/DESIGN.md"
+  ],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}
