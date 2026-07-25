@@ -31,7 +31,7 @@ class TeamMemberController extends Controller
             'name' => 'required|string|max:255',
             'role' => 'required|string|max:255',
             'bio' => 'nullable|string',
-            'social_links' => 'nullable|json',
+            'social_links' => 'nullable',
             'sort_order' => 'integer',
         ]);
 
@@ -54,7 +54,7 @@ class TeamMemberController extends Controller
             'name' => 'string|max:255',
             'role' => 'string|max:255',
             'bio' => 'nullable|string',
-            'social_links' => 'nullable|json',
+            'social_links' => 'nullable',
             'sort_order' => 'integer',
         ]);
 

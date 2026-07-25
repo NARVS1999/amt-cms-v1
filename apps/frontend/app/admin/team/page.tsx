@@ -107,7 +107,7 @@ export default function AdminTeamPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Team Members</h1>
-        <Button onClick={() => { setPhotoFile(null); setPhotoPreview(null); setEditing({ name: '', role: '', bio: '' }); setValidationErrors({}); }}>
+        <Button onClick={() => { setPhotoFile(null); setPhotoPreview(null); setEditing({ name: '', role: '', bio: '', social_links: { linkedin: null, twitter: null } }); setValidationErrors({}); }}>
           New Member
         </Button>
       </div>
@@ -208,6 +208,15 @@ export default function AdminTeamPage() {
                   <Label>Bio</Label>
                   <textarea className={`flex h-20 w-full rounded-md border ${validationErrors['bio'] ? 'border-red-500' : 'border-input'} bg-transparent px-3 py-2 text-sm shadow-sm`} value={editing.bio || ''} onChange={(e) => { setEditing({ ...editing, bio: e.target.value }); setValidationErrors((prev) => { const n = { ...prev }; delete n['bio']; return n; }); }} />
                   {validationErrors['bio'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['bio']}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label>Social Links</Label>
+                  <div className="space-y-2">
+                    <Input type="url" placeholder="https://linkedin.com/in/username" value={editing.social_links?.linkedin || ''} onChange={(e) => { setEditing({ ...editing, social_links: { ...(editing.social_links || { linkedin: null, twitter: null }), linkedin: e.target.value || null } }); setValidationErrors((prev) => { const n = { ...prev }; delete n['social_links.linkedin']; return n; }); }} />
+                    <Input type="url" placeholder="https://twitter.com/username" value={editing.social_links?.twitter || ''} onChange={(e) => { setEditing({ ...editing, social_links: { ...(editing.social_links || { linkedin: null, twitter: null }), twitter: e.target.value || null } }); setValidationErrors((prev) => { const n = { ...prev }; delete n['social_links.twitter']; return n; }); }} />
+                  </div>
+                  {validationErrors['social_links.linkedin'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['social_links.linkedin']}</p>}
+                  {validationErrors['social_links.twitter'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['social_links.twitter']}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Photo</Label>
