@@ -58,7 +58,13 @@ Plans:
   3. Admin can manage team members with photo, bio, sort order
   4. Admin can manage pages/site sections with hero, JSON sections
 
-**Plans**: TBD
+**Plans**: 3 plans (02-01, 02-02, 02-03)
+
+Plans:
+
+- [x] 02-01: Tracer — Team Member Photo Upload + Route Fixes
+- [x] 02-02: Expansion — Sort Order Controls + Toast Integration + Form Validation Polish
+- [x] 02-03: Expansion — Social Links Form Fields + Polish Audit
 
 ### Phase 3: Blog System (P0)
 
@@ -133,7 +139,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Foundation | v1.0-alpha | 4/4 | Executed | - |
-| 2. Marketing Content Backend | v1.0-alpha | — | Not started | - |
+| 2. Marketing Content Backend | v1.0-alpha | 3/3 | ✓ Complete | 2026-07-26 |
 | 3. Blog System | v1.0-beta | — | Not started | - |
 | 4. Frontend Public Pages | v1.0-beta | — | Not started | - |
 | 5. Contact & Lead Capture | v1.0-rc | — | Not started | - |
