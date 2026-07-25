@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PricingPlanData, PricingPlanFeatureData, UnauthorizedError, createPricingPlan, deletePricingPlan, fetchPricingPlans, updatePricingPlan } from '@/lib/admin-api';
+import { PricingPlanData, PricingPlanFeatureData, UnauthorizedError, createPricingPlan, deletePricingPlan, fetchAdminPricingPlans, updatePricingPlan } from '@/lib/admin-api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
@@ -35,7 +35,7 @@ export default function AdminPricingPlansPage() {
 
   async function load() {
     try {
-      const res = await fetchPricingPlans();
+      const res = await fetchAdminPricingPlans();
       setPlans(res.data);
     } catch (e) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
