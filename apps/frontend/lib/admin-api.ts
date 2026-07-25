@@ -59,11 +59,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 /* ─── Auth ─── */
 
 export async function login(email: string, password: string, remember = false): Promise<{ token: string; user: { id: number; name: string; email: string } }> {
-  const data = await request<{ token: string; user: { id: number; name: string; email: string } }>('/admin/login', {
+  const res = await request<{ data: { token: string; user: { id: number; name: string; email: string } } }>('/admin/login', {
     method: 'POST',
     body: JSON.stringify({ email, password, remember }),
   });
-  return data;
+  return res.data;
 }
 
 export async function fetchMe(): Promise<{ user: { id: number; name: string; email: string } }> {

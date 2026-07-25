@@ -2,6 +2,8 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +21,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 export default function AdminMediaPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const loadRef = useRef<AbortController | null>(null);
   const [media, setMedia] = useState<MediaData[]>([]);
@@ -27,7 +30,6 @@ export default function AdminMediaPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<MediaData | null>(null);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const load = useCallback(async (signal: AbortSignal) => {
     try {
@@ -70,7 +72,7 @@ export default function AdminMediaPage() {
     setUploadError(null);
     try {
       await uploadMedia(file);
-      setStatusMessage('File uploaded successfully.');
+      showToast('File uploaded successfully.', 'success');
       loadRef.current?.abort();
       const ac = new AbortController();
       loadRef.current = ac;
@@ -82,7 +84,7 @@ export default function AdminMediaPage() {
       }
       const msg = err?.errors?.file?.[0] || err?.message || 'Upload failed';
       setUploadError(msg);
-      setStatusMessage(msg);
+      showToast(msg, 'error');
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -92,7 +94,7 @@ export default function AdminMediaPage() {
   async function handleDelete(id: number) {
     try {
       await deleteMedia(id);
-      setStatusMessage('File deleted successfully.');
+      showToast('File deleted successfully.', 'success');
       loadRef.current?.abort();
       const ac = new AbortController();
       loadRef.current = ac;
@@ -103,7 +105,7 @@ export default function AdminMediaPage() {
         return;
       }
       const msg = err?.message || 'Delete failed';
-      setStatusMessage(msg);
+      showToast(msg, 'error');
     } finally {
       setDeleteTarget(null);
     }
@@ -131,10 +133,10 @@ export default function AdminMediaPage() {
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {Array.from({ length: 10 }).map((_, i) => (
                 <div key={i} className="overflow-hidden rounded-lg border">
-                  <div className="aspect-square animate-pulse bg-muted" />
-                  <div className="space-y-2 p-2">
-                    <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
-                    <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
+              <Skeleton className="aspect-square rounded-none" />
+              <div className="space-y-2 p-2">
+                <Skeleton className="h-3 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
                   </div>
                 </div>
               ))}
@@ -170,11 +172,6 @@ export default function AdminMediaPage() {
   // ── Normal state (empty or data) ──
   return (
     <div>
-      {/* Screen-reader status announcements */}
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {statusMessage}
-      </div>
-
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Media Library</h1>
         <div className="flex flex-col items-end gap-2">

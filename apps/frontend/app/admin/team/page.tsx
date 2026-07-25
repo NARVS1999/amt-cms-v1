@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TeamMemberData, UnauthorizedError, createTeamMember, deleteTeamMember, fetchTeamMembers, updateTeamMember } from '@/lib/admin-api';
+import { Skeleton } from '@/components/ui/skeleton';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -14,6 +16,9 @@ export default function AdminTeamPage() {
   const [members, setMembers] = useState<TeamMemberData[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<TeamMemberData> | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<TeamMemberData | null>(null);
 
   async function load() {
     try {
@@ -28,6 +33,8 @@ export default function AdminTeamPage() {
 
   async function handleSave() {
     if (!editing) return;
+    setSaving(true);
+    setError('');
     try {
       if (editing.id) {
         await updateTeamMember(editing.id, editing);
@@ -38,17 +45,21 @@ export default function AdminTeamPage() {
       await load();
     } catch (e: any) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else alert(e?.message || 'Save failed');
+      else setError(e?.message || 'Save failed');
+    } finally {
+      setSaving(false);
     }
   }
 
-  async function handleDelete(id: number) {
-    if (!confirm('Delete this team member? This cannot be undone.')) return;
+  async function handleDelete() {
+    if (!deleteTarget) return;
     try {
-      await deleteTeamMember(id);
+      await deleteTeamMember(deleteTarget.id);
+      setDeleteTarget(null);
       await load();
     } catch (e) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
+      else setError((e as any)?.message || 'Delete failed');
     }
   }
 
@@ -74,7 +85,15 @@ export default function AdminTeamPage() {
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">Loading...</TableCell></TableRow>
+                Array.from({ length: 4 }).map((_, i) => (
+                  <TableRow key={i}>
+                    {Array.from({ length: 4 }).map((_, j) => (
+                      <TableCell key={j}>
+                        <Skeleton className="h-4 w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
               ) : members.length === 0 ? (
                 <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">No team members yet.</TableCell></TableRow>
               ) : members.map((m) => (
@@ -85,7 +104,7 @@ export default function AdminTeamPage() {
                   <TableCell>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => setEditing(m)}>Edit</Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleDelete(m.id)}>Del</Button>
+                      <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(m)}>Del</Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -94,6 +113,27 @@ export default function AdminTeamPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {error && (
+        <div className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive" role="alert">
+          {error}
+        </div>
+      )}
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete team member?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Delete this team member? This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} variant="destructive">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setEditing(null)}>
@@ -110,7 +150,9 @@ export default function AdminTeamPage() {
                 <div className="space-y-2"><Label>Sort Order</Label><Input type="number" value={editing.sort_order ?? 0} onChange={(e) => setEditing({ ...editing, sort_order: parseInt(e.target.value) || 0 })} /></div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-                  <Button onClick={handleSave}>Save</Button>
+                  <Button onClick={handleSave} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save'}
+                  </Button>
                 </div>
               </div>
             </CardContent>

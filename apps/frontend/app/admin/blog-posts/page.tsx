@@ -27,6 +27,8 @@ import {
   getToken,
   updateBlogPost,
 } from '@/lib/admin-api';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/toast';
 import { ImageIcon } from 'lucide-react';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
@@ -47,15 +49,15 @@ function formatDate(dateStr: string | null): string {
 
 export default function AdminBlogPostsPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [posts, setPosts] = useState<BlogPostData[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<BlogPostData> | null>(null);
   const [saving, setSaving] = useState(false);
   const [featuredImageFile, setFeaturedImageFile] = useState<File | null>(null);
   const [featuredImagePreview, setFeaturedImagePreview] = useState<string | null>(null);
-  const [lastAutoSave, setLastAutoSave] = useState<string | null>(null);
-  const [saveToast, setSaveToast] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BlogPostData | null>(null);
+  const [error, setError] = useState('');
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
   const lastSavedContentRef = useRef<string>('');
@@ -91,8 +93,7 @@ export default function AdminBlogPostsPage() {
             });
             if (res.ok) {
               lastSavedContentRef.current = editing.content || '';
-              setLastAutoSave('Draft saved');
-              setTimeout(() => setLastAutoSave(null), 2000);
+              showToast('Draft saved', 'success');
             }
           } catch {
             /* silent */
@@ -141,7 +142,7 @@ export default function AdminBlogPostsPage() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert('File must be under 2MB.');
+        setError('File must be under 2MB.');
         e.target.value = '';
         return;
       }
@@ -178,7 +179,7 @@ export default function AdminBlogPostsPage() {
         });
 
         if (res.status === 401) { router.push('/admin/login'); return; }
-        if (!res.ok) { const err = await res.json(); alert(err.message || 'Save failed'); return; }
+        if (!res.ok) { const err = await res.json(); setError(err.message || 'Save failed'); return; }
       } else {
         if (editing.id) {
           await updateBlogPost(editing.id, editing);
@@ -189,11 +190,10 @@ export default function AdminBlogPostsPage() {
 
       setEditing(null);
       await load();
-      setSaveToast('Saved.');
-      setTimeout(() => setSaveToast(null), 2000);
+      showToast('Saved.', 'success');
     } catch (e: unknown) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else alert((e as { message?: string })?.message || 'Save failed');
+      else setError((e as { message?: string })?.message || 'Save failed');
     } finally { setSaving(false); }
   }
 
@@ -242,7 +242,7 @@ export default function AdminBlogPostsPage() {
                   <TableRow key={i}>
                     {Array.from({ length: 7 }).map((_, j) => (
                       <TableCell key={j}>
-                        <div className="h-4 w-full animate-pulse rounded bg-muted" />
+                        <Skeleton className="h-4 w-full" />
                       </TableCell>
                     ))}
                   </TableRow>
@@ -306,9 +306,9 @@ export default function AdminBlogPostsPage() {
         </CardContent>
       </Card>
 
-      {(lastAutoSave || saveToast) && (
-        <div className="fixed bottom-4 right-4 z-50 rounded-md bg-green-600 px-3 py-2 text-sm text-white shadow-lg">
-          {saveToast || lastAutoSave}
+      {error && (
+        <div className="mb-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive" role="alert">
+          {error}
         </div>
       )}
 
@@ -320,9 +320,7 @@ export default function AdminBlogPostsPage() {
           >
             <CardHeader>
               <CardTitle>{editing.id ? 'Edit Blog Post' : 'New Blog Post'}</CardTitle>
-              {lastAutoSave && (
-                <span className="text-xs text-green-600">{lastAutoSave}</span>
-              )}
+
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

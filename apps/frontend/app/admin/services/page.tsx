@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ServiceData, UnauthorizedError, createService, deleteService, fetchServices, updateService } from '@/lib/admin-api';
+import { Skeleton } from '@/components/ui/skeleton';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -14,6 +16,9 @@ export default function AdminServicesPage() {
   const [services, setServices] = useState<ServiceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<ServiceData> | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<ServiceData | null>(null);
 
   async function load() {
     try {
@@ -28,6 +33,8 @@ export default function AdminServicesPage() {
 
   async function handleSave() {
     if (!editing) return;
+    setSaving(true);
+    setError('');
     try {
       if (editing.id) {
         await updateService(editing.id, editing);
@@ -38,17 +45,21 @@ export default function AdminServicesPage() {
       await load();
     } catch (e: any) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else alert(e?.message || 'Save failed');
+      else setError(e?.message || 'Save failed');
+    } finally {
+      setSaving(false);
     }
   }
 
-  async function handleDelete(id: number) {
-    if (!confirm('Delete this service? This cannot be undone.')) return;
+  async function handleDelete() {
+    if (!deleteTarget) return;
     try {
-      await deleteService(id);
+      await deleteService(deleteTarget.id);
+      setDeleteTarget(null);
       await load();
     } catch (e) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
+      else setError((e as any)?.message || 'Delete failed');
     }
   }
 
@@ -75,7 +86,15 @@ export default function AdminServicesPage() {
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">Loading...</TableCell></TableRow>
+                Array.from({ length: 4 }).map((_, i) => (
+                  <TableRow key={i}>
+                    {Array.from({ length: 5 }).map((_, j) => (
+                      <TableCell key={j}>
+                        <Skeleton className="h-4 w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
               ) : services.length === 0 ? (
                 <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No services yet.</TableCell></TableRow>
               ) : services.map((s) => (
@@ -87,7 +106,7 @@ export default function AdminServicesPage() {
                   <TableCell>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => setEditing(s)}>Edit</Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleDelete(s.id)}>Del</Button>
+                      <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(s)}>Del</Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -96,6 +115,27 @@ export default function AdminServicesPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {error && (
+        <div className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive" role="alert">
+          {error}
+        </div>
+      )}
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete service?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Delete this service? This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} variant="destructive">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setEditing(null)}>
@@ -121,7 +161,9 @@ export default function AdminServicesPage() {
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-                  <Button onClick={handleSave}>Save</Button>
+                  <Button onClick={handleSave} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save'}
+                  </Button>
                 </div>
               </div>
             </CardContent>
