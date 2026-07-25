@@ -275,6 +275,10 @@ export async function fetchBlogPosts(): Promise<{ data: BlogPostData[] }> {
   return request('/blog-posts');
 }
 
+export async function fetchBlogPost(slug: string): Promise<{ data: BlogPostData }> {
+  return request(`/blog-posts/${slug}`);
+}
+
 export async function createBlogPost(data: Partial<BlogPostData>): Promise<{ data: BlogPostData }> {
   return request('/blog-posts', { method: 'POST', body: JSON.stringify(data) });
 }

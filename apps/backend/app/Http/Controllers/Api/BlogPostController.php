@@ -67,7 +67,7 @@ class BlogPostController extends Controller
         $data = $request->validate([
             'title' => 'string|max:255',
             'slug' => 'string|max:255|unique:marketing_blog_posts,slug,' . $blogPost->id,
-            'content' => 'string',
+            'content' => 'nullable|string',
             'excerpt' => 'nullable|string|max:300',
             'is_published' => 'boolean',
             'published_at' => 'nullable|date',

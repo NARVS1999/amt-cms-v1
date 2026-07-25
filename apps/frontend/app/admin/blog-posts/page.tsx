@@ -23,6 +23,7 @@ import {
   UnauthorizedError,
   createBlogPost,
   deleteBlogPost,
+  fetchBlogPost,
   fetchBlogPosts,
   getToken,
   updateBlogPost,
@@ -115,9 +116,15 @@ export default function AdminBlogPostsPage() {
     lastSavedContentRef.current = '';
   }
 
-  function openEdit(post: BlogPostData) {
-    setEditing({ ...post });
-    lastSavedContentRef.current = post.content || '';
+  async function openEdit(post: BlogPostData) {
+    try {
+      const res = await fetchBlogPost(post.slug);
+      setEditing({ ...res.data });
+      lastSavedContentRef.current = res.data.content || '';
+    } catch {
+      setEditing({ ...post });
+      lastSavedContentRef.current = post.content || '';
+    }
     setFeaturedImageFile(null);
     setFeaturedImagePreview(post.featured_image_url);
     setSlugManuallyEdited(true);
@@ -161,7 +168,7 @@ export default function AdminBlogPostsPage() {
         const formData = new FormData();
         formData.append('title', editing.title || '');
         formData.append('slug', editing.slug || '');
-        formData.append('content', editing.content || '');
+        if (editing.content) formData.append('content', editing.content);
         if (editing.excerpt) formData.append('excerpt', editing.excerpt);
         formData.append('is_published', editing.is_published ? '1' : '0');
         if (editing.published_at) formData.append('published_at', editing.published_at);
