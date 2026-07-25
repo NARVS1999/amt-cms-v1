@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sketch 003: Form Feedback & Toasts</title>
+<link rel="stylesheet" href="../themes/default.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-bg);
+    color: var(--color-text);
+    padding-top: 52px;
+  }
+
+  #variant-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 8px 16px;
+    display: flex; gap: 6px; align-items: center;
+    font-family: var(--font-sans); font-size: var(--text-sm);
+  }
+  #variant-nav .label { color: var(--color-text-muted); margin-right: 8px; font-weight: 500; }
+  .variant-tab {
+    padding: 6px 14px; border: 1px solid var(--color-border);
+    background: var(--color-surface); border-radius: var(--radius-md);
+    cursor: pointer; font-size: var(--text-sm); color: var(--color-text-muted);
+    transition: var(--transition-fast);
+  }
+  .variant-tab:hover { border-color: var(--color-primary); color: var(--color-primary); }
+  .variant-tab.active { background: var(--color-primary); color: var(--color-primary-foreground); border-color: var(--color-primary); }
+
+  .variant { display: none; padding: var(--space-8); max-width: 800px; margin: 0 auto; }
+  .variant.active { display: block; }
+
+  h2 { font-size: var(--text-2xl); font-weight: 600; margin-bottom: var(--space-2); }
+  .subtitle { color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--space-6); }
+
+  /* Form card */
+  .form-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+  }
+  .form-card h3 { font-size: var(--text-lg); font-weight: 600; margin-bottom: var(--space-4); }
+
+  .form-group { margin-bottom: var(--space-4); }
+  .form-group label { display: block; font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-1); color: var(--color-text); }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%; padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    font-family: var(--font-sans); font-size: var(--text-sm);
+    color: var(--color-text); background: var(--color-surface);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    outline: none;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+  }
+  .form-group input.error { border-color: var(--color-danger); }
+  .form-group textarea { min-height: 80px; resize: vertical; }
+
+  /* ===== INLINE ERROR STYLES ===== */
+
+  /* Variant A: Below input */
+  .field-error-a {
+    font-size: var(--text-xs);
+    color: var(--color-danger);
+    margin-top: var(--space-1);
+    display: none;
+  }
+  .field-error-a.visible { display: block; }
+
+  /* Variant B: Beside input (inline) */
+  .field-row { display: flex; gap: var(--space-4); align-items: flex-start; }
+  .field-row .form-group { flex: 1; }
+  .field-error-b {
+    font-size: var(--text-xs);
+    color: var(--color-danger);
+    padding: var(--space-2) var(--space-3);
+    background: rgba(239,68,68,0.06);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+    max-width: 200px;
+    display: none;
+  }
+  .field-error-b.visible { display: block; }
+
+  /* Variant C: Top alert banner */
+  .alert-banner {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-4);
+    display: none;
+  }
+  .alert-banner.visible { display: flex; align-items: center; gap: var(--space-2); }
+
+  .alert-banner.error {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    color: var(--color-danger);
+  }
+  .alert-banner.success {
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.2);
+    color: #15803d;
+  }
+
+  /* Button */
+  .btn-row { display: flex; gap: var(--space-3); align-items: center; margin-top: var(--space-6); }
+  .btn {
+    padding: var(--space-2) var(--space-5);
+    border: none; border-radius: var(--radius-md);
+    font-size: var(--text-sm); font-weight: 500;
+    cursor: pointer; transition: var(--transition-fast);
+    font-family: var(--font-sans);
+  }
+  .btn-primary { background: var(--color-primary); color: var(--color-primary-foreground); }
+  .btn-primary:hover { background: var(--color-primary-hover); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary { background: var(--color-muted); color: var(--color-text); border: 1px solid var(--color-border); }
+  .btn-secondary:hover { background: var(--color-bg); }
+  .btn-danger { background: var(--color-danger); color: white; }
+  .btn-danger:hover { background: #dc2626; }
+
+  /* Toast */
+  .toast-container { position: fixed; bottom: var(--space-6); right: var(--space-6); z-index: 9999; display: flex; flex-direction: column; gap: var(--space-2); }
+  .toast {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    box-shadow: var(--shadow-lg);
+    display: flex; align-items: center; gap: var(--space-2);
+    animation: slideIn 0.25s ease;
+    max-width: 320px;
+  }
+  .toast.success { background: #15803d; color: white; }
+  .toast.error { background: var(--color-danger); color: white; }
+  .toast.info { background: var(--color-text); color: white; }
+  .toast .dismiss { margin-left: auto; cursor: pointer; opacity: 0.7; font-size: var(--text-xs); background: none; border: none; color: inherit; padding: 2px; }
+  .toast .dismiss:hover { opacity: 1; }
+
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* Destructive confirm */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: none; align-items: center; justify-content: center;
+    z-index: 9997;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal-box {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    max-width: 400px;
+    width: 90%;
+    box-shadow: var(--shadow-lg);
+  }
+  .modal-box h3 { font-size: var(--text-lg); font-weight: 600; margin-bottom: var(--space-2); }
+  .modal-box p { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-6); line-height: 1.5; }
+  .modal-box .btn-row { margin-top: 0; }
+
+  /* State Cycling */
+  .state-cycler { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); }
+  .state-btn {
+    padding: 4px 12px; border: 1px solid var(--color-border);
+    border-radius: var(--radius-full); background: var(--color-surface);
+    font-size: var(--text-xs); cursor: pointer;
+    transition: var(--transition-fast);
+  }
+  .state-btn:hover { border-color: var(--color-primary); }
+  .state-btn.active { background: var(--color-primary); color: var(--color-primary-foreground); border-color: var(--color-primary); }
+
+  .example-area { min-height: 60px; }
+</style>
+</head>
+<body>
+
+<div id="variant-nav">
+  <span class="label">003: Form Feedback & Toasts</span>
+  <button class="variant-tab" onclick="showVariant('a')">A: Below Input</button>
+  <button class="variant-tab" onclick="showVariant('b')">B: Beside Input</button>
+  <button class="variant-tab active" onclick="showVariant('c')">C: Top Alert + Toast ★ Selected</button>
+</div>
+
+<!-- ===== Variant A: Below Input ===== -->
+<div id="variant-a" class="variant active">
+  <h2>Variant A: Inline Errors Below Input</h2>
+  <p class="subtitle">Field validation appears below each input. Distraction-free, standard pattern.</p>
+
+  <div class="form-card">
+    <h3>Edit Service</h3>
+
+    <div class="state-cycler">
+      <button class="state-btn active" onclick="setFormState('a', 'idle')">Idle</button>
+      <button class="state-btn" onclick="setFormState('a', 'saving')">Saving</button>
+      <button class="state-btn" onclick="setFormState('a', 'error')">Has Errors</button>
+      <button class="state-btn" onclick="setFormState('a', 'success')">Saved</button>
+    </div>
+
+    <div class="example-area">
+      <div class="form-group">
+        <label for="a-title">Title</label>
+        <input id="a-title" type="text" value="Digital Marketing">
+      </div>
+
+      <div class="form-group">
+        <label for="a-icon">Icon Class</label>
+        <input id="a-icon" type="text" value="fa-solid fa-chart-line">
+      </div>
+
+      <div class="form-group">
+        <label for="a-desc">Description</label>
+        <textarea id="a-desc">Full-service digital marketing including SEO, PPC, and social media management.</textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="simulateSave('a')">Save</button>
+        <button class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Variant B: Beside Input ===== -->
+<div id="variant-b" class="variant">
+  <h2>Variant B: Errors Beside Input</h2>
+  <p class="subtitle">Error message sits beside the field in a colored chip — more visible, uses horizontal space.</p>
+
+  <div class="form-card">
+    <h3>Edit Service</h3>
+
+    <div class="state-cycler">
+      <button class="state-btn active" onclick="setFormState('b', 'idle')">Idle</button>
+      <button class="state-btn" onclick="setFormState('b', 'saving')">Saving</button>
+      <button class="state-btn" onclick="setFormState('b', 'error')">Has Errors</button>
+      <button class="state-btn" onclick="setFormState('b', 'success')">Saved</button>
+    </div>
+
+    <div class="example-area">
+      <div class="form-group">
+        <label for="b-title">Title</label>
+        <div class="field-row">
+          <input id="b-title" type="text" value="Digital Marketing" style="flex:1;">
+          <div class="field-error-b" id="b-title-error">Required</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="b-icon">Icon Class</label>
+        <div class="field-row">
+          <input id="b-icon" type="text" value="fa-solid fa-chart-line" style="flex:1;">
+          <div class="field-error-b" id="b-icon-error"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="b-desc">Description</label>
+        <textarea id="b-desc">Full-service digital marketing including SEO, PPC, and social media management.</textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="simulateSave('b')">Save</button>
+        <button class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Variant C: Top Alert + Toast ===== -->
+<div id="variant-c" class="variant">
+  <h2>Variant C: Top Alert + Toast Notifications</h2>
+  <p class="subtitle">Top-of-form alert banner for errors + bottom-right toast for success/status messages.</p>
+
+  <div class="toast-container" id="toast-container-c"></div>
+
+  <div class="form-card">
+    <h3>Edit Service</h3>
+
+    <div class="state-cycler">
+      <button class="state-btn active" onclick="setFormState('c', 'idle')">Idle</button>
+      <button class="state-btn" onclick="saveC()">Save (Success)</button>
+      <button class="state-btn" onclick="errorC()">Save (Error)</button>
+    </div>
+
+    <div class="alert-banner error" id="alert-banner-c">
+      <span>⚠</span>
+      <span id="alert-text-c">Could not save. Please check the form and try again.</span>
+    </div>
+
+    <div class="example-area">
+      <div class="form-group">
+        <label for="c-title">Title</label>
+        <input id="c-title" type="text" value="Digital Marketing">
+      </div>
+
+      <div class="form-group">
+        <label for="c-icon">Icon Class</label>
+        <input id="c-icon" type="text" value="fa-solid fa-chart-line">
+      </div>
+
+      <div class="form-group">
+        <label for="c-desc">Description</label>
+        <textarea id="c-desc">Full-service digital marketing including SEO, PPC, and social media management.</textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="save-btn-c" onclick="saveC()">Save</button>
+        <button class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <h3>Delete Confirmation</h3>
+    <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-4);">Trigger the destructive confirmation dialog:</p>
+    <button class="btn btn-danger" onclick="showDeleteModal()">Delete "Digital Marketing"</button>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal-box">
+      <h3>Delete this service?</h3>
+      <p>This action cannot be undone. The service "Digital Marketing" and all its data will be permanently removed.</p>
+      <div class="btn-row">
+        <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+        <button class="btn btn-secondary" onclick="hideDeleteModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="sketch-tools" style="position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,0.7);color:white;padding:8px 12px;border-radius:8px;opacity:0.4;transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.4'">
+  <span>🔧 Sketch Tools</span>
+</div>
+
+<script>
+function showVariant(id) {
+  document.querySelectorAll('.variant').forEach(v => v.style.display = 'none');
+  document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('variant-' + id).style.display = 'block';
+  event.target.classList.add('active');
+}
+
+function setFormState(variant, state) {
+  const cycler = event.target.closest('.state-cycler');
+  cycler.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const area = cycler.nextElementSibling;
+  const inputs = area.querySelectorAll('input');
+  const textareas = area.querySelectorAll('textarea');
+  const saveBtn = area.querySelector('.btn-primary');
+  const fieldErrors = area.querySelectorAll('.field-error-a, .field-error-b');
+
+  switch(state) {
+    case 'idle':
+      inputs.forEach(i => { i.classList.remove('error'); i.disabled = false; i.value = 'Digital Marketing'; });
+      textareas.forEach(t => { t.disabled = false; });
+      fieldErrors.forEach(e => e.classList.remove('visible'));
+      if(saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
+      break;
+    case 'saving':
+      inputs.forEach(i => i.disabled = true);
+      textareas.forEach(t => t.disabled = true);
+      fieldErrors.forEach(e => e.classList.remove('visible'));
+      if(saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
+      break;
+    case 'error':
+      inputs.forEach(i => { i.disabled = false; i.classList.add('error'); });
+      textareas.forEach(t => t.disabled = false);
+      if(saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
+      const iconInput = area.querySelector('input:nth-child(2)') || area.querySelector('input[id$="-icon"]');
+      if(variant === 'a' || variant === 'b') {
+        const errors = area.querySelectorAll('.field-error-a, .field-error-b');
+        if(errors.length >= 2) {
+          errors[0].textContent = 'This title already exists';
+          errors[0].classList.add('visible');
+        }
+      }
+      break;
+    case 'success':
+      inputs.forEach(i => { i.classList.remove('error'); i.disabled = false; });
+      textareas.forEach(t => t.disabled = false);
+      fieldErrors.forEach(e => e.classList.remove('visible'));
+      if(saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
+      break;
+  }
+}
+
+function simulateSave(variant) {
+  const area = variant === 'a' ? document.querySelector('#variant-a .example-area') : document.querySelector('#variant-b .example-area');
+  const btn = area.querySelector('.btn-primary');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+  area.querySelectorAll('input, textarea').forEach(el => el.disabled = true);
+
+  setTimeout(() => {
+    btn.textContent = 'Saved ✓';
+    btn.style.background = '#22c55e';
+    setTimeout(() => {
+      btn.textContent = 'Save';
+      btn.style.background = '';
+      btn.disabled = false;
+      area.querySelectorAll('input, textarea').forEach(el => el.disabled = false);
+    }, 1200);
+  }, 1000);
+}
+
+function saveC() {
+  const alertBanner = document.getElementById('alert-banner-c');
+  const btn = document.getElementById('save-btn-c');
+  alertBanner.classList.remove('visible');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    btn.textContent = 'Save';
+    btn.disabled = false;
+    showToast('Saved.', 'success');
+  }, 1000);
+}
+
+function errorC() {
+  const alertBanner = document.getElementById('alert-banner-c');
+  document.getElementById('alert-text-c').textContent = 'Could not save. Title already exists.';
+  alertBanner.classList.add('visible');
+}
+
+function showToast(message, type) {
+  const container = document.getElementById('toast-container-c');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML = message + '<button class="dismiss" onclick="this.parentElement.remove()">✕</button>';
+  container.appendChild(toast);
+  if(type === 'success') {
+    setTimeout(() => { if(toast.parentElement) toast.remove(); }, 2000);
+  }
+}
+
+function showDeleteModal() {
+  document.getElementById('delete-modal').classList.add('visible');
+}
+
+function hideDeleteModal() {
+  document.getElementById('delete-modal').classList.remove('visible');
+}
+
+function confirmDelete() {
+  hideDeleteModal();
+  showToast('Service deleted.', 'success');
+}
+</script>
+</body>
+</html>

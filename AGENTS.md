@@ -132,6 +132,12 @@ cd apps/frontend; npm run lint                                      # ESLint
 
 ---
 
+## Sketch Findings
+
+- **Sketch findings for AMT_V2** (design decisions, CSS patterns, visual direction) → `Skill("sketch-findings-amt-v2")`
+
+---
+
 ## What NOT to do
 
 - No raw SQL — Eloquent ORM only (NFR-16)
