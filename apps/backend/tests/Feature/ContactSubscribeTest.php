@@ -277,7 +277,7 @@ class ContactSubscribeTest extends TestCase
     // =========================================================================
 
     /**
-     * POST /api/admin/login >5/min → HTTP 429.
+     * POST /api/admin/login >10/min → HTTP 429.
      */
     public function test_admin_login_rate_limit(): void
     {
@@ -293,13 +293,13 @@ class ContactSubscribeTest extends TestCase
             'password' => 'password',
         ];
 
-        // Send 5 requests — all should succeed
-        for ($i = 0; $i < 5; $i++) {
+        // Send 10 requests — all should succeed
+        for ($i = 0; $i < 10; $i++) {
             $response = $this->postJson('/api/admin/login', $payload);
             $response->assertStatus(200);
         }
 
-        // 6th request — should be rate limited
+        // 11th request — should be rate limited
         $response = $this->postJson('/api/admin/login', $payload);
         $response->assertStatus(429);
         $response->assertJson([
