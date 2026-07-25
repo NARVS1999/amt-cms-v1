@@ -108,6 +108,10 @@ export async function deleteService(id: number): Promise<void> {
   await request(`/services/${id}`, { method: 'DELETE' });
 }
 
+export async function reorderServices(ids: number[]): Promise<{ data: { message: string } }> {
+  return request('/services/reorder', { method: 'POST', body: JSON.stringify({ ids }) });
+}
+
 /* ─── Team Members ─── */
 
 export interface TeamMemberData {
@@ -136,6 +140,10 @@ export async function updateTeamMember(id: number, data: Partial<TeamMemberData>
 
 export async function deleteTeamMember(id: number): Promise<void> {
   await request(`/team/${id}`, { method: 'DELETE' });
+}
+
+export async function reorderTeamMembers(ids: number[]): Promise<{ data: { message: string } }> {
+  return request('/team/reorder', { method: 'POST', body: JSON.stringify({ ids }) });
 }
 
 export async function removeTeamMemberPhoto(id: number): Promise<{ data: TeamMemberData }> {
@@ -197,6 +205,10 @@ export async function updatePage(id: number, data: Partial<PageData>): Promise<{
 
 export async function deletePage(id: number): Promise<void> {
   await request(`/pages/${id}`, { method: 'DELETE' });
+}
+
+export async function reorderPages(ids: number[]): Promise<{ data: { message: string } }> {
+  return request('/admin/pages/reorder', { method: 'POST', body: JSON.stringify({ ids }) });
 }
 
 /* ─── Media ─── */
@@ -289,6 +301,10 @@ export async function updatePricingPlan(id: number, data: Partial<PricingPlanDat
 
 export async function deletePricingPlan(id: number): Promise<void> {
   await request(`/pricing-plans/${id}`, { method: 'DELETE' });
+}
+
+export async function reorderPricingPlans(ids: number[]): Promise<{ data: { message: string } }> {
+  return request('/pricing-plans/reorder', { method: 'POST', body: JSON.stringify({ ids }) });
 }
 
 /* ─── Blog Posts ─── */
