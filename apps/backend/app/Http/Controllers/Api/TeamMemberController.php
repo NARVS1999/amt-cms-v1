@@ -77,4 +77,22 @@ class TeamMemberController extends Controller
 
         return $this->success(['message' => 'Deleted.']);
     }
+
+    public function removePhoto(TeamMember $teamMember)
+    {
+        $teamMember->clearMediaCollection('photo');
+        return $this->success(new TeamMemberResource($teamMember->load('media')));
+    }
+
+    public function uploadPhoto(Request $request, TeamMember $teamMember)
+    {
+        $data = $request->validate([
+            'photo' => 'required|file|mimes:jpeg,png,webp',
+        ]);
+        if ($teamMember->getFirstMedia('photo')) {
+            return $this->error('Remove existing photo first', 422);
+        }
+        $teamMember->addMediaFromRequest('photo')->toMediaCollection('photo');
+        return $this->success(new TeamMemberResource($teamMember->load('media')));
+    }
 }
