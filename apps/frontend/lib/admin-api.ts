@@ -187,6 +187,7 @@ export interface PageData {
   hero_subtext: string | null;
   sections: Record<string, unknown>[] | null;
   is_published: boolean;
+  sort_order: number;
   created_at: string | null;
   updated_at: string | null;
 }
