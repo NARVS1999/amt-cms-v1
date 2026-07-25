@@ -1,6 +1,8 @@
 'use client';
 
+import { RouteChangeLoader } from '@/components/admin/route-change-loader';
 import { Sidebar } from '@/components/admin/sidebar';
+import { ToastProvider } from '@/components/ui/toast';
 import { isAuthenticated } from '@/lib/admin-api';
 import { Menu } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -30,15 +32,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (pathname === '/admin/login') {
     return (
-      <div style={{ background: 'var(--surface)', minHeight: '100vh' }}>
-        {children}
-      </div>
+      <ToastProvider>
+        <div style={{ background: 'var(--surface)', minHeight: '100vh' }}>
+          {children}
+        </div>
+      </ToastProvider>
     );
   }
 
   if (!loaded) return null;
 
   return (
+    <ToastProvider>
     <div className="admin-theme" style={{ display: 'flex', minHeight: '100vh', background: 'var(--surface)' }}>
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -53,9 +58,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         <main style={{ flex: 1, overflow: 'auto', padding: 32, fontFamily: "'Inter', sans-serif" }}>
-          {children}
+          <RouteChangeLoader>
+            {children}
+          </RouteChangeLoader>
         </main>
       </div>
     </div>
+    </ToastProvider>
   );
 }

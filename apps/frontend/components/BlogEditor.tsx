@@ -12,10 +12,11 @@ interface BlogEditorProps {
 export function BlogEditor({ value, onChange }: BlogEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
+  const initializedRef = useRef(false);
   const isInternalChange = useRef(false);
 
   useEffect(() => {
-    if (!containerRef.current || quillRef.current) return;
+    if (!containerRef.current || initializedRef.current) return;
 
     const quill = new Quill(containerRef.current, {
       theme: 'snow',
@@ -35,10 +36,7 @@ export function BlogEditor({ value, onChange }: BlogEditorProps) {
     });
 
     quillRef.current = quill;
-
-    return () => {
-      quillRef.current = null;
-    };
+    initializedRef.current = true;
   }, []);
 
   useEffect(() => {

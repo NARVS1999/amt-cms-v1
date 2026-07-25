@@ -1,6 +1,7 @@
 'use client';
 
 import { StatsOverview, type StatsData } from '@/components/admin/stats-overview';
+import { Skeleton } from '@/components/ui/skeleton';
 import { fetchAdminStats } from '@/lib/admin-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
@@ -47,10 +48,10 @@ export default function AdminDashboardPage() {
             <Card key={i}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm text-muted-foreground">&nbsp;</CardTitle>
-                <div className="h-11 w-11 animate-pulse rounded-lg bg-muted" />
+                <Skeleton className="h-11 w-11 rounded-lg" />
               </CardHeader>
               <CardContent>
-                <div className="h-8 w-16 animate-pulse rounded bg-muted" />
+                <Skeleton className="h-8 w-16" />
               </CardContent>
             </Card>
           ))}

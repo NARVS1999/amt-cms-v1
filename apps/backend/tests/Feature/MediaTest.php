@@ -121,6 +121,61 @@ class MediaTest extends TestCase
         $response->assertJson(['data' => []]);
     }
 
+    public function test_upload_valid_png(): void
+    {
+        $file = UploadedFile::fake()->create('image.png', 100);
+
+        $response = $this->postJson('/api/media', ['file' => $file], $this->authHeaders());
+
+        $response->assertStatus(201);
+        $response->assertJsonPath('data.file_name', 'image.png');
+        $this->assertDatabaseCount('media', 1);
+    }
+
+    public function test_upload_valid_webp(): void
+    {
+        $file = UploadedFile::fake()->create('image.webp', 100);
+
+        $response = $this->postJson('/api/media', ['file' => $file], $this->authHeaders());
+
+        $response->assertStatus(201);
+        $response->assertJsonPath('data.file_name', 'image.webp');
+        $this->assertDatabaseCount('media', 1);
+    }
+
+    public function test_upload_invalid_exe_returns_error(): void
+    {
+        $file = UploadedFile::fake()->create('malware.exe', 100);
+
+        $response = $this->postJson('/api/media', ['file' => $file], $this->authHeaders());
+
+        $response->assertStatus(422);
+        $response->assertJsonFragment(['Format not supported. Accepted: JPG, PNG, WebP, SVG.']);
+    }
+
+    public function test_delete_nonexistent_media_returns_404(): void
+    {
+        $response = $this->deleteJson('/api/media/99999', [], $this->authHeaders());
+
+        $response->assertStatus(404);
+    }
+
+    public function test_svg_sanitization_strips_script_tags(): void
+    {
+        $maliciousSvg = '<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg"><script>alert("xss")</script><circle cx="50" cy="50" r="40"/></svg>';
+        $file = UploadedFile::fake()->createWithContent('evil.svg', $maliciousSvg);
+
+        $response = $this->postJson('/api/media', ['file' => $file], $this->authHeaders());
+
+        $response->assertStatus(201);
+
+        $media = \App\Models\Media::first();
+        $path = $media->getPath();
+        $content = file_get_contents($path);
+        $this->assertStringNotContainsString('<script>', $content);
+        $this->assertStringNotContainsString('alert', $content);
+    }
+
     public function test_unauthenticated_request_returns_401(): void
     {
         // GET /api/media without auth

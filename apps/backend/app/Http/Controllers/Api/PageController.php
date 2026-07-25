@@ -8,6 +8,7 @@ use App\Http\Resources\Api\PageResource;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class PageController extends Controller
 {
@@ -15,12 +16,12 @@ class PageController extends Controller
 
     public function index()
     {
-        $pages = Page::query()
+        $pages = QueryBuilder::for(Page::class)
             ->where('is_published', true)
-            ->orderBy('id')
-            ->get();
+            ->allowedSorts(['title', 'created_at'])
+            ->paginate();
 
-        return $this->success(PageResource::collection($pages));
+        return PageResource::collection($pages);
     }
 
     public function adminIndex()
@@ -40,7 +41,7 @@ class PageController extends Controller
             ->first();
 
         if (! $page) {
-            return response()->json(['message' => 'Not found.'], 404);
+            return $this->error('Not found.', 404);
         }
 
         return $this->success(new PageResource($page));
