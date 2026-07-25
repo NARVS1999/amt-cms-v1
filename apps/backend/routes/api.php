@@ -75,6 +75,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/team', [TeamMemberController::class, 'store']);
     Route::put('/team/{teamMember}', [TeamMemberController::class, 'update']);
     Route::delete('/team/{teamMember}', [TeamMemberController::class, 'destroy']);
+    Route::delete('/team/{teamMember}/photo', [TeamMemberController::class, 'removePhoto']);
+    Route::post('/team/{teamMember}/photo', [TeamMemberController::class, 'uploadPhoto']);
 
     // Admin CRUD: Pages
     Route::post('/pages', [PageController::class, 'store']);
@@ -85,6 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pricing-plans', [PricingPlanController::class, 'store']);
     Route::put('/pricing-plans/{pricingPlan}', [PricingPlanController::class, 'update']);
     Route::delete('/pricing-plans/{pricingPlan}', [PricingPlanController::class, 'destroy']);
+    Route::get('/admin/pricing-plans', [PricingPlanController::class, 'adminIndex']);
 
     // Admin CRUD: Blog Posts
     Route::post('/blog-posts', [BlogPostController::class, 'store']);
