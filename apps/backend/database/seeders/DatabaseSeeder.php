@@ -10,13 +10,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Create admin user
-        User::factory()->create([
+        User::firstOrCreate(['email' => 'admin@example.com'], [
             'name' => 'Admin User',
-            'email' => 'example@gmail.com',
             'password' => bcrypt('password'),
         ]);
 
-        $this->command->info('Admin user created: example@gmail.com / password');
+        $this->command->info('Admin user created: admin@example.com / password');
 
         // Seed content
         $this->call([

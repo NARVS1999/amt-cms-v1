@@ -17,7 +17,7 @@ class ServiceSeeder extends Seeder
         ];
 
         foreach ($services as $service) {
-            Service::create($service);
+            Service::firstOrCreate(['title' => $service['title']], $service);
         }
 
         $this->command->info('Seeded ' . count($services) . ' services.');

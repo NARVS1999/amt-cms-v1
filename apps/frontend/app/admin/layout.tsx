@@ -20,8 +20,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setLoaded(true);
   }, []);
 
+  const publicPaths = ['/admin/login', '/admin/forgot-password'];
+
   useEffect(() => {
-    if (loaded && !authed && pathname !== '/admin/login') {
+    if (loaded && !authed && !publicPaths.includes(pathname)) {
       router.push('/admin/login');
     }
   }, [loaded, authed, pathname, router]);

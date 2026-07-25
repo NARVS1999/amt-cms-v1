@@ -19,7 +19,7 @@ test.describe('Admin Login', () => {
     await page.getByLabel(/password/i).fill('wrongpassword');
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    await expect(page.getByRole('alert')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('alert').filter({ hasText: /incorrect/i })).toBeVisible({ timeout: 10000 });
   });
 
   test('navigates to forgot password page', async ({ page }) => {

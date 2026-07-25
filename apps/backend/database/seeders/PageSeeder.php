@@ -9,9 +9,8 @@ class PageSeeder extends Seeder
 {
     public function run(): void
     {
-        Page::create([
+        Page::firstOrCreate(['slug' => 'home'], [
             'title' => 'Home',
-            'slug' => 'home',
             'hero_heading' => 'Grow Your Business with Data-Driven Marketing',
             'hero_subtext' => 'We help brands amplify their digital presence through cutting-edge SEO, targeted advertising, and conversion-optimized web experiences.',
             'sections' => [
