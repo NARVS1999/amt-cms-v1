@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sketch 002: Page Transition Overlay</title>
+<link rel="stylesheet" href="../themes/default.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-bg);
+    color: var(--color-text);
+    padding-top: 52px;
+  }
+
+  #variant-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 8px 16px;
+    display: flex; gap: 6px; align-items: center;
+    font-family: var(--font-sans); font-size: var(--text-sm);
+  }
+  #variant-nav .label { color: var(--color-text-muted); margin-right: 8px; font-weight: 500; }
+  .variant-tab {
+    padding: 6px 14px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    transition: var(--transition-fast);
+  }
+  .variant-tab:hover { border-color: var(--color-primary); color: var(--color-primary); }
+  .variant-tab.active { background: var(--color-primary); color: var(--color-primary-foreground); border-color: var(--color-primary); }
+
+  .variant { display: none; padding: var(--space-8); max-width: 1000px; margin: 0 auto; }
+  .variant.active { display: block; }
+
+  h2 { font-size: var(--text-2xl); font-weight: 600; margin-bottom: var(--space-2); }
+  .subtitle { color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--space-6); }
+
+  /* Admin Layout Simulation */
+  .admin-layout {
+    display: flex;
+    height: 500px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--color-surface);
+    position: relative;
+  }
+  .sidebar {
+    width: 220px;
+    background: var(--color-sidebar-bg);
+    padding: var(--space-4);
+    flex-shrink: 0;
+  }
+  .sidebar-item {
+    padding: var(--space-2) var(--space-3);
+    color: var(--color-sidebar-text);
+    font-size: var(--text-sm);
+    border-radius: var(--radius-md);
+    margin-bottom: 2px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+  }
+  .sidebar-item:hover { background: var(--color-sidebar-hover); color: var(--color-sidebar-active); }
+  .sidebar-item.active { background: var(--color-sidebar-active-bg); color: var(--color-sidebar-active); font-weight: 500; }
+
+  .main-area {
+    flex: 1;
+    padding: var(--space-6);
+    position: relative;
+    overflow: auto;
+  }
+
+  /* Page content mock */
+  .page-content h3 { font-size: var(--text-xl); font-weight: 600; margin-bottom: var(--space-4); }
+  .page-content p { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.6; margin-bottom: var(--space-4); }
+
+  /* Stats row */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); margin-bottom: var(--space-6); }
+  .stat-card { border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); }
+  .stat-card .num { font-size: var(--text-2xl); font-weight: 700; color: var(--color-text); }
+  .stat-card .lbl { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-1); }
+
+  /* Table mock */
+  .table-mock { width: 100%; }
+  .table-mock .row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: var(--space-4); padding: var(--space-3) 0; font-size: var(--text-sm); border-bottom: 1px solid var(--color-border); }
+  .table-mock .row.header { font-size: var(--text-xs); font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .table-mock .row .status { display: inline-block; padding: 2px 8px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 500; }
+  .table-mock .row .status.published { background: #dcfce7; color: #15803d; }
+  .table-mock .row .status.draft { background: #f3f4f6; color: #6b7280; }
+
+  /* ===== OVERLAY VARIANTS ===== */
+
+  /* Variant A: Centered Spinner */
+  .overlay-a {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(245,245,249,0.85);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: var(--space-4);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 100;
+  }
+  .overlay-a.active { opacity: 1; pointer-events: all; }
+  .spinner-a {
+    width: 36px; height: 36px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  .overlay-a .label { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+  /* Variant B: Branded Loading Animation */
+  .overlay-b {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.9);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: var(--space-6);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 100;
+  }
+  .overlay-b.active { opacity: 1; pointer-events: all; }
+  .brand-dots { display: flex; gap: var(--space-2); }
+  .brand-dots span {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    animation: dotBounce 1.2s ease-in-out infinite;
+  }
+  .brand-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .brand-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dotBounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+  .overlay-b .label { font-size: var(--text-sm); color: var(--color-text-muted); font-weight: 500; }
+
+  /* Variant C: Skeleton Overlay */
+  .overlay-c {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--color-surface);
+    display: flex; flex-direction: column;
+    padding: var(--space-6);
+    gap: var(--space-6);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+  }
+  .overlay-c.active { opacity: 1; pointer-events: all; }
+
+  .skel { border-radius: var(--radius-sm); background: var(--color-muted); animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  .skel-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
+  .skel-card { border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); }
+  .skel-card .h { height: 14px; margin-bottom: var(--space-2); }
+  .skel-card .h:last-child { width: 60%; }
+  .skel-table { }
+  .skel-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: var(--space-4); padding: var(--space-3) 0; }
+  .skel-row .skel { height: 12px; }
+
+  /* Trigger button */
+  .trigger-area { margin-bottom: var(--space-4); }
+  .trigger-btn {
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
+    border: none; border-radius: var(--radius-md);
+    font-size: var(--text-sm); font-weight: 500;
+    cursor: pointer; transition: var(--transition-fast);
+  }
+  .trigger-btn:hover { background: var(--color-primary-hover); }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div id="variant-nav">
+  <span class="label">002: Page Transition Overlay</span>
+  <button class="variant-tab" onclick="showVariant('a')">A: Centered Spinner</button>
+  <button class="variant-tab active" onclick="showVariant('b')">B: Branded Dots ★ Selected</button>
+  <button class="variant-tab" onclick="showVariant('c')">C: Skeleton Overlay</button>
+</div>
+
+<!-- Variant A: Centered Spinner -->
+<div id="variant-a" class="variant active">
+  <h2>Variant A: Centered Spinner</h2>
+  <p class="subtitle">Simple overlay with a spinning indicator — familiar, fast, minimal.</p>
+
+  <div class="trigger-area">
+    <button class="trigger-btn" onclick="document.querySelector('#demo-a .overlay-a').classList.toggle('active')">Toggle Loading Overlay</button>
+  </div>
+
+  <div id="demo-a" class="admin-layout">
+    <div class="sidebar">
+      <div class="sidebar-item active">Dashboard</div>
+      <div class="sidebar-item">Services</div>
+      <div class="sidebar-item">Team</div>
+      <div class="sidebar-item">Pricing</div>
+      <div class="sidebar-item">Blog</div>
+    </div>
+    <div class="main-area">
+      <div class="page-content">
+        <h3>Dashboard</h3>
+        <div class="stats">
+          <div class="stat-card"><div class="num">12</div><div class="lbl">Services</div></div>
+          <div class="stat-card"><div class="num">8</div><div class="lbl">Team Members</div></div>
+          <div class="stat-card"><div class="num">24</div><div class="lbl">Blog Posts</div></div>
+        </div>
+        <div class="table-mock">
+          <div class="row header"><span>Title</span><span>Status</span><span>Updated</span></div>
+          <div class="row"><span>Welcome to our platform</span><span><span class="status published">Published</span></span><span>2 hours ago</span></div>
+          <div class="row"><span>Summer promotion 2026</span><span><span class="status draft">Draft</span></span><span>1 day ago</span></div>
+        </div>
+      </div>
+      <div class="overlay-a" id="demo-a-overlay">
+        <div class="spinner-a"></div>
+        <span class="label">Loading...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Variant B: Branded Dots -->
+<div id="variant-b" class="variant">
+  <h2>Variant B: Branded Dot Animation</h2>
+  <p class="subtitle">Three bouncing dots in the primary brand color — playful, polished, feels alive.</p>
+
+  <div class="trigger-area">
+    <button class="trigger-btn" onclick="document.querySelector('#demo-b .overlay-b').classList.toggle('active')">Toggle Loading Overlay</button>
+  </div>
+
+  <div id="demo-b" class="admin-layout">
+    <div class="sidebar">
+      <div class="sidebar-item active">Dashboard</div>
+      <div class="sidebar-item">Services</div>
+      <div class="sidebar-item">Team</div>
+      <div class="sidebar-item">Pricing</div>
+      <div class="sidebar-item">Blog</div>
+    </div>
+    <div class="main-area">
+      <div class="page-content">
+        <h3>Dashboard</h3>
+        <div class="stats">
+          <div class="stat-card"><div class="num">12</div><div class="lbl">Services</div></div>
+          <div class="stat-card"><div class="num">8</div><div class="lbl">Team Members</div></div>
+          <div class="stat-card"><div class="num">24</div><div class="lbl">Blog Posts</div></div>
+        </div>
+        <div class="table-mock">
+          <div class="row header"><span>Title</span><span>Status</span><span>Updated</span></div>
+          <div class="row"><span>Welcome to our platform</span><span><span class="status published">Published</span></span><span>2 hours ago</span></div>
+          <div class="row"><span>Summer promotion 2026</span><span><span class="status draft">Draft</span></span><span>1 day ago</span></div>
+        </div>
+      </div>
+      <div class="overlay-b">
+        <div class="brand-dots"><span></span><span></span><span></span></div>
+        <span class="label">Loading</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Variant C: Skeleton Overlay -->
+<div id="variant-c" class="variant">
+  <h2>Variant C: Skeleton Overlay</h2>
+  <p class="subtitle">The content area skeletonizes instead of showing an overlay — feels faster, shows structure.</p>
+
+  <div class="trigger-area">
+    <button class="trigger-btn" onclick="document.querySelector('#demo-c .overlay-c').classList.toggle('active')">Toggle Loading Overlay</button>
+  </div>
+
+  <div id="demo-c" class="admin-layout">
+    <div class="sidebar">
+      <div class="sidebar-item active">Dashboard</div>
+      <div class="sidebar-item">Services</div>
+      <div class="sidebar-item">Team</div>
+      <div class="sidebar-item">Pricing</div>
+      <div class="sidebar-item">Blog</div>
+    </div>
+    <div class="main-area" style="position:relative;">
+      <div class="page-content">
+        <h3>Dashboard</h3>
+        <div class="stats">
+          <div class="stat-card"><div class="num">12</div><div class="lbl">Services</div></div>
+          <div class="stat-card"><div class="num">8</div><div class="lbl">Team Members</div></div>
+          <div class="stat-card"><div class="num">24</div><div class="lbl">Blog Posts</div></div>
+        </div>
+        <div class="table-mock">
+          <div class="row header"><span>Title</span><span>Status</span><span>Updated</span></div>
+          <div class="row"><span>Welcome to our platform</span><span><span class="status published">Published</span></span><span>2 hours ago</span></div>
+          <div class="row"><span>Summer promotion 2026</span><span><span class="status draft">Draft</span></span><span>1 day ago</span></div>
+        </div>
+      </div>
+      <div class="overlay-c">
+        <div style="height:24px;width:200px;background:var(--color-muted);border-radius:var(--radius-sm);animation:pulse 1.8s ease-in-out infinite;"></div>
+        <div class="skel-cards">
+          <div class="skel-card"><div class="skel h" style="width:40%"></div><div class="skel h" style="width:70%"></div></div>
+          <div class="skel-card"><div class="skel h" style="width:35%"></div><div class="skel h" style="width:65%"></div></div>
+          <div class="skel-card"><div class="skel h" style="width:45%"></div><div class="skel h" style="width:75%"></div></div>
+        </div>
+        <div class="skel-table">
+          <div class="skel-row"><div class="skel" style="width:60%"></div><div class="skel" style="width:30%"></div><div class="skel" style="width:40%"></div></div>
+          <div class="skel-row"><div class="skel" style="width:75%"></div><div class="skel" style="width:25%"></div><div class="skel" style="width:35%"></div></div>
+          <div class="skel-row"><div class="skel" style="width:55%"></div><div class="skel" style="width:35%"></div><div class="skel" style="width:45%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="sketch-tools" style="position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,0.7);color:white;padding:8px 12px;border-radius:8px;opacity:0.4;transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.4'">
+  <span>🔧 Sketch Tools</span>
+</div>
+
+<script>
+function showVariant(id) {
+  document.querySelectorAll('.variant').forEach(v => v.style.display = 'none');
+  document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('variant-' + id).style.display = 'block';
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
