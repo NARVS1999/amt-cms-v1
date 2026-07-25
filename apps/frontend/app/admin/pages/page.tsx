@@ -48,6 +48,7 @@ export default function AdminPagesPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<PageData | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   async function load() {
     try {
@@ -82,6 +83,7 @@ export default function AdminPagesPage() {
 
   function startEdit(page: Partial<PageData>) {
     setEditing(page);
+    setValidationErrors({});
     const text = page.sections ? JSON.stringify(page.sections, null, 2) : '';
     setJsonText(text);
     setJsonError(null);
@@ -138,7 +140,13 @@ export default function AdminPagesPage() {
       await load();
     } catch (e: any) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else { setError(e?.message || 'Save failed'); showToast('Save failed', 'error'); }
+      else if (e.status === 422) {
+        const errors: Record<string, string> = {};
+        for (const field of Object.keys(e.errors || {})) {
+          errors[field] = e.errors[field][0];
+        }
+        setValidationErrors(errors);
+      } else { setError(e?.message || 'Save failed'); showToast('Save failed', 'error'); }
     } finally {
       setSaving(false);
     }
@@ -166,7 +174,7 @@ export default function AdminPagesPage() {
             Controls your homepage content. The first published page appears on your public site.
           </p>
         </div>
-        <Button onClick={() => startEdit({ title: '', slug: '', hero_heading: '', hero_subtext: '', is_published: false })}>
+        <Button onClick={() => { startEdit({ title: '', slug: '', hero_heading: '', hero_subtext: '', is_published: false }); setValidationErrors({}); }}>
           New Page
         </Button>
       </div>
@@ -254,15 +262,15 @@ export default function AdminPagesPage() {
       </AlertDialog>
 
       {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setEditing(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { setEditing(null); setValidationErrors({}); }}>
           <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <CardHeader><CardTitle>{editing.id ? 'Edit Page' : 'New Page'}</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="space-y-2"><Label>Title</Label><Input value={editing.title || ''} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></div>
-                <div className="space-y-2"><Label>Slug</Label><Input value={editing.slug || ''} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} /></div>
-                <div className="space-y-2"><Label>Hero Heading</Label><Input value={editing.hero_heading || ''} onChange={(e) => setEditing({ ...editing, hero_heading: e.target.value })} /></div>
-                <div className="space-y-2"><Label>Hero Subtext</Label><Input value={editing.hero_subtext || ''} onChange={(e) => setEditing({ ...editing, hero_subtext: e.target.value })} /></div>
+                <div className="space-y-2"><Label>Title</Label><Input className={validationErrors['title'] ? 'border-red-500' : ''} value={editing.title || ''} onChange={(e) => { setEditing({ ...editing, title: e.target.value }); setValidationErrors((prev) => { const n = { ...prev }; delete n['title']; return n; }); }} />{validationErrors['title'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['title']}</p>}</div>
+                <div className="space-y-2"><Label>Slug</Label><Input className={validationErrors['slug'] ? 'border-red-500' : ''} value={editing.slug || ''} onChange={(e) => { setEditing({ ...editing, slug: e.target.value }); setValidationErrors((prev) => { const n = { ...prev }; delete n['slug']; return n; }); }} />{validationErrors['slug'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['slug']}</p>}</div>
+                <div className="space-y-2"><Label>Hero Heading</Label><Input className={validationErrors['hero_heading'] ? 'border-red-500' : ''} value={editing.hero_heading || ''} onChange={(e) => { setEditing({ ...editing, hero_heading: e.target.value }); setValidationErrors((prev) => { const n = { ...prev }; delete n['hero_heading']; return n; }); }} />{validationErrors['hero_heading'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['hero_heading']}</p>}</div>
+                <div className="space-y-2"><Label>Hero Subtext</Label><Input className={validationErrors['hero_subtext'] ? 'border-red-500' : ''} value={editing.hero_subtext || ''} onChange={(e) => { setEditing({ ...editing, hero_subtext: e.target.value }); setValidationErrors((prev) => { const n = { ...prev }; delete n['hero_subtext']; return n; }); }} />{validationErrors['hero_subtext'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['hero_subtext']}</p>}</div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label>Sections (JSON)</Label>
@@ -284,6 +292,7 @@ export default function AdminPagesPage() {
                   {jsonError && (
                     <p className="text-xs text-red-600">{jsonError}</p>
                   )}
+                  {validationErrors['sections'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['sections']}</p>}
                 </div>
                 <div className="flex items-center gap-2">
                   <input type="checkbox" id="published" checked={editing.is_published || false} onChange={(e) => setEditing({ ...editing, is_published: e.target.checked })} className="h-4 w-4" />
@@ -291,7 +300,7 @@ export default function AdminPagesPage() {
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => window.open('/', '_blank')}>Preview</Button>
-                  <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
+                  <Button variant="outline" onClick={() => { setEditing(null); setValidationErrors({}); }}>Cancel</Button>
                   <Button onClick={handleSave} disabled={saving || !!jsonError}>
                     {saving ? 'Saving...' : 'Save'}
                   </Button>

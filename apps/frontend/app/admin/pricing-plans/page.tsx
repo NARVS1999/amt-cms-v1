@@ -35,6 +35,7 @@ export default function AdminPricingPlansPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<PricingPlanData | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   async function load() {
     try {
@@ -107,7 +108,13 @@ export default function AdminPricingPlansPage() {
       await load();
     } catch (e: any) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else { setError(e?.message || 'Save failed'); showToast('Save failed', 'error'); }
+      else if (e.status === 422) {
+        const errors: Record<string, string> = {};
+        for (const field of Object.keys(e.errors || {})) {
+          errors[field] = e.errors[field][0];
+        }
+        setValidationErrors(errors);
+      } else { setError(e?.message || 'Save failed'); showToast('Save failed', 'error'); }
     } finally {
       setSaving(false);
     }
@@ -130,7 +137,7 @@ export default function AdminPricingPlansPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Pricing Plans</h1>
-        <Button onClick={() => { setEditing({ name: '', price: 0, interval: 'monthly', description: '', cta_text: 'Get Started', is_popular: false, is_published: false }); setFeatures([EMPTY_FEATURE()]); }}>
+        <Button onClick={() => { setEditing({ name: '', price: 0, interval: 'monthly', description: '', cta_text: 'Get Started', is_popular: false, is_published: false }); setFeatures([EMPTY_FEATURE()]); setValidationErrors({}); }}>
           New Plan
         </Button>
       </div>
@@ -219,25 +226,26 @@ export default function AdminPricingPlansPage() {
       </AlertDialog>
 
       {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setEditing(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { setEditing(null); setValidationErrors({}); }}>
           <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <CardHeader><CardTitle>{editing.id ? 'Edit Plan' : 'New Plan'}</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="space-y-2"><Label>Name</Label><Input value={editing.name || ''} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></div>
+                <div className="space-y-2"><Label>Name</Label><Input className={validationErrors['name'] ? 'border-red-500' : ''} value={editing.name || ''} onChange={(e) => { setEditing({ ...editing, name: e.target.value }); setValidationErrors((prev) => { const n = { ...prev }; delete n['name']; return n; }); }} />{validationErrors['name'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['name']}</p>}</div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Price</Label><Input type="number" step="0.01" min="0" value={editing.price ?? ''} onChange={(e) => setEditing({ ...editing, price: parseFloat(e.target.value) || 0 })} /></div>
+                  <div className="space-y-2"><Label>Price</Label><Input className={validationErrors['price'] ? 'border-red-500' : ''} type="number" step="0.01" min="0" value={editing.price ?? ''} onChange={(e) => { setEditing({ ...editing, price: parseFloat(e.target.value) || 0 }); setValidationErrors((prev) => { const n = { ...prev }; delete n['price']; return n; }); }} />{validationErrors['price'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['price']}</p>}</div>
                   <div className="space-y-2">
                     <Label>Interval</Label>
-                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={editing.interval || 'monthly'} onChange={(e) => setEditing({ ...editing, interval: e.target.value })}>
+                    <select className={`flex h-10 w-full rounded-md border ${validationErrors['interval'] ? 'border-red-500' : 'border-input'} bg-background px-3 py-2 text-sm`} value={editing.interval || 'monthly'} onChange={(e) => { setEditing({ ...editing, interval: e.target.value }); setValidationErrors((prev) => { const n = { ...prev }; delete n['interval']; return n; }); }}>
                       <option value="monthly">Monthly</option>
                       <option value="yearly">Yearly</option>
                       <option value="one-time">One-time</option>
                     </select>
+                    {validationErrors['interval'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['interval']}</p>}
                   </div>
                 </div>
-                <div className="space-y-2"><Label>Description</Label><textarea className="flex h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm" value={editing.description || ''} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
-                <div className="space-y-2"><Label>CTA Text</Label><Input value={editing.cta_text || ''} onChange={(e) => setEditing({ ...editing, cta_text: e.target.value })} /></div>
+                <div className="space-y-2"><Label>Description</Label><textarea className={`flex h-20 w-full rounded-md border ${validationErrors['description'] ? 'border-red-500' : 'border-input'} bg-transparent px-3 py-2 text-sm shadow-sm`} value={editing.description || ''} onChange={(e) => { setEditing({ ...editing, description: e.target.value }); setValidationErrors((prev) => { const n = { ...prev }; delete n['description']; return n; }); }} />{validationErrors['description'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['description']}</p>}</div>
+                <div className="space-y-2"><Label>CTA Text</Label><Input className={validationErrors['cta_text'] ? 'border-red-500' : ''} value={editing.cta_text || ''} onChange={(e) => { setEditing({ ...editing, cta_text: e.target.value }); setValidationErrors((prev) => { const n = { ...prev }; delete n['cta_text']; return n; }); }} />{validationErrors['cta_text'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['cta_text']}</p>}</div>
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-2">
                     <input type="checkbox" id="popular" checked={editing.is_popular || false} onChange={(e) => setEditing({ ...editing, is_popular: e.target.checked })} className="h-4 w-4" />
@@ -274,7 +282,7 @@ export default function AdminPricingPlansPage() {
                 </div>
 
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
+                  <Button variant="outline" onClick={() => { setEditing(null); setValidationErrors({}); }}>Cancel</Button>
                   <Button onClick={handleSave} disabled={saving}>
                     {saving ? 'Saving...' : 'Save'}
                   </Button>

@@ -22,6 +22,7 @@ export default function AdminTeamPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<TeamMemberData | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
@@ -77,7 +78,13 @@ export default function AdminTeamPage() {
       await load();
     } catch (e: any) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else setError(e?.message || 'Save failed');
+      else if (e.status === 422) {
+        const errors: Record<string, string> = {};
+        for (const field of Object.keys(e.errors || {})) {
+          errors[field] = e.errors[field][0];
+        }
+        setValidationErrors(errors);
+      } else setError(e?.message || 'Save failed');
     } finally {
       setSaving(false);
     }
@@ -100,7 +107,7 @@ export default function AdminTeamPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Team Members</h1>
-        <Button onClick={() => { setPhotoFile(null); setPhotoPreview(null); setEditing({ name: '', role: '', bio: '' }); }}>
+        <Button onClick={() => { setPhotoFile(null); setPhotoPreview(null); setEditing({ name: '', role: '', bio: '' }); setValidationErrors({}); }}>
           New Member
         </Button>
       </div>
@@ -190,16 +197,17 @@ export default function AdminTeamPage() {
       </AlertDialog>
 
       {editing && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { setEditing(null); setPhotoFile(null); setPhotoPreview(null); }}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { setEditing(null); setPhotoFile(null); setPhotoPreview(null); setValidationErrors({}); }}>
           <Card className="w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
             <CardHeader><CardTitle>{editing.id ? 'Edit Member' : 'New Member'}</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="space-y-2"><Label>Name</Label><Input value={editing.name || ''} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></div>
-                <div className="space-y-2"><Label>Role</Label><Input value={editing.role || ''} onChange={(e) => setEditing({ ...editing, role: e.target.value })} /></div>
+                <div className="space-y-2"><Label>Name</Label><Input className={validationErrors['name'] ? 'border-red-500' : ''} value={editing.name || ''} onChange={(e) => { setEditing({ ...editing, name: e.target.value }); setValidationErrors((prev) => { const n = { ...prev }; delete n['name']; return n; }); }} />{validationErrors['name'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['name']}</p>}</div>
+                <div className="space-y-2"><Label>Role</Label><Input className={validationErrors['role'] ? 'border-red-500' : ''} value={editing.role || ''} onChange={(e) => { setEditing({ ...editing, role: e.target.value }); setValidationErrors((prev) => { const n = { ...prev }; delete n['role']; return n; }); }} />{validationErrors['role'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['role']}</p>}</div>
                 <div className="space-y-2">
                   <Label>Bio</Label>
-                  <textarea className="flex h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm" value={editing.bio || ''} onChange={(e) => setEditing({ ...editing, bio: e.target.value })} />
+                  <textarea className={`flex h-20 w-full rounded-md border ${validationErrors['bio'] ? 'border-red-500' : 'border-input'} bg-transparent px-3 py-2 text-sm shadow-sm`} value={editing.bio || ''} onChange={(e) => { setEditing({ ...editing, bio: e.target.value }); setValidationErrors((prev) => { const n = { ...prev }; delete n['bio']; return n; }); }} />
+                  {validationErrors['bio'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['bio']}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Photo</Label>
@@ -284,7 +292,7 @@ export default function AdminTeamPage() {
                 </div>
                 <div className="space-y-2"><Label>Sort Order</Label><Input type="number" value={editing.sort_order ?? 0} onChange={(e) => setEditing({ ...editing, sort_order: parseInt(e.target.value) || 0 })} /></div>
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => { setEditing(null); setPhotoFile(null); setPhotoPreview(null); }}>Cancel</Button>
+                  <Button variant="outline" onClick={() => { setEditing(null); setPhotoFile(null); setPhotoPreview(null); setValidationErrors({}); }}>Cancel</Button>
                   <Button onClick={handleSave} disabled={saving}>
                     {saving ? 'Saving...' : 'Save'}
                   </Button>
