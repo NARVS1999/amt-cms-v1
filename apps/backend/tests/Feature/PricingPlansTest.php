@@ -148,4 +148,41 @@ class PricingPlansTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    public function test_admin_can_reorder_pricing_plans(): void
+    {
+        $planA = PricingPlan::factory()->create(['sort_order' => 0]);
+        $planB = PricingPlan::factory()->create(['sort_order' => 1]);
+        $planC = PricingPlan::factory()->create(['sort_order' => 2]);
+
+        $token = $this->authToken();
+
+        $response = $this->withToken($token)->postJson('/api/pricing-plans/reorder', [
+            'ids' => [$planC->id, $planB->id, $planA->id],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['data' => ['message' => 'Reordered.']]);
+
+        $this->assertEquals(0, PricingPlan::find($planC->id)->sort_order);
+        $this->assertEquals(1, PricingPlan::find($planB->id)->sort_order);
+        $this->assertEquals(2, PricingPlan::find($planA->id)->sort_order);
+    }
+
+    public function test_pricing_plans_reorder_returns_401_without_token(): void
+    {
+        $response = $this->postJson('/api/pricing-plans/reorder', ['ids' => [1]]);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_pricing_plans_reorder_validates_ids_required(): void
+    {
+        $token = $this->authToken();
+
+        $response = $this->withToken($token)->postJson('/api/pricing-plans/reorder', []);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['ids']);
+    }
 }

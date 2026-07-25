@@ -169,4 +169,39 @@ class TeamMembersTest extends TestCase
         $deleteResponse = $this->deleteJson("/api/team/{$member->id}/photo");
         $deleteResponse->assertStatus(401);
     }
+
+    public function test_admin_can_reorder_team_members(): void
+    {
+        $memberA = TeamMember::factory()->create(['sort_order' => 0]);
+        $memberB = TeamMember::factory()->create(['sort_order' => 1]);
+
+        $token = $this->authToken();
+
+        $response = $this->withToken($token)->postJson('/api/team/reorder', [
+            'ids' => [$memberB->id, $memberA->id],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['data' => ['message' => 'Reordered.']]);
+
+        $this->assertEquals(0, TeamMember::find($memberB->id)->sort_order);
+        $this->assertEquals(1, TeamMember::find($memberA->id)->sort_order);
+    }
+
+    public function test_team_reorder_returns_401_without_token(): void
+    {
+        $response = $this->postJson('/api/team/reorder', ['ids' => [1]]);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_team_reorder_validates_ids_required(): void
+    {
+        $token = $this->authToken();
+
+        $response = $this->withToken($token)->postJson('/api/team/reorder', []);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['ids']);
+    }
 }

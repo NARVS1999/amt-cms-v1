@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Page;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -181,5 +182,44 @@ class PagesTest extends TestCase
         // show should 404
         $showResponse = $this->getJson('/api/pages/draft');
         $showResponse->assertStatus(404);
+    }
+
+    public function test_admin_can_reorder_pages(): void
+    {
+        $pageA = Page::factory()->create(['sort_order' => 0]);
+        $pageB = Page::factory()->create(['sort_order' => 1]);
+        $pageC = Page::factory()->create(['sort_order' => 2]);
+
+        $user = User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
+
+        $response = $this->withToken($token)->postJson('/api/admin/pages/reorder', [
+            'ids' => [$pageC->id, $pageB->id, $pageA->id],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['data' => ['message' => 'Reordered.']]);
+
+        $this->assertEquals(0, Page::find($pageC->id)->sort_order);
+        $this->assertEquals(1, Page::find($pageB->id)->sort_order);
+        $this->assertEquals(2, Page::find($pageA->id)->sort_order);
+    }
+
+    public function test_pages_reorder_returns_401_without_token(): void
+    {
+        $response = $this->postJson('/api/admin/pages/reorder', ['ids' => [1]]);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_pages_reorder_validates_ids_required(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
+
+        $response = $this->withToken($token)->postJson('/api/admin/pages/reorder', []);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['ids']);
     }
 }
