@@ -22,6 +22,7 @@ class PageResource extends JsonResource
             'hero_subtext' => $this->hero_subtext,
             'sections' => $this->sections,
             'is_published' => $this->is_published,
+            'sort_order' => $this->sort_order,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

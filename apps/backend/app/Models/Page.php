@@ -24,10 +24,12 @@ class Page extends Model
         'hero_subtext',
         'sections',
         'is_published',
+        'sort_order',
     ];
 
     protected $casts = [
         'sections' => 'array',
         'is_published' => 'boolean',
+        'sort_order' => 'integer',
     ];
 }

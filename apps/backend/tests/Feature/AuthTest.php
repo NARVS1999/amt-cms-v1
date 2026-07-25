@@ -139,4 +139,57 @@ class AuthTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonFragment(['message' => 'Password reset link sent.']);
     }
+
+    public function test_login_does_not_expose_password_hash(): void
+    {
+        $response = $this->postJson('/api/admin/login', [
+            'email' => 'admin@example.com',
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonMissingPath('data.user.password');
+    }
+
+    public function test_reset_password_invalid_token_returns_error(): void
+    {
+        $response = $this->postJson('/api/reset-password', [
+            'email' => 'admin@example.com',
+            'token' => 'invalid-token-that-does-not-exist',
+            'password' => 'new-password',
+            'password_confirmation' => 'new-password',
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_reset_password_confirmation_mismatch_returns_422(): void
+    {
+        $token = Password::broker()->createToken($this->user);
+
+        $response = $this->postJson('/api/reset-password', [
+            'email' => 'admin@example.com',
+            'token' => $token,
+            'password' => 'new-password',
+            'password_confirmation' => 'different-password',
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_forgot_password_rate_limiting(): void
+    {
+        for ($i = 0; $i < 3; $i++) {
+            $response = $this->postJson('/api/forgot-password', [
+                'email' => 'admin@example.com',
+            ]);
+            $response->assertStatus(200);
+        }
+
+        $response = $this->postJson('/api/forgot-password', [
+            'email' => 'admin@example.com',
+        ]);
+
+        $response->assertStatus(429);
+    }
 }

@@ -66,6 +66,7 @@ Laravel Sanctum default schema.
 | hero_subtext | text | nullable |
 | sections | json | nullable |
 | is_published | boolean | default false |
+| sort_order | integer | default 0 |
 | timestamps | | |
 
 ### `marketing_blog_posts`
@@ -707,7 +708,7 @@ interface PageData {
   id: number; title: string; slug: string;
   hero_heading: string | null; hero_subtext: string | null;
   sections: Record<string, unknown>[] | null;
-  is_published: boolean;
+  is_published: boolean; sort_order: number;
   created_at: string | null; updated_at: string | null;
 }
 
