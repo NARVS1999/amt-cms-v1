@@ -60,4 +60,13 @@ class ServiceController extends Controller
 
         return $this->success(['message' => 'Deleted.']);
     }
+
+    public function reorder(Request $request)
+    {
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'integer|exists:marketing_services,id']);
+        foreach ($request->ids as $i => $id) {
+            Service::where('id', $id)->update(['sort_order' => $i]);
+        }
+        return $this->success(['message' => 'Reordered.']);
+    }
 }

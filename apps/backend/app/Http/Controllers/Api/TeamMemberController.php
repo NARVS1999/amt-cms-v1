@@ -95,4 +95,13 @@ class TeamMemberController extends Controller
         $teamMember->addMediaFromRequest('photo')->toMediaCollection('photo');
         return $this->success(new TeamMemberResource($teamMember->load('media')));
     }
+
+    public function reorder(Request $request)
+    {
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'integer|exists:marketing_team_members,id']);
+        foreach ($request->ids as $i => $id) {
+            TeamMember::where('id', $id)->update(['sort_order' => $i]);
+        }
+        return $this->success(['message' => 'Reordered.']);
+    }
 }

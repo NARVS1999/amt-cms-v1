@@ -70,6 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/services', [ServiceController::class, 'store']);
     Route::put('/services/{service}', [ServiceController::class, 'update']);
     Route::delete('/services/{service}', [ServiceController::class, 'destroy']);
+    Route::post('/services/reorder', [ServiceController::class, 'reorder']);
 
     // Admin CRUD: Team Members
     Route::post('/team', [TeamMemberController::class, 'store']);
@@ -77,17 +78,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/team/{teamMember}', [TeamMemberController::class, 'destroy']);
     Route::delete('/team/{teamMember}/photo', [TeamMemberController::class, 'removePhoto']);
     Route::post('/team/{teamMember}/photo', [TeamMemberController::class, 'uploadPhoto']);
+    Route::post('/team/reorder', [TeamMemberController::class, 'reorder']);
 
     // Admin CRUD: Pages
     Route::post('/pages', [PageController::class, 'store']);
     Route::put('/pages/{page}', [PageController::class, 'update']);
     Route::delete('/pages/{page}', [PageController::class, 'destroy']);
+    Route::post('/admin/pages/reorder', [PageController::class, 'adminReorder']);
 
     // Admin CRUD: Pricing Plans
     Route::post('/pricing-plans', [PricingPlanController::class, 'store']);
     Route::put('/pricing-plans/{pricingPlan}', [PricingPlanController::class, 'update']);
     Route::delete('/pricing-plans/{pricingPlan}', [PricingPlanController::class, 'destroy']);
     Route::get('/admin/pricing-plans', [PricingPlanController::class, 'adminIndex']);
+    Route::post('/pricing-plans/reorder', [PricingPlanController::class, 'reorder']);
 
     // Admin CRUD: Blog Posts
     Route::post('/blog-posts', [BlogPostController::class, 'store']);

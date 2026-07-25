@@ -108,4 +108,13 @@ class PricingPlanController extends Controller
 
         return $this->success(['message' => 'Deleted.']);
     }
+
+    public function reorder(Request $request)
+    {
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'integer|exists:billing_pricing_plans,id']);
+        foreach ($request->ids as $i => $id) {
+            PricingPlan::where('id', $id)->update(['sort_order' => $i]);
+        }
+        return $this->success(['message' => 'Reordered.']);
+    }
 }

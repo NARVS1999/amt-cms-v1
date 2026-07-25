@@ -101,4 +101,13 @@ class PageController extends Controller
 
         return $this->success(['message' => 'Deleted.']);
     }
+
+    public function adminReorder(Request $request)
+    {
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'integer|exists:marketing_pages,id']);
+        foreach ($request->ids as $i => $id) {
+            Page::where('id', $id)->update(['sort_order' => $i]);
+        }
+        return $this->success(['message' => 'Reordered.']);
+    }
 }

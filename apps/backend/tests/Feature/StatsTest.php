@@ -99,4 +99,29 @@ class StatsTest extends TestCase
             'subscribers',
         ]);
     }
+
+    public function test_returns_integer_values_for_all_keys(): void
+    {
+        $response = $this->getJson('/api/admin/stats', $this->authHeaders());
+
+        $response->assertStatus(200);
+        $body = $response->json();
+        $this->assertIsInt($body['services']);
+        $this->assertIsInt($body['blog_posts']);
+        $this->assertIsInt($body['unread_messages']);
+        $this->assertIsInt($body['subscribers']);
+    }
+
+    public function test_safe_count_returns_zero_for_nonexistent_table(): void
+    {
+        $response = $this->getJson('/api/admin/stats', $this->authHeaders());
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'services' => 0,
+            'blog_posts' => 0,
+            'unread_messages' => 0,
+            'subscribers' => 0,
+        ]);
+    }
 }

@@ -555,6 +555,7 @@ All admin CRUD endpoints follow the same pattern:
 | POST | `/api/services` | `ServiceController@store` | |
 | PUT | `/api/services/{service}` | `ServiceController@update` | |
 | DELETE | `/api/services/{service}` | `ServiceController@destroy` | |
+| POST | `/api/services/reorder` | `ServiceController@reorder` | `{ ids: [3,1,2] }` → sets sort_order 0,1,2 |
 
 **Store/Update request fields:**
 | Field | Rules |
@@ -574,6 +575,7 @@ All admin CRUD endpoints follow the same pattern:
 | DELETE | `/api/team/{teamMember}` | `TeamMemberController@destroy` | |
 | POST | `/api/team/{teamMember}/photo` | `TeamMemberController@uploadPhoto` | Multipart; returns 422 if photo exists |
 | DELETE | `/api/team/{teamMember}/photo` | `TeamMemberController@removePhoto` | Clears photo, returns updated member |
+| POST | `/api/team/reorder` | `TeamMemberController@reorder` | `{ ids: [2,1] }` → sets sort_order 0,1 |
 
 #### Pages Admin
 
@@ -583,6 +585,7 @@ All admin CRUD endpoints follow the same pattern:
 | POST | `/api/pages` | `PageController@store` | |
 | PUT | `/api/pages/{page}` | `PageController@update` | |
 | DELETE | `/api/pages/{page}` | `PageController@destroy` | |
+| POST | `/api/admin/pages/reorder` | `PageController@adminReorder` | `{ ids: [1,3,2] }` → sets sort_order 0,1,2 |
 
 #### Pricing Plans Admin
 
@@ -592,6 +595,7 @@ All admin CRUD endpoints follow the same pattern:
 | POST | `/api/pricing-plans` | `PricingPlanController@store` | |
 | PUT | `/api/pricing-plans/{pricingPlan}` | `PricingPlanController@update` | |
 | DELETE | `/api/pricing-plans/{pricingPlan}` | `PricingPlanController@destroy` | |
+| POST | `/api/pricing-plans/reorder` | `PricingPlanController@reorder` | `{ ids: [1,3,2] }` → sets sort_order 0,1,2 |
 
 **Note:** Admin-specific route `GET /api/admin/pricing-plans` returns ALL plans (including unpublished), served by `PricingPlanController@adminIndex`.
 
