@@ -1,7 +1,7 @@
 ---
 phase: 3
 slug: blog-system-p0
-status: draft
+status: approved
 shadcn_initialized: true
 preset: base-nova
 created: 2026-07-26
@@ -49,7 +49,7 @@ Exceptions: none — all values are multiples of 4.
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 16px | 400 (regular) | 1.5 |
-| Label | 14px | 500 (medium) | 1.4 |
+| Label | 14px | 400 (regular) | 1.4 |
 | Heading | 28px | 700 (bold) | 1.2 |
 | Display | 36px | 700 (bold) | 1.1 |
 
@@ -57,7 +57,7 @@ Exceptions: none — all values are multiples of 4.
 - **Admin heading:** 24px at weight 700 (matches existing `text-2xl font-bold` on admin page titles).
 - **Public body:** 16px at weight 400, line-height 1.5 (matches existing public site).
 - **Public heading:** 28px at weight 700, line-height 1.2 (matches existing `text-3xl font-bold`).
-- **Blog post body (public):** 18px at weight 400, line-height 1.7 — larger for readability on long-form content. Max-width 720px.
+- **Blog post body (public):** Uses 16px body size at line-height 1.7 (enhanced for readability on long-form content). Max-width 720px.
 
 ---
 
@@ -130,7 +130,7 @@ Applicable state considerations resolved: 6 covered, 0 backstop, 0 unresolved
 | populated | Homepage Latest Posts | ✅ covered | 3 cards in row (1-col mobile, 3-col desktop) — image, title, excerpt, date. |
 | populated | /blog/[slug] single post | ✅ covered | Hero image, title, published date, reading time, full content in readable layout. |
 | error | Blog 404 | ✅ covered | Dedicated not-found page with "Post not found" heading, explanation text, "← Back to Blog" link. |
-| long-text | Blog post content | ✅ covered | Public single post max-width 720px, line-height 1.7, 18px font. Content overflow handled by container width. |
+| long-text | Blog post content | ✅ covered | Public single post max-width 720px, line-height 1.7, 16px body font. Content overflow handled by container width. |
 | long-text | Blog excerpt in cards | ✅ covered | Excerpt truncated to 3 lines via `line-clamp-3` (existing pattern in ServicesGrid). |
 
 ---
@@ -201,7 +201,7 @@ No third-party registries. All UI components are shadcn official or custom-built
 │  Date · {N} min read                     │  text-sm muted-foreground, centered
 ├─────────────────────────────────────────┤
 │  Content                                 │  max-w-[720px] mx-auto, prose-like styling
-│  (Quill HTML output)                     │  18px body, line-height 1.7
+│  (Quill HTML output)                     │  16px body, line-height 1.7
 │                                          │  h2/h3 styled, images max-w-full
 └─────────────────────────────────────────┘
 ```
@@ -274,11 +274,11 @@ No third-party registries. All UI components are shadcn official or custom-built
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-07-26
