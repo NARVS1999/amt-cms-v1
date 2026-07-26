@@ -62,3 +62,13 @@ blocked: 0
   reason: "User reported: there was second to the first but they saying : {\"message\":\"Cannot move up further.\"}"
   severity: major
   test: 3
+  root_cause: "All BlogPosts have sort_order = 0 (database default). swapSortOrder looks for neighbor with sort_order < currentOrder, but when all posts have sort_order = 0, no neighbor exists."
+  artifacts:
+    - path: "apps/backend/app/Http/Controllers/Api/BlogPostController.php"
+      issue: "swapSortOrder uses strict < instead of <= and doesn't handle same sort_order"
+    - path: "apps/backend/database/migrations/2026_07_21_000003_create_marketing_blog_posts_table.php"
+      issue: "sort_order column has default 0, posts created before booted() hook have sort_order = 0"
+  missing:
+    - "Migration to reset existing posts to sequential sort_order values"
+    - "Update swapSortOrder to use <= and handle same sort_order cases"
+  plan: 03-05
