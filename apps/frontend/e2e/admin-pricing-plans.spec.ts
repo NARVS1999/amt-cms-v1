@@ -119,7 +119,7 @@ test.describe('Admin Pricing Plans Page — Phase 2 Features', () => {
   });
 
   test('toast appears on delete success', async ({ page }) => {
-    await page.route(/\/api\/admin\/pricing-plans/, async (route) => {
+    await page.route(/\/api\/(admin\/)?pricing-plans/, async (route) => {
       const method = route.request().method();
       if (method === 'GET') {
         await route.fulfill({

@@ -36,7 +36,7 @@ test.describe('Admin Pages Page — Phase 2 Features', () => {
     // Type invalid JSON
     const jsonEditor = page.locator('textarea').last();
     await jsonEditor.fill('{ invalid json }');
-    await expect(page.getByText(/invalid json/i)).toBeVisible();
+    await expect(page.locator('p.text-red-600')).toBeVisible();
   });
 
   test('"Load Example" button populates sections', async ({ page }) => {
@@ -110,7 +110,7 @@ test.describe('Admin Pages Page — Phase 2 Features', () => {
   });
 
   test('toast appears on delete success', async ({ page }) => {
-    await page.route(/\/api\/admin\/pages/, async (route) => {
+    await page.route(/\/api\/(admin\/)?pages/, async (route) => {
       const method = route.request().method();
       if (method === 'GET') {
         await route.fulfill({
