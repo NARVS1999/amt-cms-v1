@@ -148,7 +148,12 @@ Plans:
   2. Admin CRUD pages exist for all content types with consistent UX
   3. Dashboard stats widgets show counts for all content types
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+
+- [ ] 06-01: Dashboard Stats Expansion — backend returns 7 content type counts, frontend renders 7 stat cards with responsive grid (FR-13)
+- [ ] 06-02: Admin UX Consistency Audit — consistent page headers, table columns, validation across all 5 CRUD pages (FR-1, FR-2, FR-3, FR-4, FR-5)
 
 ### 📋 v1.1 (Deferred)
 
