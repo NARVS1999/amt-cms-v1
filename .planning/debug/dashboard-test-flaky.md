@@ -1,5 +1,5 @@
 ---
-status: diagnosing
+status: resolved
 trigger: |
   dashboard.spec.ts tests 2 and 4 fail consistently in full-suite Playwright runs
   but pass in isolation. Tests 2 and 4 show login page with empty form fields
@@ -25,7 +25,16 @@ updated: 2026-07-26
 - **Root cause hypothesis (test 2):** `expect(page).toHaveURL()` polls, while `page.waitForURL()` listens for navigation events. When preceded by many login attempts, the rate limiter (even with the fix, dev server hasn't been restarted) might cause delayed or missed navigation events that polling misses.
 - **Root cause hypothesis (test 4):** The `/api/admin/stats` mock is set up before login. During the login→dashboard→redirect sequence, the Next.js router might navigate to the dashboard before the route mock is fully active, causing `fetchAdminStats()` to hit the real backend. If the real backend returns an error (e.g., the token from a previous test was invalidated), the dashboard redirects to login.
 
-## Current Focus
+## Fix Applied
 
-- **Hypothesis:** Test isolation issue exacerbated by rate limiter (dev server not restarted after fix) and fragile navigation assertions.
-- **Next action:** Apply two fixes: (1) change `expect(page).toHaveURL()` to `page.waitForURL()` in test 2 for deterministic navigation tracking; (2) set up `/api/admin/stats` mock AFTER login and before dashboard navigation, using `page.goto()` with the mock active in test 4.
+**Test 2:** Changed `expect(page).toHaveURL(/\/admin\/(?!login)/, ...)` to `page.waitForURL(/\/admin\/(?!login)/, ...)`. The `waitForURL` method registers a navigation listener before the action that triggers it, avoiding race conditions where `toHaveURL` polling misses the navigation event.
+
+**Test 4:** Restructured to login first (using the same pattern as test 3 which passes), verify dashboard heading is visible, THEN set up the `/api/admin/stats` route mock and reload the page. This avoids the mock intercepting requests during the initial login→redirect→dashboard sequence.
+
+**Verification:** Full Playwright suite: **25/25 passed** (was 24/25 before fix).
+
+## Root Cause
+
+The `dashboard.spec.ts` failures were a pre-existing flake (present since initial commit 964ec5c) caused by:
+- **Test 2:** `expect(page).toHaveURL()` is a polling assertion that can race against the `page.goto()`→`fill()`→`click()`→navigation sequence. `page.waitForURL()` is the correct pattern for navigation-dependent assertions.
+- **Test 4:** The `/api/admin/stats` route mock, when set up before login, could intercept requests during the Next.js page lifecycle (e.g., preloading, HMR connections) that occur between login and dashboard mount. Moving the mock setup to after the dashboard is confirmed visible eliminates this interference.
