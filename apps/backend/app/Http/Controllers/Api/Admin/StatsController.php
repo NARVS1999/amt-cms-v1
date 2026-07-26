@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use App\Models\ContactMessage;
 use App\Models\Page;
+use App\Models\PricingPlan;
 use App\Models\Service;
 use App\Models\Subscriber;
+use App\Models\TeamMember;
 use Illuminate\Support\Facades\Schema;
 
 class StatsController extends Controller
@@ -16,7 +18,10 @@ class StatsController extends Controller
     {
         return response()->json([
             'services' => $this->safeCount(Service::class),
+            'team_members' => $this->safeCount(TeamMember::class),
             'blog_posts' => $this->safeCount(BlogPost::class),
+            'pricing_plans' => $this->safeCount(PricingPlan::class),
+            'pages' => $this->safeCount(Page::class),
             'unread_messages' => $this->safeCount(ContactMessage::class, ['read_at' => null]),
             'subscribers' => $this->safeCount(Subscriber::class),
         ]);

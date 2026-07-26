@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\BlogPost;
 use App\Models\ContactMessage;
 use App\Models\Page;
+use App\Models\PricingPlan;
 use App\Models\Service;
 use App\Models\Subscriber;
+use App\Models\TeamMember;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -41,7 +44,10 @@ class StatsTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'services' => 0,
+            'team_members' => 0,
             'blog_posts' => 0,
+            'pricing_plans' => 0,
+            'pages' => 0,
             'unread_messages' => 0,
             'subscribers' => 0,
         ]);
@@ -50,6 +56,9 @@ class StatsTest extends TestCase
     public function test_returns_correct_counts_with_data(): void
     {
         Service::factory()->count(3)->create();
+        TeamMember::factory()->count(2)->create();
+        BlogPost::factory()->count(4)->create();
+        PricingPlan::factory()->count(1)->create();
         Page::factory()->count(5)->create(['is_published' => true]);
         Page::factory()->count(2)->create(['is_published' => false]);
         ContactMessage::create(['name' => 'A', 'email' => 'a@b.com', 'message' => 'test', 'read_at' => null]);
@@ -69,7 +78,10 @@ class StatsTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'services' => 3,
-            'blog_posts' => 0,
+            'team_members' => 2,
+            'blog_posts' => 4,
+            'pricing_plans' => 1,
+            'pages' => 7,
             'unread_messages' => 4,
             'subscribers' => 6,
         ]);
@@ -87,14 +99,17 @@ class StatsTest extends TestCase
         $response->assertJson(['services' => 1]);
     }
 
-    public function test_returns_four_top_level_keys(): void
+    public function test_returns_seven_top_level_keys(): void
     {
         $response = $this->getJson('/api/admin/stats', $this->authHeaders());
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'services',
+            'team_members',
             'blog_posts',
+            'pricing_plans',
+            'pages',
             'unread_messages',
             'subscribers',
         ]);
@@ -107,7 +122,10 @@ class StatsTest extends TestCase
         $response->assertStatus(200);
         $body = $response->json();
         $this->assertIsInt($body['services']);
+        $this->assertIsInt($body['team_members']);
         $this->assertIsInt($body['blog_posts']);
+        $this->assertIsInt($body['pricing_plans']);
+        $this->assertIsInt($body['pages']);
         $this->assertIsInt($body['unread_messages']);
         $this->assertIsInt($body['subscribers']);
     }
@@ -119,7 +137,10 @@ class StatsTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'services' => 0,
+            'team_members' => 0,
             'blog_posts' => 0,
+            'pricing_plans' => 0,
+            'pages' => 0,
             'unread_messages' => 0,
             'subscribers' => 0,
         ]);
