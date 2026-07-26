@@ -93,6 +93,17 @@ created: 2026-07-23
 
 Phase 07 complete. Ready for Phase 08 or verification.
 
+## Deferred Items
+
+Items acknowledged and deferred at milestone close on 2026-07-27:
+
+| Category | Item | Status |
+|----------|------|--------|
+| tracking | Phase 06-02 checkbox unchecked in ROADMAP.md but SUMMARY shows complete | deferred |
+| tracking | Phase 03-PLAN.md checkbox unchecked in ROADMAP.md but all sub-plans complete | deferred |
+| nfr | NFR-3 Admin HTTPS only — requires production deployment config | deferred |
+| nfr | NFR-5 Rate limiting — not yet implemented, requires middleware | deferred |
+
 ## Session
 
 **Last session:** 2026-07-27T00:00:00.000Z

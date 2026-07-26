@@ -61,3 +61,38 @@ See `.planning/intel/decisions.md` for full details. Key locked decisions:
 - **SM-1:** John can update any content and see it live within 5 minutes of rebuild
 - **SM-2:** Client deployment with brand customization under 2 hours
 - **SM-3:** Blog post from "New Post" click to public live in under 3 minutes
+
+## Current State
+
+**v1.0 shipped 2026-07-27.** Full CMS operational — Laravel 12 API backend + Next.js 16 SSG frontend.
+
+- **8 phases** completed (01, 01.1, 02, 03, 04, 05, 06, 07)
+- **21 plans** executed, **115 tests** passing (467 assertions)
+- **14,108 LOC** (TypeScript + PHP) across 554 files
+- **Admin panel:** Sanctum auth, 5 content CRUD pages, theme settings, dashboard stats, lead management
+- **Public site:** Themeable CSS vars, responsive pricing table, blog with Quill, contact form, newsletter
+
+### What's Working
+
+- Admin CRUD for services, pricing plans, team members, blog posts, pages
+- Blog system with Quill rich text, HTMLPurifier sanitization, public listing + single post
+- Theme system with CSS custom properties, fallback theme, admin color pickers
+- Contact form with queued email notification (database queue)
+- Newsletter subscription
+- Dashboard stats with 7 content type counts
+- Lead management (messages + subscribers)
+- Loading UI system (skeletons, toasts, page transitions)
+
+### Known Issues
+
+- NFR-3 (HTTPS enforcement) — deferred to production deployment
+- NFR-5 (Rate limiting) — not yet implemented, requires middleware
+- Minor ROADMAP.md checkbox tracking inconsistencies
+
+## Next Milestone Goals
+
+- **v1.1 or v2.0** — TBD based on user priorities
+- Potential areas: rate limiting, HTTPS enforcement, additional admin features, performance optimization
+
+---
+*Last updated: 2026-07-27 after v1.0 milestone*
