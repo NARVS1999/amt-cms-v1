@@ -130,7 +130,12 @@ Plans:
   2. Newsletter signups store email with single-step subscribe
   3. Admin theme settings (colors, fonts, logos) are manageable
 
-**Plans**: TBD
+**Plans**: 2 plans (05-01, 05-02)
+
+Plans:
+
+- [ ] 05-01: Contact Form Page + Email Notification (Tracer)
+- [ ] 05-02: Newsletter Subscribe Footer + Admin Theme Settings
 
 ### Phase 6: Admin Panel (P0)
 
