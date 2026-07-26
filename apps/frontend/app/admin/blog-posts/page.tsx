@@ -23,14 +23,15 @@ import {
   UnauthorizedError,
   createBlogPost,
   deleteBlogPost,
+  fetchAdminBlogPosts,
   fetchBlogPost,
-  fetchBlogPosts,
   getToken,
+  swapBlogPostSortOrder,
   updateBlogPost,
 } from '@/lib/admin-api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
-import { ImageIcon } from 'lucide-react';
+import { ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
@@ -48,6 +49,18 @@ function formatDate(dateStr: string | null): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+function calcReadingTime(html: string): number {
+  const text = html.replace(/<[^>]*>/g, '').split(/\s+/).length;
+  return Math.max(1, Math.ceil(text / 200));
+}
+
+function timeAgo(date: Date): string {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+}
+
 export default function AdminBlogPostsPage() {
   const router = useRouter();
   const { showToast } = useToast();
@@ -60,13 +73,17 @@ export default function AdminBlogPostsPage() {
   const [deleteTarget, setDeleteTarget] = useState<BlogPostData | null>(null);
   const [error, setError] = useState('');
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [autoSaveNow, setAutoSaveNow] = useState<string>('');
 
   const lastSavedContentRef = useRef<string>('');
   const autoSaveRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const autoSaveTimeRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   async function load() {
     try {
-      const res = await fetchBlogPosts();
+      const res = await fetchAdminBlogPosts();
       setPosts(res.data);
     } catch (e) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
@@ -74,6 +91,17 @@ export default function AdminBlogPostsPage() {
   }
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (autoSaveTimeRef.current) clearInterval(autoSaveTimeRef.current);
+    if (lastSavedAt) {
+      autoSaveTimeRef.current = setInterval(() => {
+        setAutoSaveNow(timeAgo(lastSavedAt));
+      }, 30000);
+      setAutoSaveNow(timeAgo(lastSavedAt));
+    }
+    return () => { if (autoSaveTimeRef.current) clearInterval(autoSaveTimeRef.current); };
+  }, [lastSavedAt]);
 
   useEffect(() => {
     if (autoSaveRef.current) clearInterval(autoSaveRef.current);
@@ -94,6 +122,8 @@ export default function AdminBlogPostsPage() {
             });
             if (res.ok) {
               lastSavedContentRef.current = editing.content || '';
+              setLastSavedAt(new Date());
+              setHasUnsavedChanges(false);
               showToast('Draft saved', 'success');
             }
           } catch {
@@ -114,6 +144,8 @@ export default function AdminBlogPostsPage() {
     setFeaturedImagePreview(null);
     setSlugManuallyEdited(false);
     lastSavedContentRef.current = '';
+    setLastSavedAt(null);
+    setHasUnsavedChanges(false);
   }
 
   async function openEdit(post: BlogPostData) {
@@ -128,6 +160,8 @@ export default function AdminBlogPostsPage() {
     setFeaturedImageFile(null);
     setFeaturedImagePreview(post.featured_image_url);
     setSlugManuallyEdited(true);
+    setLastSavedAt(null);
+    setHasUnsavedChanges(false);
   }
 
   function handleTitleChange(title: string) {
@@ -143,6 +177,21 @@ export default function AdminBlogPostsPage() {
   function handleSlugChange(slug: string) {
     setSlugManuallyEdited(true);
     setEditing((prev) => (prev ? { ...prev, slug } : prev));
+  }
+
+  function handleContentChange(content: string) {
+    setEditing((prev) => {
+      if (!prev) return prev;
+      const isNew = !prev.id;
+      const excerptEmpty = !prev.excerpt;
+      const autoExcerpt = isNew && excerptEmpty ? content.replace(/<[^>]*>/g, '').slice(0, 300) : prev.excerpt;
+      return { ...prev, content, excerpt: autoExcerpt };
+    });
+    setHasUnsavedChanges(true);
+  }
+
+  function handleExcerptChange(excerpt: string) {
+    setEditing((prev) => (prev ? { ...prev, excerpt } : prev));
   }
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -196,6 +245,8 @@ export default function AdminBlogPostsPage() {
       }
 
       setEditing(null);
+      setLastSavedAt(new Date());
+      setHasUnsavedChanges(false);
       await load();
       showToast('Saved.', 'success');
     } catch (e: unknown) {
@@ -215,12 +266,25 @@ export default function AdminBlogPostsPage() {
     }
   }
 
+  async function handleSwapSort(id: number, direction: 'up' | 'down') {
+    try {
+      await swapBlogPostSortOrder(id, direction);
+      await load();
+    } catch (e) {
+      if (e instanceof UnauthorizedError) router.push('/admin/login');
+    }
+  }
+
   function handleClose() {
     setEditing(null);
     if (autoSaveRef.current) clearInterval(autoSaveRef.current);
     setFeaturedImageFile(null);
     setFeaturedImagePreview(null);
+    setLastSavedAt(null);
+    setHasUnsavedChanges(false);
   }
+
+  const readingTime = editing?.content ? calcReadingTime(editing.content) : 0;
 
   return (
     <div>
@@ -238,6 +302,7 @@ export default function AdminBlogPostsPage() {
                 <TableHead>Author</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Image</TableHead>
+                <TableHead>Order</TableHead>
                 <TableHead>Published At</TableHead>
                 <TableHead>Updated</TableHead>
                 <TableHead className="w-32">Actions</TableHead>
@@ -247,7 +312,7 @@ export default function AdminBlogPostsPage() {
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 7 }).map((_, j) => (
+                    {Array.from({ length: 8 }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-4 w-full" />
                       </TableCell>
@@ -256,14 +321,19 @@ export default function AdminBlogPostsPage() {
                 ))
               ) : posts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="py-12 text-center text-muted-foreground">
                     No posts yet. Create your first one.
                   </TableCell>
                 </TableRow>
               ) : (
-                posts.map((post) => (
+                posts.map((post, idx) => (
                   <TableRow key={post.id}>
-                    <TableCell className="font-medium">{post.title}</TableCell>
+                    <TableCell className="font-medium">
+                      <div>{post.title}</div>
+                      {post.excerpt && (
+                        <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{post.excerpt}</div>
+                      )}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">Admin</TableCell>
                     <TableCell>
                       <span
@@ -292,6 +362,24 @@ export default function AdminBlogPostsPage() {
                           <ImageIcon size={16} className="text-muted-foreground" />
                         </div>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <button
+                          className="p-0.5 rounded hover:bg-muted disabled:opacity-30"
+                          disabled={idx === 0}
+                          onClick={() => handleSwapSort(post.id, 'up')}
+                        >
+                          <ChevronUp size={14} />
+                        </button>
+                        <button
+                          className="p-0.5 rounded hover:bg-muted disabled:opacity-30"
+                          disabled={idx === posts.length - 1}
+                          onClick={() => handleSwapSort(post.id, 'down')}
+                        >
+                          <ChevronDown size={14} />
+                        </button>
+                      </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{formatDate(post.published_at)}</TableCell>
                     <TableCell className="text-muted-foreground">{formatDate(post.updated_at)}</TableCell>
@@ -327,7 +415,6 @@ export default function AdminBlogPostsPage() {
           >
             <CardHeader>
               <CardTitle>{editing.id ? 'Edit Blog Post' : 'New Blog Post'}</CardTitle>
-
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -351,8 +438,9 @@ export default function AdminBlogPostsPage() {
                   <Label>Content</Label>
                   <BlogEditor
                     value={editing.content || ''}
-                    onChange={(content) => setEditing((prev) => (prev ? { ...prev, content } : prev))}
+                    onChange={handleContentChange}
                   />
+                  <p className="text-xs text-muted-foreground">{readingTime} min read</p>
                 </div>
 
                 <div className="space-y-2">
@@ -360,7 +448,7 @@ export default function AdminBlogPostsPage() {
                   <textarea
                     className="flex h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"
                     value={editing.excerpt || ''}
-                    onChange={(e) => setEditing((prev) => (prev ? { ...prev, excerpt: e.target.value } : prev))}
+                    onChange={(e) => handleExcerptChange(e.target.value)}
                     maxLength={300}
                   />
                 </div>
@@ -413,13 +501,22 @@ export default function AdminBlogPostsPage() {
                   </div>
                 )}
 
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={handleClose}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleSave} disabled={saving}>
-                    {saving ? 'Saving...' : 'Save'}
-                  </Button>
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-muted-foreground">
+                    {hasUnsavedChanges ? (
+                      <span className="text-destructive">Unsaved changes</span>
+                    ) : lastSavedAt ? (
+                      <span>Last saved: {autoSaveNow || timeAgo(lastSavedAt)}</span>
+                    ) : null}
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={handleClose}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSave} disabled={saving}>
+                      {saving ? 'Saving...' : 'Save'}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>

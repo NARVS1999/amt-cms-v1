@@ -16,6 +16,7 @@ class BlogPostResource extends JsonResource
             'excerpt' => $this->excerpt,
             'featured_image_url' => $this->getFirstMediaUrl('featured_image', 'thumb') ?: null,
             'is_published' => $this->is_published,
+            'sort_order' => $this->sort_order,
             'published_at' => $this->published_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),

@@ -318,6 +318,7 @@ export interface BlogPostData {
   excerpt: string | null;
   featured_image_url: string | null;
   is_published: boolean;
+  sort_order: number;
   published_at: string | null;
   created_at: string | null;
   updated_at: string | null;
@@ -329,6 +330,17 @@ export async function fetchBlogPosts(): Promise<{ data: BlogPostData[] }> {
 
 export async function fetchBlogPost(slug: string): Promise<{ data: BlogPostData }> {
   return request(`/blog-posts/${slug}`);
+}
+
+export async function fetchAdminBlogPosts(): Promise<{ data: BlogPostData[] }> {
+  return request('/admin/blog-posts');
+}
+
+export async function swapBlogPostSortOrder(id: number, direction: 'up' | 'down'): Promise<{ data: BlogPostData }> {
+  return request(`/blog-posts/${id}/sort-order`, {
+    method: 'POST',
+    body: JSON.stringify({ direction }),
+  });
 }
 
 export async function createBlogPost(data: Partial<BlogPostData>): Promise<{ data: BlogPostData }> {

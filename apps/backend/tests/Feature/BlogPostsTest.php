@@ -12,7 +12,10 @@ class BlogPostsTest extends TestCase
 
     public function test_returns_blog_posts_with_data_envelope(): void
     {
-        BlogPost::factory()->count(3)->create();
+        BlogPost::factory()->count(3)->create([
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
 
         $response = $this->getJson('/api/blog-posts');
 
@@ -26,6 +29,7 @@ class BlogPostsTest extends TestCase
                     'excerpt',
                     'featured_image_url',
                     'is_published',
+                    'sort_order',
                     'published_at',
                     'created_at',
                     'updated_at',
@@ -43,11 +47,20 @@ class BlogPostsTest extends TestCase
         $response->assertJson(['data' => []]);
     }
 
-    public function test_returns_blog_posts_sorted_by_created_at_desc(): void
+    public function test_returns_blog_posts_sorted_by_published_at_desc(): void
     {
-        $old = BlogPost::factory()->create(['created_at' => now()->subDays(2)]);
-        $mid = BlogPost::factory()->create(['created_at' => now()->subDay()]);
-        $new = BlogPost::factory()->create(['created_at' => now()]);
+        $old = BlogPost::factory()->create([
+            'is_published' => true,
+            'published_at' => now()->subDays(2),
+        ]);
+        $mid = BlogPost::factory()->create([
+            'is_published' => true,
+            'published_at' => now()->subDay(),
+        ]);
+        $new = BlogPost::factory()->create([
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
 
         $response = $this->getJson('/api/blog-posts');
 
@@ -61,6 +74,8 @@ class BlogPostsTest extends TestCase
             'title' => 'Test Blog Post',
             'slug' => 'test-blog-post',
             'content' => 'Full content here.',
+            'is_published' => true,
+            'published_at' => now(),
         ]);
 
         $response = $this->getJson('/api/blog-posts/test-blog-post');
@@ -82,11 +97,125 @@ class BlogPostsTest extends TestCase
 
     public function test_index_response_does_not_include_content(): void
     {
-        BlogPost::factory()->create(['content' => 'Sensitive content']);
+        BlogPost::factory()->create([
+            'content' => 'Sensitive content',
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
 
         $response = $this->getJson('/api/blog-posts');
 
         $response->assertStatus(200);
         $response->assertJsonMissingPath('data.0.content');
+    }
+
+    public function test_public_index_filters_published_only(): void
+    {
+        BlogPost::factory()->create(['is_published' => true, 'published_at' => now()]);
+        BlogPost::factory()->create(['is_published' => false]);
+
+        $response = $this->getJson('/api/blog-posts');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+    }
+
+    public function test_admin_index_returns_all_posts(): void
+    {
+        BlogPost::factory()->create(['is_published' => true, 'published_at' => now()]);
+        BlogPost::factory()->create(['is_published' => false]);
+
+        $token = $this->getAdminToken();
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->getJson('/api/admin/blog-posts');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(2, 'data');
+    }
+
+    public function test_admin_index_requires_auth(): void
+    {
+        $response = $this->getJson('/api/admin/blog-posts');
+
+        $response->assertStatus(401);
+    }
+
+    public function test_store_sanitizes_content(): void
+    {
+        $token = $this->getAdminToken();
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->postJson('/api/blog-posts', [
+                'title' => 'XSS Test',
+                'slug' => 'xss-test',
+                'content' => '<p>Safe</p><script>alert("xss")</script>',
+            ]);
+
+        $response->assertStatus(201);
+        $post = BlogPost::where('slug', 'xss-test')->first();
+        $this->assertStringNotContainsString('<script>', $post->content);
+        $this->assertStringContainsString('<p>Safe</p>', $post->content);
+    }
+
+    public function test_update_sanitizes_content(): void
+    {
+        $post = BlogPost::factory()->create([
+            'content' => '<p>Original</p>',
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
+
+        $token = $this->getAdminToken();
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->putJson("/api/blog-posts/{$post->id}", [
+                'content' => '<p>Updated</p><iframe src="evil.com"></iframe>',
+            ]);
+
+        $response->assertStatus(200);
+        $post->refresh();
+        $this->assertStringNotContainsString('<iframe>', $post->content);
+        $this->assertStringContainsString('<p>Updated</p>', $post->content);
+    }
+
+    public function test_swap_sort_order(): void
+    {
+        $post1 = BlogPost::factory()->create(['sort_order' => 0, 'is_published' => true, 'published_at' => now()]);
+        $post2 = BlogPost::factory()->create(['sort_order' => 1, 'is_published' => true, 'published_at' => now()]);
+        $post3 = BlogPost::factory()->create(['sort_order' => 2, 'is_published' => true, 'published_at' => now()]);
+
+        $token = $this->getAdminToken();
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->postJson("/api/blog-posts/{$post1->id}/sort-order", ['direction' => 'down']);
+
+        $response->assertStatus(200);
+        $this->assertEquals(1, $post1->fresh()->sort_order);
+        $this->assertEquals(0, $post2->fresh()->sort_order);
+    }
+
+    public function test_swap_sort_order_rejects_invalid_direction(): void
+    {
+        $post = BlogPost::factory()->create(['sort_order' => 0, 'is_published' => true, 'published_at' => now()]);
+
+        $token = $this->getAdminToken();
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->postJson("/api/blog-posts/{$post->id}/sort-order", ['direction' => 'left']);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_swap_sort_order_first_item_cannot_go_up(): void
+    {
+        $post = BlogPost::factory()->create(['sort_order' => 0, 'is_published' => true, 'published_at' => now()]);
+
+        $token = $this->getAdminToken();
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->postJson("/api/blog-posts/{$post->id}/sort-order", ['direction' => 'up']);
+
+        $response->assertStatus(422);
+    }
+
+    private function getAdminToken(): string
+    {
+        $user = \App\Models\User::factory()->create();
+        return $user->createToken('admin-token')->plainTextToken;
     }
 }
