@@ -20,8 +20,8 @@ const navGroups = [
   {
     label: 'Leads',
     items: [
-      { href: '#', label: 'Messages', icon: Mail },
-      { href: '#', label: 'Subscribers', icon: Users },
+      { href: '/admin/messages', label: 'Messages', icon: Mail },
+      { href: '/admin/subscribers', label: 'Subscribers', icon: Users },
     ],
   },
   {
