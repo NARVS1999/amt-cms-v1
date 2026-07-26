@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Subscriber;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SubscribeRequest;
+use App\Http\Resources\Api\SubscriberResource;
 use App\Traits\ApiResponse;
 
 class SubscribeController extends Controller
@@ -30,5 +31,26 @@ class SubscribeController extends Controller
                 'subscribed_at' => $subscriber->subscribed_at?->toIso8601String(),
             ],
         ], 201);
+    }
+
+    /**
+     * Admin: list all subscribers, newest first.
+     */
+    public function adminIndex()
+    {
+        $subscribers = Subscriber::orderBy('created_at', 'desc')->get();
+
+        return $this->success(SubscriberResource::collection($subscribers));
+    }
+
+    /**
+     * Admin: delete a subscriber.
+     */
+    public function destroy($id)
+    {
+        $subscriber = Subscriber::findOrFail($id);
+        $subscriber->delete();
+
+        return $this->success(['message' => 'Deleted.']);
     }
 }

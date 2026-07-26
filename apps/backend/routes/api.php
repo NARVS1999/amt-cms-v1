@@ -110,6 +110,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Admin: Theme Settings
     Route::put('/admin/theme', [ThemeController::class, 'update']);
+
+    // Admin: Contact Messages
+    Route::get('/admin/messages', [ContactController::class, 'adminIndex']);
+    Route::put('/admin/messages/{id}/read', [ContactController::class, 'markAsRead']);
+    Route::delete('/admin/messages/{id}', [ContactController::class, 'destroy']);
+
+    // Admin: Subscribers
+    Route::get('/admin/subscribers', [SubscribeController::class, 'adminIndex']);
+    Route::delete('/admin/subscribers/{id}', [SubscribeController::class, 'destroy']);
 });
 
 // --- 404 fallback for unknown API routes ---
