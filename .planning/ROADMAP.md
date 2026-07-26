@@ -68,16 +68,33 @@ Plans:
 
 ### Phase 3: Blog System (P0)
 
-**Goal**: Blog post CRUD with rich text editing
-**Depends on**: Phase 1
+**Goal**: Blog post CRUD with rich text editing + public blog pages
+**Depends on**: Phase 1, 2
 **Requirements**: FR-3
 **Success Criteria** (what must be TRUE):
 
   1. Admin can create/edit/publish blog posts with Quill editor
   2. Blog posts have auto-generated slugs and featured images
-  3. Blog posts are available via public API
+  3. Public blog endpoint filters published-only, sorted by published_at desc
+  4. Admin endpoint returns all posts (drafts + published)
+  5. Content is sanitized via HTMLPurifier on save
+  6. Admin has sort controls, reading time, auto-save indicator
+  7. Public /blog listing page with responsive grid + pagination
+  8. Public /blog/[slug] single post page with SEO metadata
+  9. Homepage shows "Latest Insights" section with 3 blog cards
+  10. Blog link in header navigation
 
-**Plans**: TBD
+**Plans**: 0/3 plans executed
+
+Plans:
+
+- [ ] 03-02-PLAN.md
+- [ ] 03-03-PLAN.md
+- [ ] 03-PLAN.md
+
+- [x] 03-01: Tracer — Blog Admin API + Content Sanitization + Admin UX Polish
+- [ ] 03-02: Expansion — Public Blog Pages (Listing + Single Post + 404)
+- [ ] 03-03: Expansion — Homepage Latest Posts + Blog Nav Link + Final Polish
 
 ### Phase 4: Frontend Public Pages (P0)
 
@@ -140,7 +157,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1. Foundation | v1.0-alpha | 4/4 | Executed | - |
 | 2. Marketing Content Backend | v1.0-alpha | 3/3 | ✓ Complete | 2026-07-26 |
-| 3. Blog System | v1.0-beta | — | Not started | - |
+| 3. Blog System | v1.0-beta | 0/3 | Planned    |  |
 | 4. Frontend Public Pages | v1.0-beta | — | Not started | - |
 | 5. Contact & Lead Capture | v1.0-rc | — | Not started | - |
 | 6. Admin Panel | v1.0 | — | Not started | - |
