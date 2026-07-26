@@ -359,7 +359,10 @@ export async function deleteBlogPost(id: number): Promise<void> {
 
 export interface DashboardStats {
   services: number;
+  team_members: number;
   blog_posts: number;
+  pricing_plans: number;
+  pages: number;
   unread_messages: number;
   subscribers: number;
 }

@@ -44,7 +44,7 @@ export default function AdminDashboardPage() {
       <div>
         <h1 className="mb-6 text-2xl font-bold">Dashboard</h1>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3, 4, 5, 6, 7].map((i) => (
             <Card key={i}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm text-muted-foreground">&nbsp;</CardTitle>

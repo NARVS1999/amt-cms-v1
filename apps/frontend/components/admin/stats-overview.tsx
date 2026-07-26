@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Cog, FileText, Mail, Users } from 'lucide-react';
+import { Cog, DollarSign, File, FileText, Mail, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface StatCardProps {
@@ -36,7 +36,10 @@ function StatCard({ title, value, icon, colorClass, href }: StatCardProps) {
 
 export interface StatsData {
   services: number;
+  team_members: number;
   blog_posts: number;
+  pricing_plans: number;
+  pages: number;
   unread_messages: number;
   subscribers: number;
 }
@@ -51,11 +54,32 @@ export function StatsOverview({ stats }: { stats: StatsData }) {
       href: '/admin/services',
     },
     {
+      title: 'Team Members',
+      value: stats.team_members,
+      icon: <Users size={20} aria-hidden="true" />,
+      colorClass: 'bg-purple-500',
+      href: '/admin/team',
+    },
+    {
       title: 'Published Blog Posts',
       value: stats.blog_posts,
       icon: <FileText size={20} aria-hidden="true" />,
       colorClass: 'bg-blue-500',
       href: '/admin/blog-posts',
+    },
+    {
+      title: 'Pricing Plans',
+      value: stats.pricing_plans,
+      icon: <DollarSign size={20} aria-hidden="true" />,
+      colorClass: 'bg-cyan-500',
+      href: '/admin/pricing-plans',
+    },
+    {
+      title: 'Pages',
+      value: stats.pages,
+      icon: <File size={20} aria-hidden="true" />,
+      colorClass: 'bg-pink-500',
+      href: '/admin/pages',
     },
     {
       title: 'Unread Messages',
