@@ -112,7 +112,12 @@ Plans:
   2. Pricing table renders responsively with features, CTA, popular ribbon
   3. Public homepage, blog listing, single post, and 404 pages render
 
-**Plans**: TBD
+**Plans**: 2 plans (04-01, 04-02)
+
+Plans:
+
+- [x] 04-01: ThemeProvider fallback + PricingTable CTA + Contact section CTA
+- [x] 04-02: Suspense skeleton loaders + Full public site verification
 
 ### Phase 5: Contact & Lead Capture (P0)
 
@@ -164,7 +169,7 @@ Plans:
 | 1.1. Loading & Progress UI | v1.0-alpha | 4/4 | ✓ Complete | 2026-07-26 |
 | 2. Marketing Content Backend | v1.0-alpha | 3/3 | Complete    | 2026-07-26 |
 | 3. Blog System | v1.0-beta | 4/4 | Complete    | 2026-07-26 |
-| 4. Frontend Public Pages | v1.0-beta | — | Not started | - |
+| 4. Frontend Public Pages | v1.0-beta | 2/2 | ✓ Complete | 2026-07-26 |
 | 5. Contact & Lead Capture | v1.0-rc | — | Not started | - |
 | 6. Admin Panel | v1.0 | — | Not started | - |
 | 7. Lead Management | v1.1 | — | Not started | - |

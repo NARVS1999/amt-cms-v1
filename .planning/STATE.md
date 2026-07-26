@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 03
-current_phase_name: P0
+current_phase: 04
+current_phase_name: Frontend Public Pages (P0)
 status: complete
-stopped_at: Phase 01.1 complete
-last_updated: "2026-07-26T14:22:50.922Z"
+stopped_at: Phase 04 complete
+last_updated: "2026-07-26T22:55:00.000Z"
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 13
-  completed_plans: 12
+  completed_plans: 14
 project: Adsvance Media Tech CMS
 version: v1.0
 created: 2026-07-23
@@ -21,9 +21,9 @@ created: 2026-07-23
 
 ## Current Status
 
-- **Phase:** 03 — Blog System (P0)
+- **Phase:** 04 — Frontend Public Pages (P0) — COMPLETE
 - **Codebase map:** Complete (7 documents in `.planning/codebase/`)
-- **Plans executed:** 4/4 (Phase 01.1)
+- **Plans executed:** 14 total across 4 phases
 
 ## Phase 01.1 Artifacts
 
@@ -53,14 +53,29 @@ created: 2026-07-23
 | Plan 02-02: Sort Order + Toast + Form Validation | ✓ Complete | `.planning/phases/02-marketing-content-backend-p0/02-02-SUMMARY.md` |
 | Plan 02-03: Social Links + Polish Audit | ✓ Complete | `.planning/phases/02-marketing-content-backend-p0/02-03-SUMMARY.md` |
 
+## Phase 3 Artifacts
+
+| Artifact | Status | Path |
+|----------|--------|------|
+| Plan 03-01: Blog Admin API + Content Sanitization | ✓ Complete | `.planning/phases/03-blog-system-p0/03-01-SUMMARY.md` |
+| Plan 03-02: Public Blog Pages | ✓ Complete | `.planning/phases/03-blog-system-p0/03-02-SUMMARY.md` |
+| Plan 03-03: Homepage Latest Posts + Blog Nav | ✓ Complete | `.planning/phases/03-blog-system-p0/03-03-SUMMARY.md` |
+
+## Phase 4 Artifacts
+
+| Artifact | Status | Path |
+|----------|--------|------|
+| Plan 04-01: ThemeProvider Fallback + PricingTable CTA + Contact CTA | ✓ Complete | `.planning/phases/4-frontend-public-pages-p0/04-01-SUMMARY.md` |
+| Plan 04-02: Suspense Skeleton Loaders + Full Site Verification | ✓ Complete | `.planning/phases/4-frontend-public-pages-p0/04-02-SUMMARY.md` |
+
 ## Next Action
 
-Phase 01.1 complete. Ready to proceed to next phase.
+Phase 04 complete. Ready to proceed to Phase 05 (Contact & Lead Capture).
 
 ## Session
 
-**Last session:** 2026-07-26T21:45:00.000Z
-**Stopped at:** Phase 01.1 complete
+**Last session:** 2026-07-26T22:55:00.000Z
+**Stopped at:** Phase 04 complete
 **Resume file:** None
 
 ## Accumulated Context
@@ -69,3 +84,5 @@ Phase 01.1 complete. Ready to proceed to next phase.
 
 - Phase 01.1 inserted after Phase 1: Loading and progress UI (URGENT) — COMPLETE
 - Phase 2 complete: Marketing Content Backend — services, team, pricing, pages CRUD + photo upload + reorder + toasts + validation
+- Phase 3 complete: Blog System — blog CRUD with Quill editor, public blog pages, homepage latest posts
+- Phase 4 complete: Frontend Public Pages — ThemeProvider fallback, PricingTable CTA, Suspense skeleton loaders, full SSG verification
