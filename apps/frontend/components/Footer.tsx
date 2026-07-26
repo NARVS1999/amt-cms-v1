@@ -1,6 +1,78 @@
 'use client';
 
+import { useState, useEffect, type FormEvent } from 'react';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
 export function Footer() {
+  const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [duplicate, setDuplicate] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Auto-dismiss feedback after 5 seconds
+  useEffect(() => {
+    if (success || duplicate || error) {
+      const timer = setTimeout(() => {
+        setSuccess(false);
+        setDuplicate(false);
+        setError(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, duplicate, error]);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
+    setDuplicate(false);
+
+    // Basic client-side validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !emailRegex.test(email)) {
+      setError('Please provide a valid email address.');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const res = await fetch(`${API_URL}/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      if (res.status === 201) {
+        setSuccess(true);
+        setEmail('');
+        return;
+      }
+
+      if (res.status === 422) {
+        const data = await res.json();
+        if (data.errors?.email?.some((msg: string) => msg.includes('already subscribed'))) {
+          setDuplicate(true);
+        } else {
+          setError(data.message || 'Please check your email and try again.');
+        }
+        return;
+      }
+
+      if (res.status === 429) {
+        setError('Too many attempts. Try again in a minute.');
+        return;
+      }
+
+      setError('Could not subscribe. Please try again.');
+    } catch {
+      setError('Could not subscribe. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
   return (
     <footer style={{ background: 'var(--color-footer-bg)', color: 'var(--color-footer-text)' }}>
       <div className="mx-auto max-w-7xl px-6 py-16">
@@ -58,22 +130,43 @@ export function Footer() {
             <label htmlFor="newsletter-email" className="mb-2 block text-sm font-medium text-white">
               Subscribe to our newsletter
             </label>
-            <div className="flex gap-2">
+            <form onSubmit={handleSubmit} className="flex gap-2">
               <input
                 id="newsletter-email"
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="flex-1 rounded-lg px-4 py-2.5 text-sm outline-none"
+                disabled={submitting}
+                className="flex-1 rounded-lg px-4 py-2.5 text-sm outline-none disabled:opacity-50"
                 style={{ background: 'var(--color-muted)', color: 'var(--color-foreground)' }}
               />
               <button
-                type="button"
-                className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                type="submit"
+                disabled={submitting}
+                className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
                 style={{ background: 'var(--color-primary)' }}
               >
-                Subscribe
+                {submitting ? '...' : 'Subscribe'}
               </button>
-            </div>
+            </form>
+
+            {/* Feedback Messages */}
+            {success && (
+              <p className="mt-2 text-sm" style={{ color: 'var(--color-success)' }}>
+                Subscribed!
+              </p>
+            )}
+            {duplicate && (
+              <p className="mt-2 text-sm" style={{ color: '#f59e0b' }}>
+                Already subscribed.
+              </p>
+            )}
+            {error && (
+              <p className="mt-2 text-sm" style={{ color: 'var(--color-error)' }}>
+                {error}
+              </p>
+            )}
           </div>
 
           {/* Social Icons */}
