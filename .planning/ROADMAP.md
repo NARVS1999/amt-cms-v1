@@ -84,11 +84,11 @@ Plans:
   9. Homepage shows "Latest Insights" section with 3 blog cards
   10. Blog link in header navigation
 
-**Plans**: 0/3 plans executed
+**Plans**: 1/3 plans executed
 
 Plans:
 
-- [ ] 03-02-PLAN.md
+- [x] 03-02-PLAN.md
 - [ ] 03-03-PLAN.md
 - [ ] 03-PLAN.md
 
@@ -157,7 +157,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1. Foundation | v1.0-alpha | 4/4 | Executed | - |
 | 2. Marketing Content Backend | v1.0-alpha | 3/3 | ✓ Complete | 2026-07-26 |
-| 3. Blog System | v1.0-beta | 0/3 | Planned    |  |
+| 3. Blog System | v1.0-beta | 1/3 | In Progress|  |
 | 4. Frontend Public Pages | v1.0-beta | — | Not started | - |
 | 5. Contact & Lead Capture | v1.0-rc | — | Not started | - |
 | 6. Admin Panel | v1.0 | — | Not started | - |
