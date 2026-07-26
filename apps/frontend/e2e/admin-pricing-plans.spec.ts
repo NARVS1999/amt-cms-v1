@@ -82,7 +82,7 @@ test.describe('Admin Pricing Plans Page — Phase 2 Features', () => {
     await page.getByRole('button', { name: /del/i }).click();
     const dialog = page.getByRole('alertdialog');
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByText(/starter plan/i)).toBeVisible();
+    await expect(dialog.getByRole('heading', { name: /starter plan/i })).toBeVisible();
     await expect(dialog.getByText(/cannot be undone/i)).toBeVisible();
   });
 
