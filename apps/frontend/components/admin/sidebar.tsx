@@ -27,7 +27,7 @@ const navGroups = [
   {
     label: 'Settings',
     items: [
-      { href: '#', label: 'Theme', icon: Paintbrush },
+      { href: '/admin/settings/theme', label: 'Theme', icon: Paintbrush },
       { href: '/admin/media', label: 'Media Library', icon: Image },
       { href: '/admin/pages', label: 'Pages', icon: File },
     ],

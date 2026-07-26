@@ -367,3 +367,28 @@ export interface DashboardStats {
 export async function fetchAdminStats(): Promise<DashboardStats> {
   return request('/admin/stats');
 }
+
+/* ─── Theme Settings ─── */
+
+export interface ThemeSettingsData {
+  primary_color?: string;
+  secondary_color?: string;
+  accent_color?: string;
+  background_color?: string;
+  foreground_color?: string;
+  muted_color?: string;
+  muted_foreground_color?: string;
+  border_color?: string;
+  success_color?: string;
+  error_color?: string;
+  body_font?: string;
+  heading_font?: string;
+}
+
+export async function fetchThemeSettings(): Promise<{ data: ThemeSettingsData }> {
+  return request('/admin/theme');
+}
+
+export async function updateThemeSettings(data: Partial<ThemeSettingsData>): Promise<{ data: ThemeSettingsData }> {
+  return request('/admin/theme', { method: 'PUT', body: JSON.stringify(data) });
+}
