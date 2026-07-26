@@ -213,6 +213,75 @@ class BlogPostsTest extends TestCase
         $response->assertStatus(422);
     }
 
+    public function test_public_blog_posts_sorted_by_published_at_desc(): void
+    {
+        $old = BlogPost::factory()->create([
+            'is_published' => true,
+            'published_at' => now()->subDays(3),
+        ]);
+        $new = BlogPost::factory()->create([
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
+
+        $response = $this->getJson('/api/blog-posts');
+
+        $ids = $response->json('data.*.id');
+        $this->assertEquals([$new->id, $old->id], $ids);
+    }
+
+    public function test_admin_blog_posts_sorted_by_sort_order(): void
+    {
+        $post1 = BlogPost::factory()->create(['sort_order' => 2, 'is_published' => true, 'published_at' => now()]);
+        $post2 = BlogPost::factory()->create(['sort_order' => 0, 'is_published' => true, 'published_at' => now()]);
+        $post3 = BlogPost::factory()->create(['sort_order' => 1, 'is_published' => true, 'published_at' => now()]);
+
+        $token = $this->getAdminToken();
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->getJson('/api/admin/blog-posts');
+
+        $ids = $response->json('data.*.id');
+        $this->assertEquals([$post2->id, $post3->id, $post1->id], $ids);
+    }
+
+    public function test_public_blog_post_by_slug_returns_content(): void
+    {
+        $post = BlogPost::factory()->create([
+            'slug' => 'content-test',
+            'content' => '<p>Full article content here.</p>',
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
+
+        $response = $this->getJson('/api/blog-posts/content-test');
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.content', '<p>Full article content here.</p>');
+    }
+
+    public function test_public_blog_post_by_nonexistent_slug_returns_404(): void
+    {
+        $response = $this->getJson('/api/blog-posts/this-does-not-exist');
+
+        $response->assertStatus(404);
+    }
+
+    public function test_store_sets_published_at_on_publish(): void
+    {
+        $token = $this->getAdminToken();
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->postJson('/api/blog-posts', [
+                'title' => 'Auto Date',
+                'slug' => 'auto-date',
+                'content' => '<p>Content</p>',
+                'is_published' => true,
+            ]);
+
+        $response->assertStatus(201);
+        $post = BlogPost::where('slug', 'auto-date')->first();
+        $this->assertNotNull($post->published_at);
+    }
+
     private function getAdminToken(): string
     {
         $user = \App\Models\User::factory()->create();

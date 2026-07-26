@@ -1,4 +1,5 @@
 import { PageRenderer } from '@/components/PageRenderer';
+import { LatestPosts } from '@/components/LatestPosts';
 import { PricingTable } from '@/components/PricingTable';
 import { ServicesGrid } from '@/components/ServicesGrid';
 import { TeamGrid } from '@/components/TeamGrid';
@@ -28,26 +29,7 @@ export default function HomePage() {
 
       <PricingTable />
 
-      {/* Blog Section */}
-      <section id="blog" className="py-20" style={{ background: 'var(--color-muted)' }}>
-        <div className="mx-auto max-w-7xl px-6">
-          <h2 className="text-3xl font-bold text-center" style={{ color: 'var(--color-foreground)' }}>
-            Latest Insights
-          </h2>
-          <p className="mt-4 text-center" style={{ color: 'var(--color-muted-foreground)' }}>
-            Tips, guides, and industry updates
-          </p>
-          <div className="mt-8 text-center">
-            <a
-              href="/blog"
-              className="inline-flex items-center font-semibold transition-opacity hover:opacity-80"
-              style={{ color: 'var(--color-primary)' }}
-            >
-              View All Posts <i className="fa-solid fa-arrow-right ml-2" />
-            </a>
-          </div>
-        </div>
-      </section>
+      <LatestPosts />
 
       {/* Contact Section */}
       <section id="contact" className="py-20">
