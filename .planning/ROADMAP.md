@@ -84,16 +84,16 @@ Plans:
   9. Homepage shows "Latest Insights" section with 3 blog cards
   10. Blog link in header navigation
 
-**Plans**: 1/3 plans executed
+**Plans**: 2/3 plans executed
 
 Plans:
 
 - [x] 03-02-PLAN.md
-- [ ] 03-03-PLAN.md
+- [x] 03-03-PLAN.md
 - [ ] 03-PLAN.md
 
 - [x] 03-01: Tracer — Blog Admin API + Content Sanitization + Admin UX Polish
-- [ ] 03-02: Expansion — Public Blog Pages (Listing + Single Post + 404)
+- [x] 03-02: Expansion — Public Blog Pages (Listing + Single Post + 404)
 - [ ] 03-03: Expansion — Homepage Latest Posts + Blog Nav Link + Final Polish
 
 ### Phase 4: Frontend Public Pages (P0)
@@ -157,7 +157,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1. Foundation | v1.0-alpha | 4/4 | Executed | - |
 | 2. Marketing Content Backend | v1.0-alpha | 3/3 | ✓ Complete | 2026-07-26 |
-| 3. Blog System | v1.0-beta | 1/3 | In Progress|  |
+| 3. Blog System | v1.0-beta | 2/3 | In Progress|  |
 | 4. Frontend Public Pages | v1.0-beta | — | Not started | - |
 | 5. Contact & Lead Capture | v1.0-rc | — | Not started | - |
 | 6. Admin Panel | v1.0 | — | Not started | - |
