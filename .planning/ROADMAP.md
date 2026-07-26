@@ -37,14 +37,17 @@ Plans:
 
 ### Phase 01.1: Loading and progress UI (INSERTED)
 
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
+**Goal:** Add loading states, page transition indicators, and validation progress feedback across the admin panel
+**Requirements**: NFR-1, FR-1, FR-2, FR-3, FR-4, FR-5, FR-13, FR-14
 **Depends on:** Phase 1
-**Plans:** 0 plans
+**Plans:** 4 plans (01.1-01, 01.1-02, 01.1-03, 01.1-04)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 01.1 to break down)
+- [x] 01.1-01: Core Loading Components (Skeleton, Spinner, Progress)
+- [x] 01.1-02: Toast Notification System
+- [x] 01.1-03: Page Transition Overlay (RouteChangeLoader)
+- [x] 01.1-04: Form Feedback & Page Integration
 
 ### Phase 2: Marketing Content Backend (P0)
 
@@ -158,6 +161,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Foundation | v1.0-alpha | 1/1 | Complete    | 2026-07-26 |
+| 1.1. Loading & Progress UI | v1.0-alpha | 4/4 | ✓ Complete | 2026-07-26 |
 | 2. Marketing Content Backend | v1.0-alpha | 3/3 | ✓ Complete | 2026-07-26 |
 | 3. Blog System | v1.0-beta | 4/4 | Complete    | 2026-07-26 |
 | 4. Frontend Public Pages | v1.0-beta | — | Not started | - |
