@@ -1,4 +1,4 @@
-import { PagesResponseSchema, PricingPlansResponseSchema, ServicesResponseSchema, TeamMembersResponseSchema } from '@amt/shared';
+import { PagesResponseSchema, PricingPlansResponseSchema, ServicesResponseSchema, TeamMembersResponseSchema, BlogPostsResponseSchema, BlogPostResponseSchema } from '@amt/shared';
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
@@ -165,6 +165,57 @@ export async function fetchTheme(): Promise<ThemeData | null> {
     }
 
     return json.data as ThemeData;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export interface BlogPostData {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string | null;
+  featured_image_url: string | null;
+  published_at: string | null;
+  is_published: boolean;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export async function fetchBlogPosts(): Promise<BlogPostData[]> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const res = await fetch(`${API_URL}/blog-posts?sort=-published_at&per_page=15`, {
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`API returned ${res.status}`);
+    const json = await res.json();
+    const parsed = BlogPostsResponseSchema.parse(json);
+    return parsed.data;
+  } catch {
+    return [];
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function fetchBlogPost(slug: string): Promise<BlogPostData | null> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const res = await fetch(`${API_URL}/blog-posts/${slug}`, {
+      signal: controller.signal,
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const parsed = BlogPostResponseSchema.parse(json);
+    return parsed.data;
   } catch {
     return null;
   } finally {
