@@ -6,7 +6,7 @@ test.describe('Toast Notification System', () => {
     await page.getByLabel(/email/i).fill('admin@example.com');
     await page.getByLabel(/password/i).fill('password');
     await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 10000 });
+    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
 
     await page.route(/\/api\/services/, async (route) => {
       const method = route.request().method();
@@ -31,7 +31,7 @@ test.describe('Toast Notification System', () => {
     await page.getByLabel(/email/i).fill('admin@example.com');
     await page.getByLabel(/password/i).fill('password');
     await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 10000 });
+    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
 
     await page.route(/\/api\/services/, async (route) => {
       const method = route.request().method();

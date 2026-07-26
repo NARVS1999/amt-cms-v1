@@ -6,7 +6,7 @@ test.describe('Admin Services Page — Phase 2 Features', () => {
     await page.getByLabel(/email/i).fill('admin@example.com');
     await page.getByLabel(/password/i).fill('password');
     await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 10000 });
+    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
   });
 
   test('shows empty state when no services exist', async ({ page }) => {

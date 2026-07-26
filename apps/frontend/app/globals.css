@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@fortawesome/fontawesome-free/css/all.css";
+@plugin "@tailwindcss/typography";
 
 @theme {
   /* Breakpoints — align lg with spec's 992px desktop threshold */

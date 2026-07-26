@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { BlogCard } from '@/components/BlogCard';
+import { Skeleton } from '@/components/ui/skeleton';
 import { BlogPostData, fetchBlogPosts } from '@/lib/api';
 
 const POSTS_PER_PAGE = 6;
@@ -33,8 +34,17 @@ export default function BlogPage() {
         </p>
 
         {loading ? (
-          <div className="mt-12 text-center" style={{ color: 'var(--color-muted-foreground)' }}>
-            Loading posts...
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-xl border border-[var(--color-border)] bg-white shadow-sm overflow-hidden">
+                <Skeleton className="w-full aspect-video rounded-none" />
+                <div className="p-5 space-y-3">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : posts.length === 0 ? (
           <div className="mt-12 text-center" style={{ color: 'var(--color-muted-foreground)' }}>

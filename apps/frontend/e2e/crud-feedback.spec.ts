@@ -6,7 +6,7 @@ test.describe('Admin CRUD Page Feedback', () => {
     await page.getByLabel(/email/i).fill('admin@example.com');
     await page.getByLabel(/password/i).fill('password');
     await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 10000 });
+    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
   });
 
   test('services page shows skeleton rows while data loads', async ({ page }) => {

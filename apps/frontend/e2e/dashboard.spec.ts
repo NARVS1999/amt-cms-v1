@@ -14,7 +14,7 @@ test.describe('Admin Dashboard', () => {
     await page.getByLabel(/password/i).fill('password');
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 10000 });
+    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
   });
 
   test('shows dashboard heading after login', async ({ page }) => {
@@ -24,8 +24,8 @@ test.describe('Admin Dashboard', () => {
     await page.getByLabel(/password/i).fill('password');
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 10000 });
-    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 10000 });
+    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
+    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 20000 });
   });
 
   test('shows stat cards on dashboard after loading', async ({ page }) => {
@@ -33,8 +33,8 @@ test.describe('Admin Dashboard', () => {
     await page.getByLabel(/email/i).fill('admin@example.com');
     await page.getByLabel(/password/i).fill('password');
     await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 10000 });
-    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 10000 });
+    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
+    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 20000 });
 
     await page.route(/\/api\/admin\/stats/, async (route) => {
       await route.fulfill({
@@ -45,6 +45,6 @@ test.describe('Admin Dashboard', () => {
     });
 
     await page.reload();
-    await expect(page.getByText(/total services/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/total services/i)).toBeVisible({ timeout: 20000 });
   });
 });

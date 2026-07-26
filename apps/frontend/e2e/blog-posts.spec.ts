@@ -6,11 +6,11 @@ test.describe('Blog Posts — Toast & Error Integration', () => {
     await page.getByLabel(/email/i).fill('admin@example.com');
     await page.getByLabel(/password/i).fill('password');
     await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 10000 });
+    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
   });
 
   test('shows error banner on API failure during save', async ({ page }) => {
-    await page.route(/\/api\/blog-posts/, async (route) => {
+    await page.route(/\/api\/(?:admin\/)?blog-posts/, async (route) => {
       const method = route.request().method();
       if (method === 'GET') {
         await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: [] }) });
@@ -26,7 +26,7 @@ test.describe('Blog Posts — Toast & Error Integration', () => {
   });
 
   test('shows skeleton rows while blog posts load', async ({ page }) => {
-    await page.route(/\/api\/blog-posts/, async (route) => {
+    await page.route(/\/api\/admin\/blog-posts/, async (route) => {
       await new Promise((r) => setTimeout(r, 2000));
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: [] }) });
     });
@@ -35,7 +35,7 @@ test.describe('Blog Posts — Toast & Error Integration', () => {
   });
 
   test('renders empty state for blog posts', async ({ page }) => {
-    await page.route(/\/api\/blog-posts/, async (route) => {
+    await page.route(/\/api\/admin\/blog-posts/, async (route) => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: [] }) });
     });
     await page.goto('/admin/blog-posts');

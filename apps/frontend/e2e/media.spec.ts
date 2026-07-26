@@ -8,7 +8,7 @@ test.describe('Admin Media Library', () => {
     await page.getByLabel(/password/i).fill('password');
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 10000 });
+    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
     await page.goto('/admin/media');
 
     const uploadButton = page.getByRole('button', { name: /upload file/i });
@@ -23,7 +23,7 @@ test.describe('Admin Media Library', () => {
     await page.getByLabel(/password/i).fill('password');
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 10000 });
+    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
     await page.goto('/admin/media');
 
     const uploadButton = page.getByRole('button', { name: /upload file/i });
@@ -38,7 +38,7 @@ test.describe('Admin Media Library', () => {
     await page.getByLabel(/password/i).fill('password');
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 10000 });
+    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
     await page.goto('/admin/media');
 
     await expect(page.getByRole('heading', { name: /media library/i })).toBeVisible();

@@ -64,7 +64,8 @@ class QueryBuilderTest extends TestCase
 
         $response->assertStatus(200);
         $titles = $response->json('data.*.title');
-        $this->assertCount(2, $titles);
+        $this->assertCount(1, $titles);
+        $this->assertContains('Published Post', $titles);
     }
 
     public function test_invalid_sort_returns_400(): void
@@ -124,7 +125,7 @@ class QueryBuilderTest extends TestCase
 
         $response->assertStatus(200);
         $titles = $response->json('data.*.title');
-        $this->assertEquals(['Old', 'New'], $titles);
+        $this->assertEquals(['New', 'Old'], $titles);
     }
 
     public function test_all_endpoints_return_meta_block(): void

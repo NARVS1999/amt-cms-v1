@@ -369,6 +369,7 @@ export default function AdminBlogPostsPage() {
                           className="p-0.5 rounded hover:bg-muted disabled:opacity-30"
                           disabled={idx === 0}
                           onClick={() => handleSwapSort(post.id, 'up')}
+                          aria-label="Move up"
                         >
                           <ChevronUp size={14} />
                         </button>
@@ -376,6 +377,7 @@ export default function AdminBlogPostsPage() {
                           className="p-0.5 rounded hover:bg-muted disabled:opacity-30"
                           disabled={idx === posts.length - 1}
                           onClick={() => handleSwapSort(post.id, 'down')}
+                          aria-label="Move down"
                         >
                           <ChevronDown size={14} />
                         </button>
@@ -444,8 +446,9 @@ export default function AdminBlogPostsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Excerpt</Label>
+                  <Label htmlFor="excerpt">Excerpt</Label>
                   <textarea
+                    id="excerpt"
                     className="flex h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"
                     value={editing.excerpt || ''}
                     onChange={(e) => handleExcerptChange(e.target.value)}

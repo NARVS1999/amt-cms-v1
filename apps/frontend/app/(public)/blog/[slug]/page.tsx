@@ -57,7 +57,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </Link>
 
         {post.featured_image_url && (
-          <div className="w-full aspect-video rounded-xl overflow-hidden mb-8">
+          <div className="w-full aspect-video rounded-xl overflow-hidden mb-8 max-h-[480px]">
             <img
               src={post.featured_image_url}
               alt={post.title}
