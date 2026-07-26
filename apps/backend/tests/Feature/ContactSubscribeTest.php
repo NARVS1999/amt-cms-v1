@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\SendContactNotificationJob;
 use App\Models\ContactMessage;
 use App\Models\Service;
 use App\Models\Subscriber;
@@ -9,6 +10,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class ContactSubscribeTest extends TestCase
@@ -325,5 +327,52 @@ class ContactSubscribeTest extends TestCase
 
         $allowed = $response->headers->get('Access-Control-Allow-Origin');
         $this->assertNotEquals('https://evil.com', $allowed, 'CORS should not allow evil.com');
+    }
+
+    // =========================================================================
+    // Email Notification Tests  (Task 05-01, Task 2)
+    // =========================================================================
+
+    /**
+     * Contact submission dispatches email notification job.
+     */
+    public function test_contact_submission_dispatches_email_notification_job(): void
+    {
+        Queue::fake();
+
+        $response = $this->postJson('/api/contact', [
+            'name' => 'Maria Santos',
+            'email' => 'maria@example.com',
+            'message' => 'I would like to discuss a project.',
+        ]);
+
+        $response->assertStatus(201);
+
+        // Assert the job was dispatched
+        Queue::assertPushed(SendContactNotificationJob::class, function ($job) {
+            return $job->contactMessage->email === 'maria@example.com';
+        });
+    }
+
+    /**
+     * Contact message is stored even if email notification fails (AD-7 invariant).
+     */
+    public function test_contact_submission_stores_message_regardless_of_email_failure(): void
+    {
+        Queue::fake();
+
+        $response = $this->postJson('/api/contact', [
+            'name' => 'Maria Santos',
+            'email' => 'maria@example.com',
+            'message' => 'I would like to discuss a project.',
+        ]);
+
+        $response->assertStatus(201);
+
+        // Verify contact message exists in database
+        $this->assertDatabaseHas('contact_contact_messages', [
+            'name' => 'Maria Santos',
+            'email' => 'maria@example.com',
+        ]);
     }
 }
