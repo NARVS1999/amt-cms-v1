@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Toast Notification System', () => {
-  test('shows success and error toasts with correct behavior', async ({ page }) => {
+  test('shows success toast on save', async ({ page }) => {
     await page.goto('/admin/login');
     await page.getByLabel(/email/i).fill('admin@example.com');
     await page.getByLabel(/password/i).fill('password');
@@ -22,8 +22,8 @@ test.describe('Toast Notification System', () => {
     await page.getByRole('button', { name: /new service/i }).click();
     await page.getByRole('textbox').first().fill('Toast Test');
     await page.getByRole('button', { name: /save/i }).click();
-    const successToast = page.getByRole('status').filter({ hasText: /created/i });
-    await expect(successToast).toBeVisible({ timeout: 5000 });
+    const toast = page.getByRole('status').filter({ hasText: /created/i });
+    await expect(toast).toBeVisible({ timeout: 5000 });
   });
 
   test('shows error toast on API failure', async ({ page }) => {
@@ -45,8 +45,8 @@ test.describe('Toast Notification System', () => {
     await page.getByRole('button', { name: /new service/i }).click();
     await page.getByRole('textbox').first().fill('Failing Service');
     await page.getByRole('button', { name: /save/i }).click();
-    const errorToast = page.getByRole('status').filter({ hasText: /save failed/i });
-    await expect(errorToast).toBeVisible({ timeout: 5000 });
-    await expect(errorToast.getByRole('button', { name: /dismiss/i })).toBeVisible();
+    const toast = page.getByRole('status').filter({ hasText: /save failed/i });
+    await expect(toast).toBeVisible({ timeout: 5000 });
+    await expect(toast.getByRole('button', { name: /dismiss/i })).toBeVisible();
   });
 });
