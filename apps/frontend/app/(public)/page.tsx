@@ -31,7 +31,7 @@ export default function HomePage() {
 
       <LatestPosts />
 
-      {/* Contact Section */}
+      {/* Contact Section — CTA link to /contact (D-06) */}
       <section id="contact" className="py-20">
         <div className="mx-auto max-w-2xl px-6 text-center">
           <h2 className="text-3xl font-bold" style={{ color: 'var(--color-foreground)' }}>
@@ -40,9 +40,13 @@ export default function HomePage() {
           <p className="mt-4" style={{ color: 'var(--color-muted-foreground)' }}>
             Ready to grow your business? Let&apos;s talk.
           </p>
-          <p className="mt-8 text-sm" style={{ color: 'var(--color-muted-foreground)' }}>
-            Contact form and detailed information coming soon.
-          </p>
+          <a
+            href="/contact"
+            className="mt-8 inline-block rounded-lg px-8 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            style={{ background: 'var(--color-primary)' }}
+          >
+            Contact Us
+          </a>
         </div>
       </section>
     </>

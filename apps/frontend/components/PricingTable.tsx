@@ -94,7 +94,7 @@ function PricingCard({
       )}
 
       <a
-        href="#contact"
+        href="/contact"
         className="mt-8 inline-block rounded-lg px-8 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
         style={{ background: 'var(--color-primary)' }}
       >
