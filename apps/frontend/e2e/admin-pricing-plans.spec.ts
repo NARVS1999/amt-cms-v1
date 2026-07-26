@@ -88,9 +88,10 @@ test.describe('Admin Pricing Plans Page — Phase 2 Features', () => {
 
   test('sort up/down reorders rows', async ({ page }) => {
     let reorderCalled = false;
-    await page.route(/\/api\/admin\/pricing-plans/, async (route) => {
+    await page.route(/\/api\/(admin\/)?pricing-plans/, async (route) => {
       const method = route.request().method();
-      if (method === 'GET') {
+      const url = route.request().url();
+      if (method === 'GET' && !url.includes('/reorder')) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -101,7 +102,7 @@ test.describe('Admin Pricing Plans Page — Phase 2 Features', () => {
             ],
           }),
         });
-      } else if (route.request().url().includes('/reorder')) {
+      } else if (url.includes('/reorder')) {
         reorderCalled = true;
         await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { message: 'Reordered.' } }) });
       } else {
