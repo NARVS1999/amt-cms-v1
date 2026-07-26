@@ -107,6 +107,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/media', [MediaController::class, 'index']);
     Route::post('/media', [MediaController::class, 'store']);
     Route::delete('/media/{media}', [MediaController::class, 'destroy']);
+
+    // Admin: Theme Settings
+    Route::put('/admin/theme', [ThemeController::class, 'update']);
 });
 
 // --- 404 fallback for unknown API routes ---
