@@ -126,7 +126,8 @@ class BlogPostController extends Controller
         $currentOrder = $blogPost->sort_order;
 
         $neighbor = BlogPost::where('sort_order', $direction === -1
-            ? '<' : '>', $currentOrder)
+            ? '<=' : '>=', $currentOrder)
+            ->where('id', '!=', $blogPost->id)
             ->orderBy('sort_order', $direction === -1 ? 'desc' : 'asc')
             ->first();
 
