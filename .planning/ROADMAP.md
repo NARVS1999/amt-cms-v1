@@ -175,8 +175,8 @@ Plans:
 **Plans**: 2 plans (07-01, 07-02)
 
 Plans:
-- [ ] 07-01: Backend Admin API — Messages list/read-toggle/delete + Subscribers list/delete endpoints + feature tests
-- [ ] 07-02: Frontend Admin Pages — Messages table + detail modal + Subscribers table + sidebar navigation wiring
+- [x] 07-01: Backend Admin API — Messages list/read-toggle/delete + Subscribers list/delete endpoints + feature tests
+- [x] 07-02: Frontend Admin Pages — Messages table + detail modal + Subscribers table + sidebar navigation wiring
 
 ## Progress
 
@@ -188,5 +188,5 @@ Plans:
 | 3. Blog System | v1.0-beta | 4/4 | Complete    | 2026-07-26 |
 | 4. Frontend Public Pages | v1.0-beta | 2/2 | ✓ Complete | 2026-07-26 |
 | 5. Contact & Lead Capture | v1.0-rc | 2/2 | ✓ Complete | 2026-07-26 |
-| 6. Admin Panel | v1.0 | 1/2 | In Progress|  |
-| 7. Lead Management | v1.1 | — | Not started | - |
+| 6. Admin Panel | v1.0 | 2/2 | ✓ Complete | 2026-07-26 |
+| 7. Lead Management | v1.1 | 2/2 | ✓ Complete | 2026-07-27 |
