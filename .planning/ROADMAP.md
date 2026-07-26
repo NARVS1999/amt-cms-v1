@@ -172,7 +172,11 @@ Plans:
   1. Admin can view, mark as read, and delete contact submissions
   2. Admin can view and manage newsletter subscribers
 
-**Plans**: TBD
+**Plans**: 2 plans (07-01, 07-02)
+
+Plans:
+- [ ] 07-01: Backend Admin API — Messages list/read-toggle/delete + Subscribers list/delete endpoints + feature tests
+- [ ] 07-02: Frontend Admin Pages — Messages table + detail modal + Subscribers table + sidebar navigation wiring
 
 ## Progress
 
