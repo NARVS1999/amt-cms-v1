@@ -5,6 +5,12 @@ import type { Metadata } from 'next';
 
 export async function generateStaticParams() {
   const posts = await fetchBlogPosts();
+  if (!posts.length) {
+    throw new Error(
+      'generateStaticParams() returned 0 blog posts. ' +
+      'Ensure the Laravel API is running and NEXT_PUBLIC_API_URL is correct.'
+    );
+  }
   return posts.map((post) => ({ slug: post.slug }));
 }
 
@@ -43,7 +49,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     ? new Date(post.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     : null;
 
-  const readingTime = calcReadingTime(post.content);
+  const readingTime = calcReadingTime(post.content || '');
 
   return (
     <article className="py-12" style={{ background: 'var(--color-background)' }}>
@@ -82,7 +88,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             color: 'var(--color-foreground)',
             lineHeight: '1.7',
           }}
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: post.content || '' }}
         />
       </div>
     </article>

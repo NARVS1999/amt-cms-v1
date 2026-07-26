@@ -154,6 +154,7 @@ class BlogPostController extends Controller
         $config = \HTMLPurifier_Config::createDefault();
         $config->set('HTML.Allowed', 'p,h2,h3,strong,em,ul,ol,li,a[href],img[src|alt],blockquote,code,pre');
         $config->set('Attr.AllowedFrameTargets', ['_blank']);
+        $config->set('URI.AllowedSchemes', ['http' => true, 'https' => true, 'mailto' => true, 'data' => true]);
         $purifier = new \HTMLPurifier($config);
         return $purifier->purify($content);
     }

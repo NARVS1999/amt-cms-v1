@@ -37,6 +37,15 @@ class BlogPost extends Model implements HasMedia
         'sort_order' => 'integer',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (BlogPost $post) {
+            if ($post->sort_order === null) {
+                $post->sort_order = static::max('sort_order') + 1;
+            }
+        });
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('featured_image')

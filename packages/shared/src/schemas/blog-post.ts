@@ -4,7 +4,7 @@ export const BlogPostSchema = z.object({
   id: z.number(),
   title: z.string(),
   slug: z.string(),
-  content: z.string(),
+  content: z.string().optional(),
   excerpt: z.string().nullable(),
   featured_image_url: z.string().nullable(),
   published_at: z.string().nullable(),

@@ -176,7 +176,7 @@ export interface BlogPostData {
   id: number;
   title: string;
   slug: string;
-  content: string;
+  content?: string;
   excerpt: string | null;
   featured_image_url: string | null;
   published_at: string | null;
@@ -197,8 +197,9 @@ export async function fetchBlogPosts(): Promise<BlogPostData[]> {
     const json = await res.json();
     const parsed = BlogPostsResponseSchema.parse(json);
     return parsed.data;
-  } catch {
-    return [];
+  } catch (error) {
+    console.error('Failed to fetch blog posts:', error);
+    throw error;
   } finally {
     clearTimeout(timeout);
   }
