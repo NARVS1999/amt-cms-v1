@@ -1,7 +1,7 @@
 ---
 phase: 03
 status: passed
-verified: "2026-07-26T11:15:00Z"
+verified: "2026-07-26T13:02:00Z"
 must_haves:
   - id: MH-1
     description: Admin can create/edit/publish blog posts with Quill editor
@@ -85,3 +85,18 @@ All 10 must-haves verified against codebase.
 - `LatestPosts.tsx` — homepage integration
 - `page.tsx` (homepage) — replaced static blog section
 - `composer.json` / `composer.lock` — ezyang/htmlpurifier
+
+## Gap Closure (Plan 03-04)
+
+All 6 UAT gaps closed on 2026-07-26:
+
+| Gap | Severity | Fix | Status |
+|-----|----------|-----|--------|
+| G-03-1 | major | HTMLPurifier data: URI support | Fixed |
+| G-03-3 | major | BlogPost sort_order auto-increment | Already implemented |
+| G-03-4 | major | Zod content optional | Fixed |
+| G-03-4b | major | Home link href to / | Fixed |
+| G-03-6 | blocker | generateStaticParams error handling | Fixed |
+| G-03-7 | minor | LatestPosts null check | Fixed |
+
+Commit: `72b294f` — fix(blog): close UAT gaps — data: URIs, sort_order, Zod content, home link, generateStaticParams
