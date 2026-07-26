@@ -395,3 +395,45 @@ export async function fetchThemeSettings(): Promise<{ data: ThemeSettingsData }>
 export async function updateThemeSettings(data: Partial<ThemeSettingsData>): Promise<{ data: ThemeSettingsData }> {
   return request('/admin/theme', { method: 'PUT', body: JSON.stringify(data) });
 }
+
+/* ─── Contact Messages (Admin) ─── */
+
+export interface MessageData {
+  id: number;
+  name: string;
+  email: string;
+  message: string;
+  read_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export async function fetchMessages(): Promise<{ data: MessageData[] }> {
+  return request('/admin/messages');
+}
+
+export async function markMessageRead(id: number): Promise<{ data: MessageData }> {
+  return request(`/admin/messages/${id}/read`, { method: 'PUT' });
+}
+
+export async function deleteMessage(id: number): Promise<void> {
+  await request(`/admin/messages/${id}`, { method: 'DELETE' });
+}
+
+/* ─── Subscribers (Admin) ─── */
+
+export interface SubscriberData {
+  id: number;
+  email: string;
+  subscribed_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export async function fetchSubscribers(): Promise<{ data: SubscriberData[] }> {
+  return request('/admin/subscribers');
+}
+
+export async function deleteSubscriber(id: number): Promise<void> {
+  await request(`/admin/subscribers/${id}`, { method: 'DELETE' });
+}
