@@ -134,8 +134,8 @@ Plans:
 
 Plans:
 
-- [ ] 05-01: Contact Form Page + Email Notification (Tracer)
-- [ ] 05-02: Newsletter Subscribe Footer + Admin Theme Settings
+- [x] 05-01: Contact Form Page + Email Notification (Tracer)
+- [x] 05-02: Newsletter Subscribe Footer + Admin Theme Settings
 
 ### Phase 6: Admin Panel (P0)
 
@@ -175,6 +175,6 @@ Plans:
 | 2. Marketing Content Backend | v1.0-alpha | 3/3 | Complete    | 2026-07-26 |
 | 3. Blog System | v1.0-beta | 4/4 | Complete    | 2026-07-26 |
 | 4. Frontend Public Pages | v1.0-beta | 2/2 | ✓ Complete | 2026-07-26 |
-| 5. Contact & Lead Capture | v1.0-rc | — | Not started | - |
+| 5. Contact & Lead Capture | v1.0-rc | 2/2 | ✓ Complete | 2026-07-26 |
 | 6. Admin Panel | v1.0 | — | Not started | - |
 | 7. Lead Management | v1.1 | — | Not started | - |
