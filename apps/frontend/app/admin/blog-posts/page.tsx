@@ -72,6 +72,7 @@ export default function AdminBlogPostsPage() {
   const [featuredImagePreview, setFeaturedImagePreview] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BlogPostData | null>(null);
   const [error, setError] = useState('');
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -210,6 +211,7 @@ export default function AdminBlogPostsPage() {
   async function handleSave() {
     if (!editing) return;
     setSaving(true);
+    setValidationErrors({});
     try {
       const token = getToken();
 
@@ -235,6 +237,15 @@ export default function AdminBlogPostsPage() {
         });
 
         if (res.status === 401) { router.push('/admin/login'); return; }
+        if (res.status === 422) {
+          const err = await res.json();
+          const errors: Record<string, string> = {};
+          for (const field of Object.keys(err.errors || {})) {
+            errors[field] = err.errors[field][0];
+          }
+          setValidationErrors(errors);
+          return;
+        }
         if (!res.ok) { const err = await res.json(); setError(err.message || 'Save failed'); return; }
       } else {
         if (editing.id) {
@@ -245,13 +256,20 @@ export default function AdminBlogPostsPage() {
       }
 
       setEditing(null);
+      setValidationErrors({});
       setLastSavedAt(new Date());
       setHasUnsavedChanges(false);
       await load();
       showToast('Saved.', 'success');
     } catch (e: unknown) {
       if (e instanceof UnauthorizedError) router.push('/admin/login');
-      else setError((e as { message?: string })?.message || 'Save failed');
+      else if ((e as any)?.status === 422) {
+        const errors: Record<string, string> = {};
+        for (const field of Object.keys((e as any).errors || {})) {
+          errors[field] = (e as any).errors[field][0];
+        }
+        setValidationErrors(errors);
+      } else setError((e as { message?: string })?.message || 'Save failed');
     } finally { setSaving(false); }
   }
 
@@ -289,7 +307,12 @@ export default function AdminBlogPostsPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Blog Posts</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Blog Posts</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Create and manage blog content for your public site.
+          </p>
+        </div>
         <Button onClick={openNew}>New Blog Post</Button>
       </div>
 
@@ -423,17 +446,27 @@ export default function AdminBlogPostsPage() {
                 <div className="space-y-2">
                   <Label>Title</Label>
                   <Input
+                    className={validationErrors['title'] ? 'border-red-500' : ''}
                     value={editing.title || ''}
-                    onChange={(e) => handleTitleChange(e.target.value)}
+                    onChange={(e) => {
+                      handleTitleChange(e.target.value);
+                      setValidationErrors((prev) => { const n = { ...prev }; delete n['title']; return n; });
+                    }}
                   />
+                  {validationErrors['title'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['title']}</p>}
                 </div>
 
                 <div className="space-y-2">
                   <Label>Slug</Label>
                   <Input
+                    className={validationErrors['slug'] ? 'border-red-500' : ''}
                     value={editing.slug || ''}
-                    onChange={(e) => handleSlugChange(e.target.value)}
+                    onChange={(e) => {
+                      handleSlugChange(e.target.value);
+                      setValidationErrors((prev) => { const n = { ...prev }; delete n['slug']; return n; });
+                    }}
                   />
+                  {validationErrors['slug'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['slug']}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -442,6 +475,7 @@ export default function AdminBlogPostsPage() {
                     value={editing.content || ''}
                     onChange={handleContentChange}
                   />
+                  {validationErrors['content'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['content']}</p>}
                   <p className="text-xs text-muted-foreground">{readingTime} min read</p>
                 </div>
 
@@ -449,11 +483,15 @@ export default function AdminBlogPostsPage() {
                   <Label htmlFor="excerpt">Excerpt</Label>
                   <textarea
                     id="excerpt"
-                    className="flex h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"
+                    className={`flex h-20 w-full rounded-md border ${validationErrors['excerpt'] ? 'border-red-500' : 'border-input'} bg-transparent px-3 py-2 text-sm shadow-sm`}
                     value={editing.excerpt || ''}
-                    onChange={(e) => handleExcerptChange(e.target.value)}
+                    onChange={(e) => {
+                      handleExcerptChange(e.target.value);
+                      setValidationErrors((prev) => { const n = { ...prev }; delete n['excerpt']; return n; });
+                    }}
                     maxLength={300}
                   />
+                  {validationErrors['excerpt'] && <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{validationErrors['excerpt']}</p>}
                 </div>
 
                 <div className="space-y-2">

@@ -106,7 +106,12 @@ export default function AdminTeamPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Team Members</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Team Members</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage your team members displayed on the public site.
+          </p>
+        </div>
         <Button onClick={() => { setPhotoFile(null); setPhotoPreview(null); setEditing({ name: '', role: '', bio: '', social_links: { linkedin: null, twitter: null } }); setValidationErrors({}); }}>
           New Member
         </Button>
@@ -119,6 +124,7 @@ export default function AdminTeamPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Role</TableHead>
+                <TableHead>Bio</TableHead>
                 <TableHead>Sort</TableHead>
                 <TableHead className="w-32">Actions</TableHead>
               </TableRow>
@@ -127,7 +133,7 @@ export default function AdminTeamPage() {
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 4 }).map((_, j) => (
+                    {Array.from({ length: 5 }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-4 w-full" />
                       </TableCell>
@@ -135,7 +141,7 @@ export default function AdminTeamPage() {
                   </TableRow>
                 ))
               ) : members.length === 0 ? (
-                <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">No team members yet.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No team members yet.</TableCell></TableRow>
               ) : members.map((m, index) => (
                   <TableRow key={m.id}>
                     <TableCell className="font-medium">
@@ -151,6 +157,7 @@ export default function AdminTeamPage() {
                       </div>
                     </TableCell>
                   <TableCell>{m.role}</TableCell>
+                  <TableCell className="text-muted-foreground text-xs line-clamp-1 max-w-[200px]">{m.bio}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <span className="w-4 text-center text-xs">{m.sort_order}</span>

@@ -94,7 +94,12 @@ export default function AdminServicesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Services</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Services</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage your service offerings displayed on the public site.
+          </p>
+        </div>
         <Button onClick={() => { setEditing({ title: '', description: '', icon: 'fa-solid fa-code', is_featured: false }); setValidationErrors({}); }}>
           New Service
         </Button>
@@ -106,6 +111,7 @@ export default function AdminServicesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
+                <TableHead>Description</TableHead>
                 <TableHead>Icon</TableHead>
                 <TableHead>Featured</TableHead>
                 <TableHead>Sort</TableHead>
@@ -116,7 +122,7 @@ export default function AdminServicesPage() {
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 5 }).map((_, j) => (
+                    {Array.from({ length: 6 }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-4 w-full" />
                       </TableCell>
@@ -124,10 +130,11 @@ export default function AdminServicesPage() {
                   </TableRow>
                 ))
               ) : services.length === 0 ? (
-                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No services yet.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No services yet.</TableCell></TableRow>
               ) : services.map((s, index) => (
                 <TableRow key={s.id}>
                   <TableCell className="font-medium">{s.title}</TableCell>
+                  <TableCell className="text-muted-foreground text-xs line-clamp-1 max-w-[200px]">{s.description}</TableCell>
                   <TableCell className="font-mono text-xs">{s.icon}</TableCell>
                   <TableCell>{s.is_featured ? 'Yes' : 'No'}</TableCell>
                   <TableCell>

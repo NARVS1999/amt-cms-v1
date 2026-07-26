@@ -136,7 +136,12 @@ export default function AdminPricingPlansPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Pricing Plans</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Pricing Plans</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage pricing plans and features displayed on the public site.
+          </p>
+        </div>
         <Button onClick={() => { setEditing({ name: '', price: 0, interval: 'monthly', description: '', cta_text: 'Get Started', is_popular: false, is_published: false }); setFeatures([EMPTY_FEATURE()]); setValidationErrors({}); }}>
           New Plan
         </Button>
