@@ -58,7 +58,7 @@ blocked: 0
 ## Gaps
 
 - truth: "Sort order arrows work without errors — moving up/down reorders posts correctly"
-  status: failed
+  status: fixed
   reason: "User reported: there was second to the first but they saying : {\"message\":\"Cannot move up further.\"}"
   severity: major
   test: 3
@@ -72,3 +72,4 @@ blocked: 0
     - "Migration to reset existing posts to sequential sort_order values"
     - "Update swapSortOrder to use <= and handle same sort_order cases"
   plan: 03-05
+  fixed_by: 03-05-SUMMARY.md
