@@ -28,8 +28,9 @@ function sanitizeCssValue(value: string | undefined, fallback: string): string {
 
 function sanitizeFont(value: string | undefined, fallback: string): string {
   const val = value ?? fallback;
-  // Escape single quotes and allow alphanumeric, spaces, hyphens
-  return val.replace(/'/g, "\\'").replace(/[^a-zA-Z\s'-]/g, '') || fallback;
+  // Allow alphanumeric, spaces, hyphens, then escape single quotes
+  // (filter first so the escaping backslash is never stripped)
+  return val.replace(/[^a-zA-Z\s'-]/g, '').replace(/'/g, "\\'") || fallback;
 }
 
 function buildCssVars(theme: ThemeData): string {
