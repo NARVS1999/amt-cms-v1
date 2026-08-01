@@ -109,6 +109,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/media/{media}', [MediaController::class, 'destroy']);
 
     // Admin: Theme Settings
+    Route::get('/admin/theme', [ThemeController::class, 'index']);
     Route::put('/admin/theme', [ThemeController::class, 'update']);
 
     // Admin: Contact Messages

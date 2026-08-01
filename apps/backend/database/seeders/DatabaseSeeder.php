@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
             ThemeSettingSeeder::class,
             ServiceSeeder::class,
             TeamMemberSeeder::class,
+            PricingPlanSeeder::class,
+            BlogPostSeeder::class,
             PageSeeder::class,
         ]);
     }

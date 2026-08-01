@@ -44,6 +44,55 @@ class ThemeTest extends TestCase
     }
 
     // =========================================================================
+    // Admin GET /api/admin/theme
+    // =========================================================================
+
+    /**
+     * Authenticated admin can fetch theme settings.
+     */
+    public function test_admin_can_fetch_theme_settings(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test-token')->plainTextToken;
+
+        ThemeSetting::create([
+            'primary_color' => '#FF0000',
+            'body_font' => 'Inter',
+        ]);
+
+        $response = $this->withToken($token)->getJson('/api/admin/theme');
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.primary_color', '#FF0000');
+        $response->assertJsonPath('data.body_font', 'Inter');
+    }
+
+    /**
+     * Admin GET /api/admin/theme returns empty data when no settings exist.
+     */
+    public function test_admin_get_theme_returns_empty_when_no_settings(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test-token')->plainTextToken;
+
+        $response = $this->withToken($token)->getJson('/api/admin/theme');
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['data' => []]);
+    }
+
+    /**
+     * Unauthenticated request to GET /api/admin/theme returns 401.
+     */
+    public function test_unauthenticated_cannot_fetch_theme(): void
+    {
+        $response = $this->getJson('/api/admin/theme');
+
+        $response->assertStatus(401);
+        $response->assertJson(['message' => 'Unauthenticated.']);
+    }
+
+    // =========================================================================
     // Admin PUT /api/admin/theme
     // =========================================================================
 

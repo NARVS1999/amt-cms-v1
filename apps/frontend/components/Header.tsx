@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { usePathname } from 'next/navigation';
+
+const HASH_ITEMS = ['#services', '#about', '#pricing', '#contact'];
 
 const NAV_ITEMS = [
   { label: 'Home', href: '/' },
@@ -15,6 +18,18 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+
+  const resolveHref = useCallback(
+    (href: string) => {
+      if (HASH_ITEMS.includes(href)) {
+        return isHome ? href : `/${href}`;
+      }
+      return href;
+    },
+    [isHome],
+  );
 
   const toggleMobile = useCallback(() => {
     setMobileOpen((prev) => !prev);
@@ -106,7 +121,7 @@ export function Header() {
           {NAV_ITEMS.map((item) => (
             <li key={item.label}>
               <a
-                href={item.href}
+                href={resolveHref(item.href)}
                 className="text-sm font-medium transition-colors hover:opacity-80"
                 style={{ color: 'var(--color-foreground)' }}
               >
@@ -181,7 +196,7 @@ export function Header() {
           {NAV_ITEMS.map((item) => (
             <li key={item.label}>
               <a
-                href={item.href}
+                href={resolveHref(item.href)}
                 className="text-lg font-medium transition-colors hover:opacity-80"
                 style={{ color: 'var(--color-foreground)' }}
                 onClick={closeMobile}

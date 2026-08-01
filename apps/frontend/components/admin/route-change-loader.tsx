@@ -12,7 +12,7 @@ export function RouteChangeLoader({ children }: { children: React.ReactNode }) {
     if (prevPath.current !== pathname) {
       prevPath.current = pathname;
       setVisible(true);
-      const timer = setTimeout(() => setVisible(false), 400);
+      const timer = setTimeout(() => setVisible(false), 150);
       return () => clearTimeout(timer);
     }
   }, [pathname]);

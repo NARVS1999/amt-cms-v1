@@ -27,8 +27,9 @@ test.describe('Admin Login', () => {
 
     await page.getByRole('link', { name: /forgot password/i }).click();
 
+    // Dev-mode first compile of the target route can exceed the default 5s timeout
+    await expect(page.getByRole('heading', { name: /forgot password/i })).toBeVisible({ timeout: 15000 });
     await expect(page).toHaveURL(/\/admin\/forgot-password/);
-    await expect(page.getByRole('heading', { name: /forgot password/i })).toBeVisible();
   });
 
   test('forgot password page renders email form', async ({ page }) => {

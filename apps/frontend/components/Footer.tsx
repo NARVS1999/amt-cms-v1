@@ -1,8 +1,11 @@
 'use client';
 
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { usePathname } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
+const HASH_ITEMS = ['#home', '#about', '#services', '#contact'];
 
 export function Footer() {
   const [email, setEmail] = useState('');
@@ -10,6 +13,18 @@ export function Footer() {
   const [success, setSuccess] = useState(false);
   const [duplicate, setDuplicate] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+
+  const resolveHref = useCallback(
+    (href: string) => {
+      if (HASH_ITEMS.includes(href)) {
+        return isHome ? href : `/${href}`;
+      }
+      return href;
+    },
+    [isHome],
+  );
 
   // Auto-dismiss feedback after 5 seconds
   useEffect(() => {
@@ -93,10 +108,10 @@ export function Footer() {
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-widest text-white">Quick Links</h3>
             <ul className="space-y-3">
-              <li><a href="#home" className="text-sm transition-colors hover:text-white">Home</a></li>
-              <li><a href="#about" className="text-sm transition-colors hover:text-white">About</a></li>
+              <li><a href={resolveHref('#home')} className="text-sm transition-colors hover:text-white">Home</a></li>
+              <li><a href={resolveHref('#about')} className="text-sm transition-colors hover:text-white">About</a></li>
               <li><a href="/blog" className="text-sm transition-colors hover:text-white">Blog</a></li>
-              <li><a href="#contact" className="text-sm transition-colors hover:text-white">Contact</a></li>
+              <li><a href={resolveHref('#contact')} className="text-sm transition-colors hover:text-white">Contact</a></li>
             </ul>
           </div>
 
@@ -104,10 +119,10 @@ export function Footer() {
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-widest text-white">Services</h3>
             <ul className="space-y-3">
-              <li><a href="#services" className="text-sm transition-colors hover:text-white">Web Development</a></li>
-              <li><a href="#services" className="text-sm transition-colors hover:text-white">UI/UX Design</a></li>
-              <li><a href="#services" className="text-sm transition-colors hover:text-white">SEO Optimization</a></li>
-              <li><a href="#services" className="text-sm transition-colors hover:text-white">Digital Marketing</a></li>
+              <li><a href={resolveHref('#services')} className="text-sm transition-colors hover:text-white">Web Development</a></li>
+              <li><a href={resolveHref('#services')} className="text-sm transition-colors hover:text-white">UI/UX Design</a></li>
+              <li><a href={resolveHref('#services')} className="text-sm transition-colors hover:text-white">SEO Optimization</a></li>
+              <li><a href={resolveHref('#services')} className="text-sm transition-colors hover:text-white">Digital Marketing</a></li>
             </ul>
           </div>
 
@@ -115,7 +130,7 @@ export function Footer() {
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-widest text-white">Support</h3>
             <ul className="space-y-3">
-              <li><a href="#contact" className="text-sm transition-colors hover:text-white">Contact Us</a></li>
+              <li><a href={resolveHref('#contact')} className="text-sm transition-colors hover:text-white">Contact Us</a></li>
               <li><span className="text-sm cursor-not-allowed opacity-50" aria-disabled="true">FAQ</span></li>
               <li><span className="text-sm cursor-not-allowed opacity-50" aria-disabled="true">Privacy Policy</span></li>
               <li><span className="text-sm cursor-not-allowed opacity-50" aria-disabled="true">Terms of Service</span></li>

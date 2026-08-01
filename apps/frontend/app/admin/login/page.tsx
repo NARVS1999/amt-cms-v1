@@ -104,6 +104,11 @@ export default function AdminLoginPage() {
             </Button>
           </form>
         </CardContent>
+        <div className="px-6 pb-6 pt-2 text-center">
+          <Link href="/" className="text-sm text-muted-foreground hover:underline">
+            ← Back to home
+          </Link>
+        </div>
       </Card>
     </div>
   );

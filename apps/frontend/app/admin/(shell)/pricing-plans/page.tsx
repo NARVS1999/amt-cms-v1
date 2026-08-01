@@ -177,7 +177,7 @@ export default function AdminPricingPlansPage() {
               ) : plans.map((p, index) => (
                 <TableRow key={p.id}>
                   <TableCell className="font-medium">{p.name}</TableCell>
-                  <TableCell>${p.price.toFixed(2)}</TableCell>
+                  <TableCell>₱{p.price.toFixed(2)}</TableCell>
                   <TableCell className="text-xs capitalize">{p.interval}</TableCell>
                   <TableCell>{p.is_popular ? <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">Most Popular</span> : '-'}</TableCell>
                   <TableCell>
