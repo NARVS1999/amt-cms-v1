@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { loginAsAdmin } from './helpers/auth';
 
 const subscriber = {
   id: 1,
@@ -23,11 +24,7 @@ test.describe('Admin Subscribers Page — Phase 7', () => {
       }
     });
 
-    await page.goto('/admin/login');
-    await page.getByLabel(/email/i).fill('admin@example.com');
-    await page.getByLabel(/password/i).fill('password');
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
+    await loginAsAdmin(page);
   });
 
   test('renders subscribers table with emails', async ({ page }) => {

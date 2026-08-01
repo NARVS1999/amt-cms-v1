@@ -1,12 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { loginAsAdmin } from './helpers/auth';
 
 test.describe('Media Page — Toast Integration', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/admin/login');
-    await page.getByLabel(/email/i).fill('admin@example.com');
-    await page.getByLabel(/password/i).fill('password');
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
+    await loginAsAdmin(page);
   });
 
   test('shows upload button and heading', async ({ page }) => {

@@ -7,12 +7,16 @@ import { Label } from '@/components/ui/label';
 import { login, setToken } from '@/lib/admin-api';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // Uncontrolled inputs (defaultValue + refs): values typed/filled before
+  // hydration are never reconciled away by React state, which previously
+  // wiped Playwright fill() values and caused empty-form 422 submissions
+  // (see .planning/debug/playwright-login-empty-fields.md).
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,7 +28,7 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const data = await login(email, password, remember);
+      const data = await login(emailRef.current?.value ?? '', passwordRef.current?.value ?? '', remember);
       setToken(data.token);
       router.push('/admin');
     } catch (err: any) {
@@ -61,8 +65,8 @@ export default function AdminLoginPage() {
               <Input
                 id="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                ref={emailRef}
+                defaultValue=""
                 autoComplete="email"
                 required
                 aria-describedby={error ? errorId : undefined}
@@ -73,8 +77,8 @@ export default function AdminLoginPage() {
               <Input
                 id="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                ref={passwordRef}
+                defaultValue=""
                 autoComplete="current-password"
                 required
                 aria-describedby={error ? errorId : undefined}

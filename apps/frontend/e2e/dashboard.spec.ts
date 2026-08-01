@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { loginAsAdmin } from './helpers/auth';
 
 test.describe('Admin Dashboard', () => {
   test('redirects to login when unauthenticated', async ({ page }) => {
@@ -8,32 +9,16 @@ test.describe('Admin Dashboard', () => {
   });
 
   test('shows loading skeleton while fetching stats', async ({ page }) => {
-    await page.goto('/admin/login');
-
-    await page.getByLabel(/email/i).fill('admin@example.com');
-    await page.getByLabel(/password/i).fill('password');
-    await page.getByRole('button', { name: /sign in/i }).click();
-
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
+    await loginAsAdmin(page);
   });
 
   test('shows dashboard heading after login', async ({ page }) => {
-    await page.goto('/admin/login');
-
-    await page.getByLabel(/email/i).fill('admin@example.com');
-    await page.getByLabel(/password/i).fill('password');
-    await page.getByRole('button', { name: /sign in/i }).click();
-
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
+    await loginAsAdmin(page);
     await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 20000 });
   });
 
   test('shows stat cards on dashboard after loading', async ({ page }) => {
-    await page.goto('/admin/login');
-    await page.getByLabel(/email/i).fill('admin@example.com');
-    await page.getByLabel(/password/i).fill('password');
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
+    await loginAsAdmin(page);
     await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 20000 });
 
     await page.route(/\/api\/admin\/stats/, async (route) => {

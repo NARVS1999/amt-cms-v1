@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { loginAsAdmin } from './helpers/auth';
 
 test.describe('RouteChangeLoader', () => {
   test('navigation and overlay behaviors', async ({ page }) => {
@@ -9,11 +10,7 @@ test.describe('RouteChangeLoader', () => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: [] }) });
     });
 
-    await page.goto('/admin/login');
-    await page.getByLabel(/email/i).fill('admin@example.com');
-    await page.getByLabel(/password/i).fill('password');
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 15000 });
+    await loginAsAdmin(page);
 
     await page.goto('/admin/dashboard');
     await page.getByRole('link', { name: 'Services', exact: true }).click();

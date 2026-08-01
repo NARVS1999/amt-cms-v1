@@ -1,12 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { loginAsAdmin } from './helpers/auth';
 
 test.describe('Admin Pages Page — Phase 2 Features', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/admin/login');
-    await page.getByLabel(/email/i).fill('admin@example.com');
-    await page.getByLabel(/password/i).fill('password');
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL(/\/admin\/(?!login)/, { timeout: 20000 });
+    await loginAsAdmin(page);
   });
 
   test('shows empty state when no pages exist', async ({ page }) => {
@@ -101,7 +98,7 @@ test.describe('Admin Pages Page — Phase 2 Features', () => {
       }
     });
     await page.goto('/admin/pages');
-    await expect(page.getByText('Page A')).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Page A' })).toBeVisible();
 
     const moveDownButtons = page.getByLabel('Move down');
     await moveDownButtons.first().click();
