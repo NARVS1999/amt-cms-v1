@@ -5,7 +5,9 @@ test.describe('Contact Form — Phase 5', () => {
     await page.goto('/contact');
   });
 
-  test('does not submit when required fields are empty (native validation)', async ({ page }) => {
+  // Zod validation: with noValidate on the form, ContactRequestSchema.safeParse
+  // rejects empty fields before fetch is called — apiCalled stays false.
+  test('does not submit when required fields are empty (Zod validation)', async ({ page }) => {
     let apiCalled = false;
     await page.route(/\/api\/contact/, async (route) => {
       apiCalled = true;
@@ -18,7 +20,9 @@ test.describe('Contact Form — Phase 5', () => {
     await expect(page.getByText(/thank you/i)).not.toBeVisible();
   });
 
-  test('does not submit with invalid email (native type=email validation)', async ({ page }) => {
+  // Zod validation: the invalid email is rejected by ContactRequestSchema.safeParse
+  // before fetch is called — apiCalled stays false (no native type=email tooltip).
+  test('does not submit with invalid email (Zod validation)', async ({ page }) => {
     let apiCalled = false;
     await page.route(/\/api\/contact/, async (route) => {
       apiCalled = true;

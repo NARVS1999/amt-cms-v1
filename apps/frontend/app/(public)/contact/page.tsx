@@ -130,7 +130,8 @@ export default function ContactPage() {
 
         <div className="mt-12 grid grid-cols-1 gap-12 md:grid-cols-2">
           {/* Contact Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {/* noValidate: Zod inline errors are the single visible client validation path */}
+          <form onSubmit={handleSubmit} noValidate className="space-y-6">
             <div>
               <label
                 htmlFor="name"
@@ -146,6 +147,8 @@ export default function ContactPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your Name"
                 required
+                aria-invalid={Boolean(validationErrors.name)}
+                aria-describedby={validationErrors.name ? 'name-error' : undefined}
                 className="w-full rounded-lg border px-4 py-3 text-base outline-none transition-colors focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10"
                 style={{
                   background: 'var(--color-muted)',
@@ -154,7 +157,7 @@ export default function ContactPage() {
                 }}
               />
               {validationErrors.name && (
-                <p className="mt-1 text-sm" style={{ color: 'var(--color-error)' }}>
+                <p id="name-error" className="mt-1 text-sm" style={{ color: 'var(--color-error)' }}>
                   {validationErrors.name}
                 </p>
               )}
@@ -175,6 +178,8 @@ export default function ContactPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your Email"
                 required
+                aria-invalid={Boolean(validationErrors.email)}
+                aria-describedby={validationErrors.email ? 'email-error' : undefined}
                 className="w-full rounded-lg border px-4 py-3 text-base outline-none transition-colors focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10"
                 style={{
                   background: 'var(--color-muted)',
@@ -183,7 +188,7 @@ export default function ContactPage() {
                 }}
               />
               {validationErrors.email && (
-                <p className="mt-1 text-sm" style={{ color: 'var(--color-error)' }}>
+                <p id="email-error" className="mt-1 text-sm" style={{ color: 'var(--color-error)' }}>
                   {validationErrors.email}
                 </p>
               )}
@@ -203,6 +208,8 @@ export default function ContactPage() {
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Tell us about your project..."
                 required
+                aria-invalid={Boolean(validationErrors.message)}
+                aria-describedby={validationErrors.message ? 'message-error' : undefined}
                 rows={6}
                 className="w-full resize-vertical rounded-lg border px-4 py-3 text-base outline-none transition-colors focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10"
                 style={{
@@ -212,7 +219,7 @@ export default function ContactPage() {
                 }}
               />
               {validationErrors.message && (
-                <p className="mt-1 text-sm" style={{ color: 'var(--color-error)' }}>
+                <p id="message-error" className="mt-1 text-sm" style={{ color: 'var(--color-error)' }}>
                   {validationErrors.message}
                 </p>
               )}
